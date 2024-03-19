@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "Note App"
 include(":app")
- 
+include(":common-ui")
+include(":notes:notes-data")
+include(":notes:notes-ui")
+include(":notes:notes-domain")
+include(":home:home-ui")
+include(":home:home-domain")
+include(":home:home-data")
