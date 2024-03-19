@@ -79,6 +79,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coreRaamcostaDestinations)
+    implementation(libs.animationsRaamcostaDestinations)
     ksp(libs.kspRaamcostaDestinations)
-    notes()
+    uiModules()
 }

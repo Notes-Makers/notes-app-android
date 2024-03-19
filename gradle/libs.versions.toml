@@ -30,6 +30,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 kspRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "raamcostaDestinations" }
 coreRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "raamcostaDestinations" }
+animationsRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "raamcostaDestinations" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
