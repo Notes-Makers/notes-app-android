@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -45,9 +44,9 @@ fun SearchBar(
     hint: String,
     modifier: Modifier = Modifier,
     isEnabled: (Boolean) = true,
-    height: Dp =  40.dp,
-    elevation: Dp =  3.dp,
-    cornerShape: Shape = RoundedCornerShape( 8.dp),
+    height: Dp = 40.dp,
+    elevation: Dp = 3.dp,
+    cornerShape: Shape = RoundedCornerShape(8.dp),
     backgroundColor: Color = Color.White,
     onSearchClicked: () -> Unit = {},
     onTextChange: (String) -> Unit = {},
