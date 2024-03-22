@@ -1,10 +1,10 @@
 plugins {
     alias(libs.plugins.common.android.library)
+    alias(libs.plugins.common.android.library.compose)
 }
 
 android {
-    namespace = "com.notesmakers.home_data"
-
+    namespace = "com.notesmakers.core"
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -17,6 +17,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -1,7 +1,6 @@
 package com.notesmakers.noteapp.navigation
 
 import com.notesmakers.home_ui.destinations.HomeScreenDestination
-import com.notesmakers.notes_ui.destinations.TestScreenDestination
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 
 object NavGraphs {
@@ -13,7 +12,6 @@ object NavGraphs {
 
         override val destinationsByRoute = listOf(
             HomeScreenDestination,
-            TestScreenDestination,
         ).associateBy { it.route }
     }
 }

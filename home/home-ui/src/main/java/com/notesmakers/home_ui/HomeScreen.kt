@@ -42,9 +42,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.notesmakers.common_ui.buttons.BaseIconButton
+import com.notesmakers.common_ui.animations.getEnterScrollTransition
+import com.notesmakers.common_ui.animations.getExitScrollTransition
+import com.notesmakers.common_ui.composables.buttons.BaseIconButton
 import com.notesmakers.common_ui.composables.ChipItem
-import com.notesmakers.common_ui.inputs.SearchBar
+import com.notesmakers.common_ui.composables.inputs.SearchBar
 import com.notesmakers.home_ui.composables.BaseTopAppBar
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
@@ -110,8 +112,8 @@ private fun NoteGridLayout(
                 )
             }
         }
-        isCategoryVisible.takeIf { it }?.let {
-            item(span = StaggeredGridItemSpan.FullLine) {
+        item(span = StaggeredGridItemSpan.FullLine) {
+            AnimatedVisibility(visible = isCategoryVisible) {
                 FlowRow(modifier = Modifier.padding(8.dp)) {
                     ChipItem("Price: High to Low")
                     ChipItem("Avg rating: 4+")
@@ -179,12 +181,8 @@ private fun ScrollToTopButton(
     AnimatedVisibility(
         visible = showButton,
         modifier = modifier,
-        enter = slideInVertically(
-            initialOffsetY = { -it }
-        ) + fadeIn(initialAlpha = 0.3f),
-        exit = slideOutVertically(
-            targetOffsetY = { -it }
-        ) + fadeOut()
+        enter = getEnterScrollTransition(),
+        exit = getExitScrollTransition(),
     ) {
         BaseIconButton(
             painterResource = R.drawable.expand_less,

@@ -13,6 +13,7 @@ raamcostaDestinations = "1.10.2"
 appcompat = "1.6.1"
 material = "1.11.0"
 
+kotlinCompilerExtension = "1.5.10"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -33,9 +34,17 @@ coreRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations
 animationsRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "raamcostaDestinations" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 googleDevtoolsKsp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+
+# custom plugins defined
+common-android-library-compose = { id = "gradlePlugins.android.library.compose", version = "unspecified" }
+common-android-application-compose = { id = "gradlePlugins.android.application.compose", version = "unspecified" }
+common-android-application = { id = "gradlePlugins.android.application", version = "unspecified" }
+common-android-library = { id = "gradlePlugins.android.library", version = "unspecified" }

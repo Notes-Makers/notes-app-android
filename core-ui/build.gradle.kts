@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.common.android.library)
+    alias(libs.plugins.common.android.library.compose)
 }
 
 android {
-    namespace = "com.notesmakers.home_data"
+    namespace = "com.notesmakers.common_ui"
 
     buildTypes {
         release {
@@ -19,8 +20,9 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 }

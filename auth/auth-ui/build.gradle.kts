@@ -1,11 +1,10 @@
 plugins {
-    alias(libs.plugins.common.android.application)
-    alias(libs.plugins.common.android.application.compose)
+    alias(libs.plugins.common.android.library)
+    alias(libs.plugins.common.android.library.compose)
     alias(libs.plugins.googleDevtoolsKsp)
 }
-
 android {
-    namespace = "com.notesmakers.noteapp"
+    namespace = "com.notesmakers.auth_ui"
 
     buildTypes {
         release {
@@ -16,12 +15,8 @@ android {
             )
         }
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    applicationVariants.all {
+
+    libraryVariants.all {
         val variant = this
         kotlin.sourceSets {
             getByName(variant.name) {
@@ -31,22 +26,23 @@ android {
     }
     ksp {
         arg("compose-destinations.mode", "destinations")
-        arg("compose-destinations.moduleName", "app")
+        arg("compose-destinations.moduleName", "auth")
     }
 }
 
+
 dependencies {
-    implementation(project(":home:home-ui"))
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+
     implementation(libs.coreRaamcostaDestinations)
-    implementation(libs.animationsRaamcostaDestinations)
     ksp(libs.kspRaamcostaDestinations)
 }

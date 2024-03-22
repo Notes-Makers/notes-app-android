@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,10 +22,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "Note App"
 include(":app")
-include(":common-ui")
-include(":notes:notes-data")
-include(":notes:notes-ui")
-include(":notes:notes-domain")
+include(":core-ui")
 include(":home:home-ui")
 include(":home:home-domain")
 include(":home:home-data")
+include(":auth:auth-ui")
+include(":core")
