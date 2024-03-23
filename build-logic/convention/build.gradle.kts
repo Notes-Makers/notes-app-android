@@ -5,6 +5,7 @@ plugins {
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
+    compileOnly(libs.ksp.gradlePlugin)
 }
 
 
@@ -25,6 +26,10 @@ gradlePlugin {
         register("androidLibraryConventionPlugin") {
             id = "gradlePlugins.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("androidLibraryNavigationConventionPlugin") {
+            id = "gradlePlugins.android.library.navigation"
+            implementationClass = "AndroidLibraryNavigationConventionPlugin"
         }
     }
 }

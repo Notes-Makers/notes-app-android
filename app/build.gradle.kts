@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(libs.coreRaamcostaDestinations)
-    implementation(libs.animationsRaamcostaDestinations)
-    ksp(libs.kspRaamcostaDestinations)
+    implementation(libs.raamcosta.destinations.core)
+    implementation(libs.raamcosta.destinations.animations)
+    ksp(libs.raamcosta.destinations.ksp)
 }

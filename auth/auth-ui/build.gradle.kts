@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.common.android.library)
     alias(libs.plugins.common.android.library.compose)
     alias(libs.plugins.googleDevtoolsKsp)
+    alias(libs.plugins.common.android.library.navigation)
 }
 android {
     namespace = "com.notesmakers.auth_ui"
@@ -13,15 +14,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-    }
-
-    libraryVariants.all {
-        val variant = this
-        kotlin.sourceSets {
-            getByName(variant.name) {
-                kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
-            }
         }
     }
     ksp {
@@ -41,8 +33,4 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-
-    implementation(libs.coreRaamcostaDestinations)
-    ksp(libs.kspRaamcostaDestinations)
 }

@@ -29,13 +29,14 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-kspRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "raamcostaDestinations" }
-coreRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "raamcostaDestinations" }
-animationsRaamcostaDestinations = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "raamcostaDestinations" }
+raamcosta-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "raamcostaDestinations" }
+raamcosta-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "raamcostaDestinations" }
+raamcosta-destinations-animations = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "raamcostaDestinations" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin={ group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "kspVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -48,3 +49,4 @@ common-android-library-compose = { id = "gradlePlugins.android.library.compose",
 common-android-application-compose = { id = "gradlePlugins.android.application.compose", version = "unspecified" }
 common-android-application = { id = "gradlePlugins.android.application", version = "unspecified" }
 common-android-library = { id = "gradlePlugins.android.library", version = "unspecified" }
+common-android-library-navigation = { id = "gradlePlugins.android.library.navigation", version = "unspecified" }
