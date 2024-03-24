@@ -12,8 +12,8 @@ import androidx.compose.ui.res.painterResource
 
 @Composable
 fun BaseIconButton(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     @DrawableRes painterResource: Int,
     tint: Color = LocalContentColor.current,
 ) {
@@ -29,8 +29,8 @@ fun BaseIconButton(
 
 @Composable
 fun BaseIconButton(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     imageVector: ImageVector,
     tint: Color = LocalContentColor.current,
 ) {

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.common.android.library.compose)
     alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.common.android.library.navigation)
+    alias(libs.plugins.common.android.library.koin)
 }
 android {
     namespace = "com.notesmakers.home_ui"

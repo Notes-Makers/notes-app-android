@@ -31,5 +31,17 @@ gradlePlugin {
             id = "gradlePlugins.android.library.navigation"
             implementationClass = "AndroidLibraryNavigationConventionPlugin"
         }
+        register("androidApplicationNavigationConventionPlugin") {
+            id = "gradlePlugins.android.application.navigation"
+            implementationClass = "AndroidApplicationNavigationConventionPlugin"
+        }
+        register("androidLibraryKoinConventionPlugin") {
+            id = "gradlePlugins.android.library.koin"
+            implementationClass = "AndroidLibraryKoinConventionPlugin"
+        }
+        register("androidApplicationKoinConventionPlugin") {
+            id = "gradlePlugins.android.application.koin"
+            implementationClass = "AndroidApplicationKoinConventionPlugin"
+        }
     }
 }

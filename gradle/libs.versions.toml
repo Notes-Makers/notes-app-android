@@ -12,6 +12,8 @@ kspVersion = "1.9.22-1.0.17"
 raamcostaDestinations = "1.10.2"
 appcompat = "1.6.1"
 material = "1.11.0"
+koinVersion = "3.3.2"
+koinKsp = "1.3.1"
 
 kotlinCompilerExtension = "1.5.10"
 [libraries]
@@ -31,6 +33,10 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 raamcosta-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "raamcostaDestinations" }
 raamcosta-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "raamcostaDestinations" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinVersion" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinVersion" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koinKsp" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koinKsp" }
 raamcosta-destinations-animations = { module = "io.github.raamcosta.compose-destinations:animations-core", version.ref = "raamcostaDestinations" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
@@ -48,5 +54,8 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 common-android-library-compose = { id = "gradlePlugins.android.library.compose", version = "unspecified" }
 common-android-application-compose = { id = "gradlePlugins.android.application.compose", version = "unspecified" }
 common-android-application = { id = "gradlePlugins.android.application", version = "unspecified" }
+common-android-application-navigation = { id = "gradlePlugins.android.application.navigation", version = "unspecified" }
 common-android-library = { id = "gradlePlugins.android.library", version = "unspecified" }
 common-android-library-navigation = { id = "gradlePlugins.android.library.navigation", version = "unspecified" }
+common-android-application-koin = { id = "gradlePlugins.android.application.koin", version = "unspecified" }
+common-android-library-koin = { id = "gradlePlugins.android.library.koin", version = "unspecified" }
