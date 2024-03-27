@@ -23,11 +23,15 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-ui"))
+//    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation(project(":core:ui"))
+    implementation(project(":core:database"))
+    implementation(project(":home:home-domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("io.insert-koin:koin-androidx-compose:3.4.1")
 }

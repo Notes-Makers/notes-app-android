@@ -1,8 +1,11 @@
 package com.notesmakers.noteapp
 
 import android.app.Application
+import com.notesmakers.database.di.DatabaseModule
+//import com.notesmakers.database.di.DatabaseModule
 import com.notesmakers.noteapp.di.AppModule
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.ksp.generated.module
 
 class NoteApp : Application() {
@@ -14,7 +17,10 @@ class NoteApp : Application() {
     private fun startKoin() {
         org.koin.core.context.startKoin {
             androidContext(this@NoteApp)
-            modules(AppModule().module)
+            modules(
+                AppModule().module,
+                DatabaseModule().module
+            )
         }
     }
 }

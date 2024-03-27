@@ -8,6 +8,6 @@ import org.koin.core.annotation.Single
 @ComponentScan("com.notesmakers.noteapp")
 class AppModule {
 
-    @Single
-    fun provideString(): String = "DUPA"
+
+
 }

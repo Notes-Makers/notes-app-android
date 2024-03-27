@@ -1,10 +1,6 @@
 package com.notesmakers.home_ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +19,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -42,18 +41,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notesmakers.common_ui.animations.getEnterScrollTransition
 import com.notesmakers.common_ui.animations.getExitScrollTransition
 import com.notesmakers.common_ui.composables.buttons.BaseIconButton
 import com.notesmakers.common_ui.composables.ChipItem
 import com.notesmakers.common_ui.composables.inputs.SearchBar
-import com.notesmakers.home_ui.composables.BaseTopAppBar
+import com.notesmakers.database.data.models.Note
+import com.notesmakers.home_ui.components.BaseTopAppBar
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Destination
 @Composable
-fun HomeScreen() {
+fun  (
+    viewModel: HomeViewModel = koinViewModel(),
+) {
     Scaffold(
         topBar = {
             BaseTopAppBar(
@@ -61,12 +65,16 @@ fun HomeScreen() {
             )
         },
     ) { innerPadding ->
-        HomeScreen(innerPadding)
+        HomeScreen(
+            innerPadding = innerPadding,
+//            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
+//            addNote = { viewModel.addNote() }
+        )
     }
 }
 
 @Composable
-private fun HomeScreen(innerPadding: PaddingValues) {
+private fun HomeScreen(innerPadding: PaddingValues){//, notes: List<Note>, addNote: () -> Unit) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
         derivedStateOf {
@@ -80,6 +88,10 @@ private fun HomeScreen(innerPadding: PaddingValues) {
             showButton = showButton,
             listState = listState,
         )
+//        BaseIconButton(onClick = addNote, imageVector = Icons.Default.Add)
+//        notes.forEach {
+//            Text(text = "$it tekst")
+//        }
     }
 }
 

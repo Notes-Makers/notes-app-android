@@ -9,7 +9,7 @@ object NavGraphs {
     val main = object : NavGraphSpec {
         override val route = "main"
 
-        override val startRoute = LoginScreenDestination
+        override val startRoute = HomeScreenDestination
 
         override val destinationsByRoute = listOf(
             HomeScreenDestination,

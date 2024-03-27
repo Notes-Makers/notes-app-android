@@ -1,4 +1,4 @@
-package com.notesmakers.home_ui.composables
+package com.notesmakers.home_ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

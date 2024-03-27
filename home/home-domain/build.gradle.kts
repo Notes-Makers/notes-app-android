@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.common.android.library)
+    alias(libs.plugins.googleDevtoolsKsp)
+    alias(libs.plugins.common.android.library.koin)
 }
 
 android {
@@ -17,7 +19,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":core:database"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
