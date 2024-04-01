@@ -11,8 +11,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.notesmakers.common_ui.composables.buttons.BaseIconButton
-import com.notesmakers.common_ui.composables.menu.BaseDropdownMenu
+import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.composables.menu.BaseDropdownMenu
 import com.notesmakers.home_ui.R
 
 @OptIn(ExperimentalMaterial3Api::class)

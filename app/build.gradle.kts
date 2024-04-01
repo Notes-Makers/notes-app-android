@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":home:home-ui"))
     implementation(project(":auth:auth-ui"))
+    implementation(project(":notes:notes-ui"))
     implementation(project(":core:ui"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

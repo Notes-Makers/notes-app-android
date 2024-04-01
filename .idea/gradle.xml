@@ -35,6 +35,8 @@
             <option value="$PROJECT_DIR$/home/home-data" />
             <option value="$PROJECT_DIR$/home/home-domain" />
             <option value="$PROJECT_DIR$/home/home-ui" />
+            <option value="$PROJECT_DIR$/notes" />
+            <option value="$PROJECT_DIR$/notes/notes-ui" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

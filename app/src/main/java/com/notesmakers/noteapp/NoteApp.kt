@@ -2,6 +2,7 @@ package com.notesmakers.noteapp
 
 import android.app.Application
 import com.notesmakers.database.di.DatabaseModule
+import com.notesmakers.home_ui.di.homeModule
 //import com.notesmakers.database.di.DatabaseModule
 import com.notesmakers.noteapp.di.AppModule
 import org.koin.android.ext.koin.androidContext
@@ -19,7 +20,8 @@ class NoteApp : Application() {
             androidContext(this@NoteApp)
             modules(
                 AppModule().module,
-                DatabaseModule().module
+                DatabaseModule().module,
+                homeModule,
             )
         }
     }

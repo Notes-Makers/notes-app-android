@@ -6,7 +6,9 @@ plugins {
     alias(libs.plugins.common.android.library.koin)
 }
 android {
-    namespace = "com.notesmakers.home_ui"
+    namespace = "com.notesmakers.ui"
+
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -18,15 +20,13 @@ android {
     }
     ksp {
         arg("compose-destinations.mode", "destinations")
-        arg("compose-destinations.moduleName", "home")
+        arg("compose-destinations.moduleName", "note")
     }
 }
 
 dependencies {
-    implementation(project(":auth:auth-ui"))
     implementation(project(":core:ui"))
     implementation(project(":core:database"))
-    implementation(project(":home:home-domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.compose)

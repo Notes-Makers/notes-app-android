@@ -19,9 +19,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,27 +38,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.notesmakers.common_ui.animations.getEnterScrollTransition
-import com.notesmakers.common_ui.animations.getExitScrollTransition
-import com.notesmakers.common_ui.composables.buttons.BaseIconButton
-import com.notesmakers.common_ui.composables.ChipItem
-import com.notesmakers.common_ui.composables.inputs.SearchBar
-import com.notesmakers.database.data.models.Note
+import com.notesmakers.auth_ui.login.goToLoginScreenDestination
+import com.notesmakers.ui.animations.getEnterScrollTransition
+import com.notesmakers.ui.animations.getExitScrollTransition
+import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.composables.ChipItem
+import com.notesmakers.ui.composables.inputs.SearchBar
 import com.notesmakers.home_ui.components.BaseTopAppBar
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Destination
 @Composable
-fun  (
+fun HomeScreen(
+    navigator: DestinationsNavigator,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     Scaffold(
         topBar = {
             BaseTopAppBar(
-                accountIconAction = {},
+                accountIconAction = {
+                    navigator.goToLoginScreenDestination()
+                },
             )
         },
     ) { innerPadding ->
@@ -74,7 +74,7 @@ fun  (
 }
 
 @Composable
-private fun HomeScreen(innerPadding: PaddingValues){//, notes: List<Note>, addNote: () -> Unit) {
+private fun HomeScreen(innerPadding: PaddingValues) {//, notes: List<Note>, addNote: () -> Unit) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
         derivedStateOf {
@@ -82,7 +82,7 @@ private fun HomeScreen(innerPadding: PaddingValues){//, notes: List<Note>, addNo
         }
     }
     Box {
-        NoteGridLayout(listState, innerPadding)
+        NoteGridLayout(listState = listState, innerPadding = innerPadding)
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
             showButton = showButton,
@@ -241,14 +241,17 @@ private fun ItemNote(
             fontWeight = FontWeight.Light,
             overflow = TextOverflow.Ellipsis
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = categoryContent,
-                fontSize = 12.sp,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+//            Text(
+//                text = categoryContent,
+//                fontSize = 12.sp,
+//                modifier = Modifier.weight(1f),
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis
+//            )
             Text(text = dateTime, fontSize = 12.sp)
         }
     }
