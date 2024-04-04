@@ -23,7 +23,7 @@ fun DrawScope.drawToolTrace(path: Path, pathProperties: PathProperties) {
         )
     } else {
         drawPath(
-            color = pathProperties.color, path = path, style = Stroke(
+            color = pathProperties.color.copy(alpha = pathProperties.alpha), path = path, style = Stroke(
                 width = pathProperties.strokeWidth,
                 cap = pathProperties.strokeCap,
                 join = pathProperties.strokeJoin

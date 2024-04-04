@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 
 class PathProperties(
     var strokeWidth: Float = 5f,
-    var color: Color = Color.Black,
+    var color: Color = Color(0xFF3B82F6),
     var alpha: Float = 1f,
     var strokeCap: StrokeCap = StrokeCap.Round,
     var strokeJoin: StrokeJoin = StrokeJoin.Round,

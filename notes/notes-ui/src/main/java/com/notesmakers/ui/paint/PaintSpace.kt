@@ -1,18 +1,15 @@
 package com.notesmakers.ui.paint
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -24,20 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import com.notesmakers.ui.Sample.DrawMode
-import com.notesmakers.ui.composables.ChipItem
-import com.notesmakers.ui.composables.SelectedChipItem
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
+import com.notesmakers.ui.paint.menu.PropertiesMenu
 import com.notesmakers.ui.paint.models.MotionEvent
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
@@ -53,6 +45,7 @@ fun PaintSpace(modifier: Modifier) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
 
     ) {
+        var initScale by remember { mutableFloatStateOf(0f) }
         //Transformable item section needed in transform mode
         var scale by remember { mutableFloatStateOf(0f) }
         var rotation by remember { mutableFloatStateOf(0f) }
@@ -66,6 +59,13 @@ fun PaintSpace(modifier: Modifier) {
         var paintMode by remember { mutableStateOf(PaintMode.Transform) }
         var motionEvent by remember { mutableStateOf(MotionEvent.Idle) }
 
+        //Canvas Variable
+        var currentPosition by remember { mutableStateOf(Offset.Unspecified) }
+        var currentPathProperty by remember { mutableStateOf(PathProperties()) }
+        var currentPath by remember { mutableStateOf(Path()) }
+        var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
+        val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
+
         Box(modifier = Modifier
             .size(
                 width = 210.dp, height = 297.dp
@@ -78,7 +78,6 @@ fun PaintSpace(modifier: Modifier) {
                 translationX = offset.x,
                 translationY = offset.y
             )
-            .background(Color.Red)
             .transformable(state = state, enabled = paintMode == PaintMode.Transform)
             .onGloballyPositioned { childrenBox ->
                 if (scale == 0f) {
@@ -87,63 +86,57 @@ fun PaintSpace(modifier: Modifier) {
                     } ?: (0f to 0f)
                     if (widthMaxScale != 0f && heightMaxScale != 0f) {
                         scale = minOf(widthMaxScale, heightMaxScale)
+                        initScale = minOf(widthMaxScale, heightMaxScale)
                     }
                 }
             }) {
             PaperLayout(
                 paintMode = paintMode,
-                motionEvent = motionEvent
-            ) { motionEvent = it }
+                motionEvent = motionEvent,
+                currentPath = currentPath,
+                currentPosition = currentPosition,
+                paths = paths,
+                currentPathProperty = currentPathProperty,
+                previousPosition = previousPosition,
+                setMotionEvent = { motionEvent = it },
+                setCurrentPosition = { currentPosition = it },
+                setPreviousPosition = { previousPosition = it },
+                setCurrentPathProperty = { currentPathProperty = it },
+                setCurrentPath = { currentPath = it },
+                addPaths = { paths.add(Pair(it.first, it.second)) }
+            )
         }
-        DrawMenu(modifier = Modifier.align(Alignment.BottomCenter),
+        PropertiesMenu(modifier = Modifier.align(Alignment.BottomCenter),
             paintMode = paintMode,
-            setPaintMode = { paintMode = it },
+            setPaintMode = {
+                paintMode = it
+                currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
+            },
             resetPosition = {
-                scale = 1f
+                scale = initScale
                 rotation = 0f
                 offset = Offset.Zero
             })
     }
 }
 
-@Composable
-private fun DrawMenu(
-    modifier: Modifier,
-    paintMode: PaintMode,
-    setPaintMode: (PaintMode) -> Unit,
-    resetPosition: () -> Unit,
-) {
-    Row(modifier = modifier) {
-        SelectedChipItem(text = "Transform", selected = paintMode == PaintMode.Transform) {
-            setPaintMode(PaintMode.Transform)
-        }
-        SelectedChipItem(text = "Draw", selected = paintMode == PaintMode.Draw) {
-            setPaintMode(PaintMode.Draw)
-        }
-        SelectedChipItem(text = "Erase", selected = paintMode == PaintMode.Erase) {
-            setPaintMode(PaintMode.Erase)
-        }
-        ChipItem(text = "Clear", onClick = resetPosition)
-    }
-}
 
 @Composable
 fun PaperLayout(
     paintMode: PaintMode,
-//    setPaintMode: (PaintMode) -> Unit,
+    currentPath: Path,
+    paths: List<Pair<Path, PathProperties>>,
     motionEvent: MotionEvent,
-    setMotionEvent: (MotionEvent) -> Unit
+    currentPosition: Offset,
+    previousPosition: Offset,
+    currentPathProperty: PathProperties,
+    setMotionEvent: (MotionEvent) -> Unit,
+    setCurrentPosition: (Offset) -> Unit,
+    setPreviousPosition: (Offset) -> Unit,
+    setCurrentPathProperty: (PathProperties) -> Unit,
+    setCurrentPath: (Path) -> Unit,
+    addPaths: (Pair<Path, PathProperties>) -> Unit,
 ) {
-    var currentPosition by remember { mutableStateOf(Offset.Unspecified) }
-    var currentPath by remember { mutableStateOf(Path()) }
-    var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
-
-    val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
-    var currentPathProperty by remember { mutableStateOf(PathProperties()) }
-    LaunchedEffect(paintMode) {
-        setMotionEvent(MotionEvent.Idle)
-        currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
-    }
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -153,12 +146,12 @@ fun PaperLayout(
                 enabled = paintMode != PaintMode.Transform,
                 onDragStart = {
                     setMotionEvent(MotionEvent.Down)
-                    currentPosition = it.position
+                    setCurrentPosition(it.position)
                     it.consume()
                 },
                 onDrag = {
                     setMotionEvent(MotionEvent.Move)
-                    currentPosition = it.position
+                    setCurrentPosition(it.position)
                     it.consume()
 
                 },
@@ -172,7 +165,7 @@ fun PaperLayout(
             onIdle = {},
             onDown = {
                 currentPath.moveTo(currentPosition.x, currentPosition.y)
-                previousPosition = currentPosition
+                setPreviousPosition(currentPosition)
             },
             onMove = {
                 currentPath.quadraticBezierTo(
@@ -182,28 +175,34 @@ fun PaperLayout(
                     (previousPosition.y + currentPosition.y) / 2
 
                 )
-                previousPosition = currentPosition
+                setPreviousPosition(currentPosition)
             },
             onUp = {
                 currentPath.lineTo(currentPosition.x, currentPosition.y)
-                paths.add(Pair(currentPath, currentPathProperty))
-                currentPath = Path()
-                currentPathProperty = PathProperties(
-                    strokeWidth = currentPathProperty.strokeWidth,
-                    color = currentPathProperty.color,
-                    strokeCap = currentPathProperty.strokeCap,
-                    strokeJoin = currentPathProperty.strokeJoin,
-                    eraseMode = currentPathProperty.eraseMode
+                addPaths(Pair(currentPath, currentPathProperty))
+                setCurrentPath(Path())
+                setCurrentPathProperty(
+                    PathProperties(
+                        strokeWidth = currentPathProperty.strokeWidth,
+                        color = currentPathProperty.color,
+                        strokeCap = currentPathProperty.strokeCap,
+                        strokeJoin = currentPathProperty.strokeJoin,
+                        eraseMode = currentPathProperty.eraseMode
+                    )
                 )
-
-                currentPosition = Offset.Unspecified
-                previousPosition = currentPosition
+                setCurrentPosition(Offset.Unspecified)
+                setPreviousPosition(currentPosition)
                 setMotionEvent(MotionEvent.Idle)
             },
         )
 
         drawWithLayer {
-            paths.forEach { drawToolTrace(path = it.first, pathProperties = it.second) }
+            paths.forEach {
+                drawToolTrace(
+                    path = it.first,
+                    pathProperties = it.second
+                )
+            } //Without this can showing item can do
             if (motionEvent != MotionEvent.Idle) {
                 drawToolTrace(path = currentPath, pathProperties = currentPathProperty)
             }
