@@ -11,16 +11,16 @@ class AndroidApplicationNavigationConventionPlugin : Plugin<Project> {
         with(project) {
             extensions.configure<ApplicationExtension> {
                 configureNavigation(this)
-                buildTypes.configureEach {
-                    val variant = this
-                    tasks.withType<KotlinCompile>().configureEach {
-                        sourceSets {
-                            getByName(variant.name) {
-                                kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
-                            }
-                        }
-                    }
-                }
+//                buildTypes.configureEach {
+//                    val variant = this
+//                    tasks.withType<KotlinCompile>().configureEach {
+//                        sourceSets {
+//                            getByName(variant.name) {
+//                                kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
+//                            }
+//                        }
+//                    }
+//                }
             }
         }
     }

@@ -1,10 +1,6 @@
 package com.notesmakers.home_ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,31 +38,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.notesmakers.common_ui.animations.getEnterScrollTransition
-import com.notesmakers.common_ui.animations.getExitScrollTransition
-import com.notesmakers.common_ui.composables.buttons.BaseIconButton
-import com.notesmakers.common_ui.composables.ChipItem
-import com.notesmakers.common_ui.composables.inputs.SearchBar
-import com.notesmakers.home_ui.composables.BaseTopAppBar
+import com.notesmakers.auth_ui.login.goToLoginScreenDestination
+import com.notesmakers.ui.animations.getEnterScrollTransition
+import com.notesmakers.ui.animations.getExitScrollTransition
+import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.composables.ChipItem
+import com.notesmakers.ui.composables.inputs.SearchBar
+import com.notesmakers.home_ui.components.BaseTopAppBar
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Destination
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navigator: DestinationsNavigator,
+    viewModel: HomeViewModel = koinViewModel(),
+) {
     Scaffold(
         topBar = {
             BaseTopAppBar(
-                accountIconAction = {},
+                accountIconAction = {
+                    navigator.goToLoginScreenDestination()
+                },
             )
         },
     ) { innerPadding ->
-        HomeScreen(innerPadding)
+        HomeScreen(
+            innerPadding = innerPadding,
+//            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
+//            addNote = { viewModel.addNote() }
+        )
     }
 }
 
 @Composable
-private fun HomeScreen(innerPadding: PaddingValues) {
+private fun HomeScreen(innerPadding: PaddingValues) {//, notes: List<Note>, addNote: () -> Unit) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
         derivedStateOf {
@@ -74,12 +82,16 @@ private fun HomeScreen(innerPadding: PaddingValues) {
         }
     }
     Box {
-        NoteGridLayout(listState, innerPadding)
+        NoteGridLayout(listState = listState, innerPadding = innerPadding)
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
             showButton = showButton,
             listState = listState,
         )
+//        BaseIconButton(onClick = addNote, imageVector = Icons.Default.Add)
+//        notes.forEach {
+//            Text(text = "$it tekst")
+//        }
     }
 }
 
@@ -229,14 +241,17 @@ private fun ItemNote(
             fontWeight = FontWeight.Light,
             overflow = TextOverflow.Ellipsis
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = categoryContent,
-                fontSize = 12.sp,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+//            Text(
+//                text = categoryContent,
+//                fontSize = 12.sp,
+//                modifier = Modifier.weight(1f),
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis
+//            )
             Text(text = dateTime, fontSize = 12.sp)
         }
     }

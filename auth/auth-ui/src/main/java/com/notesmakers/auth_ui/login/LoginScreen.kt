@@ -28,9 +28,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.notesmakers.common_ui.composables.buttons.BaseIconButton
-import com.notesmakers.common_ui.composables.buttons.BaseWideButton
-import com.notesmakers.common_ui.composables.inputs.BaseTextField
+import com.notesmakers.auth_ui.destinations.LoginScreenDestination
+import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.composables.buttons.BaseWideButton
+import com.notesmakers.ui.composables.inputs.BaseTextField
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -39,11 +40,13 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun LoginScreen(
     navigator: DestinationsNavigator,
 ) {
-    LoginScreen()
+    LoginScreen(navBack = {
+        navigator.popBackStack()
+    })
 }
 
 @Composable
-private fun LoginScreen() {
+private fun LoginScreen(navBack: () -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -52,7 +55,7 @@ private fun LoginScreen() {
 
     Box {
         BaseIconButton(
-            onClick = { /*TODO*/ }, imageVector = Icons.Default.Clear
+            onClick = navBack, imageVector = Icons.Default.Clear
         )
         Column(
             modifier = Modifier
@@ -94,7 +97,8 @@ private fun FooterSignInScreen(onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
-            .fillMaxWidth().padding(vertical = 10.dp)
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
     ) {
         Text(text = "I am new user", fontSize = 12.sp)
         Spacer(modifier = Modifier.width(4.dp))
@@ -111,3 +115,5 @@ private fun FooterSignInScreen(onClick: () -> Unit) {
         )
     }
 }
+
+fun DestinationsNavigator.goToLoginScreenDestination() = navigate(LoginScreenDestination)
