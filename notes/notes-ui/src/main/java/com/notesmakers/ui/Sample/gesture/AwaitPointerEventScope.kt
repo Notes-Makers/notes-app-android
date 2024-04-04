@@ -1,5 +1,6 @@
 package com.notesmakers.ui.gesture
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.drag
@@ -46,7 +47,6 @@ suspend fun AwaitPointerEventScope.awaitDragMotionEvent(
 }
 
 
-
 suspend fun AwaitPointerEventScope.awaitDragMotionEvent(
     onDragStart: (PointerInputChange) -> Unit = {},
     onDrag: (PointerInputChange) -> Unit = {},
@@ -65,7 +65,7 @@ suspend fun AwaitPointerEventScope.awaitDragMotionEvent(
             // 🔥🔥 If consumePositionChange() is not consumed drag does not
             // function properly.
             // Consuming position change causes change.positionChanged() to return false.
-            change.consumePositionChange()
+            change.consume()
         }
 
     if (change != null) {
@@ -89,13 +89,12 @@ fun Modifier.dragMotionEvent(
     onDragEnd: (PointerInputChange) -> Unit = {}
 ) = this.then(
     Modifier.pointerInput(Unit) {
-        forEachGesture {
-            awaitPointerEventScope {
-                awaitDragMotionEvent(onDragStart, onDrag, onDragEnd)
-            }
+        awaitEachGesture {
+            awaitDragMotionEvent(onDragStart, onDrag, onDragEnd)
         }
     }
 )
+
 enum class MotionEvent {
     Idle, Down, Move, Up
 }

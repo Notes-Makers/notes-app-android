@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.paint.PaintSpace
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -67,8 +68,8 @@ fun PaintNoteScreen(navigator: DestinationsNavigator) {
             )
         },
     ) { innerPadding ->
-        PaintNoteScreen(
-            innerPadding = innerPadding,
+        PaintSpace(
+            modifier = Modifier.padding(innerPadding)
         )
     }
 }

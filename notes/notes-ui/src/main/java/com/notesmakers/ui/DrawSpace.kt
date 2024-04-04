@@ -73,10 +73,19 @@ fun DrawSpace() {
                 offset += offsetChange
             }
         }
+        val resources = LocalContext.current.resources
+        val densityDpi = resources.displayMetrics.densityDpi
+        val widthInInches = 2.5f
+        val heightInInches = 3.5f
+
+        // Obliczanie rozmiaru w pikselach na podstawie DPI urządzenia
+        val widthInPixels = (widthInInches * densityDpi).dp
+        val heightInPixels = (heightInInches * densityDpi).dp
 
         val drawModifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .size(width = widthInPixels, height = heightInPixels)
             .then(
                 if (drawMode != DrawMode.Move) {
                     Modifier.dragMotionEvent(onDragStart = { pointerInputChange ->
@@ -106,18 +115,7 @@ fun DrawSpace() {
                 } else Modifier
             )
 
-        val resources = LocalContext.current.resources
-        val densityDpi = resources.displayMetrics.densityDpi
-        val widthInInches = 2.5f
-        val heightInInches = 3.5f
 
-        // Obliczanie rozmiaru w pikselach na podstawie DPI urządzenia
-        val widthInPixels = (widthInInches * densityDpi).dp
-        val heightInPixels = (heightInInches * densityDpi).dp
-
-        var drawScope by remember {
-            mutableStateOf<DrawScope?>(null)
-        }
         Box(
             modifier = Modifier
                 .padding(2.dp)
@@ -131,7 +129,7 @@ fun DrawSpace() {
                 )
                 .shadow(1.dp)
                 .background(color = MaterialTheme.colorScheme.onPrimary)
-                .size(width = widthInPixels, height = heightInPixels)
+                .fillMaxSize()
                 .then(
                     if (drawMode == DrawMode.Move) {
                         Modifier.transformable(state = state)
@@ -269,7 +267,7 @@ fun DrawSpace() {
                     restoreToCount(checkPoint)
                 }
 
-                drawScope = this
+//                drawScope = this
             }
 
         }
@@ -297,11 +295,11 @@ fun DrawSpace() {
                 Text(text = "Erase")
             }
             TextButton(onClick = {
-                val canvasDrawScope = CanvasDrawScope()
-                val size = Size(400f, 400f)
-                val bitmap = canvasDrawScope.asBitmap(size){
-                    this = drawScope
-                }
+//                val canvasDrawScope = CanvasDrawScope()
+//                val size = Size(400f, 400f)
+//                val bitmap = canvasDrawScope.asBitmap(size){
+//                    this = drawScope
+//                }
 
             }) {
                 Text(text = "save")
