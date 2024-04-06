@@ -106,7 +106,9 @@ fun PaintSpace(modifier: Modifier) {
                 addPaths = { paths.add(Pair(it.first, it.second)) }
             )
         }
-        PropertiesMenu(modifier = Modifier.align(Alignment.BottomCenter),
+        PropertiesMenu(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            pathProperties = currentPathProperty,
             paintMode = paintMode,
             setPaintMode = {
                 paintMode = it
