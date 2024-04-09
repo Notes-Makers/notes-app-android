@@ -89,7 +89,7 @@ private fun PaintNoteScreen(innerPadding: PaddingValues) {
             modifier = Modifier
                 .padding(top = 40.dp)
         ) {
-            DrawSpace()
+            PaintSpace(Modifier)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             ScrollableTabRow(

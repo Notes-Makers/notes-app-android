@@ -3,26 +3,43 @@ package com.notesmakers.ui.paint.interaction
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import com.notesmakers.ui.paint.models.PaintMode
 
 fun Modifier.dragMotionEvent(
-    enabled: Boolean,
+    paintMode: PaintMode,
     onDragStart: (PointerInputChange) -> Unit = {},
     onDrag: (PointerInputChange) -> Unit = {},
-    onDragEnd: (PointerInputChange) -> Unit = {}
+    onDragEnd: (PointerInputChange) -> Unit = {},
+    onLongPress: (Offset) -> Unit = {},
 ) = this.then(
-    if (enabled) {
-        Modifier.pointerInput(Unit) {
+    when (paintMode) {
+        PaintMode.Transform -> Modifier
+        PaintMode.Placeable -> Modifier.pointerInput(paintMode) {
+            detectTapGestures(
+                onLongPress = {
+                    onLongPress(it)
+                }
+            )
+        }
+
+        PaintMode.Draw, PaintMode.Erase -> Modifier.pointerInput(paintMode) {
             awaitEachGesture {
-                awaitDragMotionEvent(onDragStart, onDrag, onDragEnd)
+                awaitDragMotionEvent(
+                    onDragStart = onDragStart,
+                    onDrag = onDrag,
+                    onDragEnd = onDragEnd
+                )
             }
         }
-    } else Modifier
+    }
+
 )
 
 private suspend fun AwaitPointerEventScope.awaitDragMotionEvent(

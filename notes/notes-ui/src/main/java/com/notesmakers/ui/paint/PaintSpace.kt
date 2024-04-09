@@ -1,5 +1,6 @@
 package com.notesmakers.ui.paint
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -23,9 +24,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.notesmakers.ui.image.ImageResizerView
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
@@ -45,6 +51,10 @@ fun PaintSpace(modifier: Modifier) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
 
     ) {
+        var contextPlaceMenu by remember {
+            mutableStateOf(Pair(first = false, second = Offset.Zero))
+        }
+
         var initScale by remember { mutableFloatStateOf(0f) }
         //Transformable item section needed in transform mode
         var scale by remember { mutableFloatStateOf(0f) }
@@ -65,6 +75,12 @@ fun PaintSpace(modifier: Modifier) {
         var currentPath by remember { mutableStateOf(Path()) }
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
         val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
+        //Bitmaps
+        val bitmaps = remember { mutableStateListOf<Pair<Bitmap, Offset>>() }
+
+        var tmpBitmap by remember {
+            mutableStateOf<Pair<Bitmap, Offset>?>(null)
+        }
 
         Box(modifier = Modifier
             .size(
@@ -96,6 +112,7 @@ fun PaintSpace(modifier: Modifier) {
                 currentPath = currentPath,
                 currentPosition = currentPosition,
                 paths = paths,
+                bitmaps = bitmaps,
                 currentPathProperty = currentPathProperty,
                 previousPosition = previousPosition,
                 setMotionEvent = { motionEvent = it },
@@ -103,14 +120,35 @@ fun PaintSpace(modifier: Modifier) {
                 setPreviousPosition = { previousPosition = it },
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
-                addPaths = { paths.add(Pair(it.first, it.second)) }
+                addPaths = { paths.add(Pair(it.first, it.second)) },
+                setContextPlaceMenu = {
+                    contextPlaceMenu = it
+                }
             )
+            tmpBitmap?.let {
+                ImageResizerView(
+                    isImageResizerView = true,
+                    imageBitmap = it.first.asImageBitmap(),
+                    offsetBefore = it.second,
+                    addNewBitmapWithOffset = { bitmap, currentOffset ->
+                        bitmaps.add(Pair(bitmap.asAndroidBitmap(), currentOffset))
+                        contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                        tmpBitmap = null
+                    }
+                )
+            }
         }
         PropertiesMenu(
             modifier = Modifier.align(Alignment.BottomCenter),
             pathProperties = currentPathProperty,
             paintMode = paintMode,
+            contextPlaceMenu = contextPlaceMenu,
+            onBitmapSet = { bitmap, currentOffset ->
+                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                tmpBitmap = Pair(bitmap, currentOffset)
+            },
             setPaintMode = {
+                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
                 paintMode = it
                 currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
             },
@@ -122,12 +160,12 @@ fun PaintSpace(modifier: Modifier) {
     }
 }
 
-
 @Composable
 fun PaperLayout(
     paintMode: PaintMode,
     currentPath: Path,
     paths: List<Pair<Path, PathProperties>>,
+    bitmaps: List<Pair<Bitmap, Offset>>,
     motionEvent: MotionEvent,
     currentPosition: Offset,
     previousPosition: Offset,
@@ -138,14 +176,16 @@ fun PaperLayout(
     setCurrentPathProperty: (PathProperties) -> Unit,
     setCurrentPath: (Path) -> Unit,
     addPaths: (Pair<Path, PathProperties>) -> Unit,
+    setContextPlaceMenu: (Pair<Boolean, Offset>) -> Unit,
 ) {
+
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
             .background(Color.White)
             .dragMotionEvent(
-                enabled = paintMode != PaintMode.Transform,
+                paintMode = paintMode,
                 onDragStart = {
                     setMotionEvent(MotionEvent.Down)
                     setCurrentPosition(it.position)
@@ -161,6 +201,9 @@ fun PaperLayout(
                     setMotionEvent(MotionEvent.Up)
                     it.consume()
                 },
+                onLongPress = {
+                    setContextPlaceMenu(Pair(true, it))
+                }
             )
     ) {
         motionEvent.handleMotionEvent(
@@ -197,8 +240,10 @@ fun PaperLayout(
                 setMotionEvent(MotionEvent.Idle)
             },
         )
-
         drawWithLayer {
+            bitmaps.forEach {
+                drawImage(it.first.asImageBitmap(), it.second)
+            }
             paths.forEach {
                 drawToolTrace(
                     path = it.first,
@@ -210,4 +255,8 @@ fun PaperLayout(
             }
         }
     }
+
 }
+
+inline val Float.dp: Dp
+    @Composable get() = with(LocalDensity.current) { this@dp.toDp() }

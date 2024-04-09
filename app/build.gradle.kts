@@ -43,7 +43,6 @@ android {
 
 
 dependencies {
-
     // realm db
     implementation(libs.realm.base)
     implementation(libs.realm.sync)
