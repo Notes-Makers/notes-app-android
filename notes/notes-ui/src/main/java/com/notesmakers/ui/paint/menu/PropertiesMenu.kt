@@ -64,6 +64,7 @@ fun PropertiesMenu(
     setPaintMode: (PaintMode) -> Unit,
     onBitmapSet: (Bitmap, Offset) -> Unit,
     resetPosition: () -> Unit,
+    onTextSet: (Offset) -> Unit,
 ) {
     val properties by rememberUpdatedState(newValue = pathProperties)
 
@@ -79,6 +80,7 @@ fun PropertiesMenu(
         PlaceableToolMenu(
             contextPlaceMenu = contextPlaceMenu,
             onBitmapSet = onBitmapSet,
+            onTextSet = onTextSet
         )
         PaintModeMenu(
             pathProperties = properties,
@@ -97,6 +99,7 @@ fun PropertiesMenu(
 @Composable
 fun PlaceableToolMenu(
     onBitmapSet: (Bitmap, Offset) -> Unit,
+    onTextSet: (Offset) -> Unit,
     contextPlaceMenu: Pair<Boolean, Offset>,
 ) {
     AnimatedVisibility(visible = contextPlaceMenu.first) {
@@ -111,7 +114,7 @@ fun PlaceableToolMenu(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { }
+                    .clickable { onTextSet(contextPlaceMenu.second) }
                     .padding(4.dp)) {
                 Text(text = "Add Text")
                 Icon(
@@ -127,8 +130,8 @@ fun PlaceableToolMenu(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { }
-                    .padding(4.dp)) {
+                    .padding(4.dp)
+            ) {
                 PhotoSelectorView(
                     content = { Text(text = "Add Image", modifier = it) },
                     onImageSelected = { bitmap ->

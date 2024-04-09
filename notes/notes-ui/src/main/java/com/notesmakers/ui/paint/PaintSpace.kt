@@ -28,10 +28,13 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.notesmakers.ui.image.ImageResizerView
+import com.notesmakers.ui.paint.components.PlainText
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
@@ -39,6 +42,7 @@ import com.notesmakers.ui.paint.menu.PropertiesMenu
 import com.notesmakers.ui.paint.models.MotionEvent
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
+import com.notesmakers.ui.paint.models.TextProperties
 import com.notesmakers.ui.paint.models.handleMotionEvent
 
 @Composable
@@ -77,11 +81,18 @@ fun PaintSpace(modifier: Modifier) {
         val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
         //Bitmaps
         val bitmaps = remember { mutableStateListOf<Pair<Bitmap, Offset>>() }
+        //Texts
+        val texts = remember { mutableStateListOf<TextProperties>() }
 
         var tmpBitmap by remember {
             mutableStateOf<Pair<Bitmap, Offset>?>(null)
         }
-
+        var tmpText by remember {
+            mutableStateOf<TextProperties?>(null)
+        }
+        var showTextEditor by remember {
+            mutableStateOf<Offset?>(null)
+        }
         Box(modifier = Modifier
             .size(
                 width = 210.dp, height = 297.dp
@@ -113,6 +124,8 @@ fun PaintSpace(modifier: Modifier) {
                 currentPosition = currentPosition,
                 paths = paths,
                 bitmaps = bitmaps,
+                texts = texts,
+                tmpText = tmpText,
                 currentPathProperty = currentPathProperty,
                 previousPosition = previousPosition,
                 setMotionEvent = { motionEvent = it },
@@ -138,6 +151,21 @@ fun PaintSpace(modifier: Modifier) {
                 )
             }
         }
+        showTextEditor?.let {
+            PlainText(
+                offsetBefore = it,
+                addNewText = {
+                    texts.add(it)
+                    contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                    showTextEditor = null
+                },
+                onChange = {
+                    tmpText = it
+                    showTextEditor = it.offset
+                },
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
         PropertiesMenu(
             modifier = Modifier.align(Alignment.BottomCenter),
             pathProperties = currentPathProperty,
@@ -152,6 +180,7 @@ fun PaintSpace(modifier: Modifier) {
                 paintMode = it
                 currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
             },
+            onTextSet = { showTextEditor = it },
             resetPosition = {
                 scale = initScale
                 rotation = 0f
@@ -166,6 +195,8 @@ fun PaperLayout(
     currentPath: Path,
     paths: List<Pair<Path, PathProperties>>,
     bitmaps: List<Pair<Bitmap, Offset>>,
+    texts: List<TextProperties>,
+    tmpText: TextProperties?,
     motionEvent: MotionEvent,
     currentPosition: Offset,
     previousPosition: Offset,
@@ -178,7 +209,7 @@ fun PaperLayout(
     addPaths: (Pair<Path, PathProperties>) -> Unit,
     setContextPlaceMenu: (Pair<Boolean, Offset>) -> Unit,
 ) {
-
+    val textMeasure = rememberTextMeasurer()
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -244,6 +275,17 @@ fun PaperLayout(
             bitmaps.forEach {
                 drawImage(it.first.asImageBitmap(), it.second)
             }
+            texts.forEach {
+                drawText(
+                    textMeasurer = textMeasure,
+                    text = it.text,
+                    topLeft = Offset(it.offset.x, it.offset.y),
+                    style = TextStyle(
+                        color = it.color,
+                        fontSize = 12.sp
+                    )
+                )
+            }
             paths.forEach {
                 drawToolTrace(
                     path = it.first,
@@ -253,10 +295,18 @@ fun PaperLayout(
             if (motionEvent != MotionEvent.Idle) {
                 drawToolTrace(path = currentPath, pathProperties = currentPathProperty)
             }
+            tmpText?.let {
+                drawText(
+                    textMeasurer = textMeasure,
+                    text = it.text,
+                    topLeft = Offset(it.offset.x, it.offset.y),
+                    style = TextStyle(
+                        color = it.color,
+                        fontSize = 12.sp
+                    )
+                )
+            }
         }
     }
 
 }
-
-inline val Float.dp: Dp
-    @Composable get() = with(LocalDensity.current) { this@dp.toDp() }
