@@ -1,5 +1,6 @@
 package com.notesmakers.ui.paint
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -23,9 +24,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.notesmakers.ui.image.ImageResizerView
+import com.notesmakers.ui.paint.components.PlainText
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
@@ -33,6 +42,7 @@ import com.notesmakers.ui.paint.menu.PropertiesMenu
 import com.notesmakers.ui.paint.models.MotionEvent
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
+import com.notesmakers.ui.paint.models.TextProperties
 import com.notesmakers.ui.paint.models.handleMotionEvent
 
 @Composable
@@ -45,6 +55,10 @@ fun PaintSpace(modifier: Modifier) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
 
     ) {
+        var contextPlaceMenu by remember {
+            mutableStateOf(Pair(first = false, second = Offset.Zero))
+        }
+
         var initScale by remember { mutableFloatStateOf(0f) }
         //Transformable item section needed in transform mode
         var scale by remember { mutableFloatStateOf(0f) }
@@ -65,7 +79,20 @@ fun PaintSpace(modifier: Modifier) {
         var currentPath by remember { mutableStateOf(Path()) }
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
         val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
+        //Bitmaps
+        val bitmaps = remember { mutableStateListOf<Pair<Bitmap, Offset>>() }
+        //Texts
+        val texts = remember { mutableStateListOf<TextProperties>() }
 
+        var tmpBitmap by remember {
+            mutableStateOf<Pair<Bitmap, Offset>?>(null)
+        }
+        var tmpText by remember {
+            mutableStateOf<TextProperties?>(null)
+        }
+        var showTextEditor by remember {
+            mutableStateOf<Offset?>(null)
+        }
         Box(modifier = Modifier
             .size(
                 width = 210.dp, height = 297.dp
@@ -96,6 +123,9 @@ fun PaintSpace(modifier: Modifier) {
                 currentPath = currentPath,
                 currentPosition = currentPosition,
                 paths = paths,
+                bitmaps = bitmaps,
+                texts = texts,
+                tmpText = tmpText,
                 currentPathProperty = currentPathProperty,
                 previousPosition = previousPosition,
                 setMotionEvent = { motionEvent = it },
@@ -103,17 +133,54 @@ fun PaintSpace(modifier: Modifier) {
                 setPreviousPosition = { previousPosition = it },
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
-                addPaths = { paths.add(Pair(it.first, it.second)) }
+                addPaths = { paths.add(Pair(it.first, it.second)) },
+                setContextPlaceMenu = {
+                    contextPlaceMenu = it
+                }
+            )
+            tmpBitmap?.let {
+                ImageResizerView(
+                    isImageResizerView = true,
+                    imageBitmap = it.first.asImageBitmap(),
+                    offsetBefore = it.second,
+                    addNewBitmapWithOffset = { bitmap, currentOffset ->
+                        bitmaps.add(Pair(bitmap.asAndroidBitmap(), currentOffset))
+                        contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                        tmpBitmap = null
+                    }
+                )
+            }
+        }
+        showTextEditor?.let {
+            PlainText(
+                offsetBefore = it,
+                addNewText = {
+                    texts.add(it)
+                    contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                    showTextEditor = null
+                },
+                onChange = {
+                    tmpText = it
+                    showTextEditor = it.offset
+                },
+                modifier = Modifier.align(Alignment.TopCenter)
             )
         }
         PropertiesMenu(
             modifier = Modifier.align(Alignment.BottomCenter),
             pathProperties = currentPathProperty,
             paintMode = paintMode,
+            contextPlaceMenu = contextPlaceMenu,
+            onBitmapSet = { bitmap, currentOffset ->
+                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                tmpBitmap = Pair(bitmap, currentOffset)
+            },
             setPaintMode = {
+                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
                 paintMode = it
                 currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
             },
+            onTextSet = { showTextEditor = it },
             resetPosition = {
                 scale = initScale
                 rotation = 0f
@@ -122,12 +189,14 @@ fun PaintSpace(modifier: Modifier) {
     }
 }
 
-
 @Composable
 fun PaperLayout(
     paintMode: PaintMode,
     currentPath: Path,
     paths: List<Pair<Path, PathProperties>>,
+    bitmaps: List<Pair<Bitmap, Offset>>,
+    texts: List<TextProperties>,
+    tmpText: TextProperties?,
     motionEvent: MotionEvent,
     currentPosition: Offset,
     previousPosition: Offset,
@@ -138,14 +207,16 @@ fun PaperLayout(
     setCurrentPathProperty: (PathProperties) -> Unit,
     setCurrentPath: (Path) -> Unit,
     addPaths: (Pair<Path, PathProperties>) -> Unit,
+    setContextPlaceMenu: (Pair<Boolean, Offset>) -> Unit,
 ) {
+    val textMeasure = rememberTextMeasurer()
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
             .background(Color.White)
             .dragMotionEvent(
-                enabled = paintMode != PaintMode.Transform,
+                paintMode = paintMode,
                 onDragStart = {
                     setMotionEvent(MotionEvent.Down)
                     setCurrentPosition(it.position)
@@ -161,6 +232,9 @@ fun PaperLayout(
                     setMotionEvent(MotionEvent.Up)
                     it.consume()
                 },
+                onLongPress = {
+                    setContextPlaceMenu(Pair(true, it))
+                }
             )
     ) {
         motionEvent.handleMotionEvent(
@@ -197,8 +271,21 @@ fun PaperLayout(
                 setMotionEvent(MotionEvent.Idle)
             },
         )
-
         drawWithLayer {
+            bitmaps.forEach {
+                drawImage(it.first.asImageBitmap(), it.second)
+            }
+            texts.forEach {
+                drawText(
+                    textMeasurer = textMeasure,
+                    text = it.text,
+                    topLeft = Offset(it.offset.x, it.offset.y),
+                    style = TextStyle(
+                        color = it.color,
+                        fontSize = 12.sp
+                    )
+                )
+            }
             paths.forEach {
                 drawToolTrace(
                     path = it.first,
@@ -208,6 +295,18 @@ fun PaperLayout(
             if (motionEvent != MotionEvent.Idle) {
                 drawToolTrace(path = currentPath, pathProperties = currentPathProperty)
             }
+            tmpText?.let {
+                drawText(
+                    textMeasurer = textMeasure,
+                    text = it.text,
+                    topLeft = Offset(it.offset.x, it.offset.y),
+                    style = TextStyle(
+                        color = it.color,
+                        fontSize = 12.sp
+                    )
+                )
+            }
         }
     }
+
 }

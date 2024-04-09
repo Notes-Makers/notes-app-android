@@ -1,5 +1,6 @@
 package com.notesmakers.ui.paint.menu
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.R
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.SelectedChipItem
+import com.notesmakers.ui.image.PhotoSelectorView
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
 import com.notesmakers.ui.theme.paintColors
@@ -57,8 +60,11 @@ fun PropertiesMenu(
     modifier: Modifier,
     pathProperties: PathProperties,
     paintMode: PaintMode,
+    contextPlaceMenu: Pair<Boolean, Offset>,
     setPaintMode: (PaintMode) -> Unit,
+    onBitmapSet: (Bitmap, Offset) -> Unit,
     resetPosition: () -> Unit,
+    onTextSet: (Offset) -> Unit,
 ) {
     val properties by rememberUpdatedState(newValue = pathProperties)
 
@@ -71,7 +77,12 @@ fun PropertiesMenu(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PencilModeMenu(
+        PlaceableToolMenu(
+            contextPlaceMenu = contextPlaceMenu,
+            onBitmapSet = onBitmapSet,
+            onTextSet = onTextSet
+        )
+        PaintModeMenu(
             pathProperties = properties,
             paintMode = paintMode,
             showExpandedPencilProperties = showExpandedPencilProperties,
@@ -82,6 +93,61 @@ fun PropertiesMenu(
             setPaintMode = setPaintMode,
             resetPosition = resetPosition
         )
+    }
+}
+
+@Composable
+fun PlaceableToolMenu(
+    onBitmapSet: (Bitmap, Offset) -> Unit,
+    onTextSet: (Offset) -> Unit,
+    contextPlaceMenu: Pair<Boolean, Offset>,
+) {
+    AnimatedVisibility(visible = contextPlaceMenu.first) {
+        Row(
+            modifier = Modifier
+                .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(10.dp))
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { onTextSet(contextPlaceMenu.second) }
+                    .padding(4.dp)) {
+                Text(text = "Add Text")
+                Icon(
+                    painter = painterResource(R.drawable.text),
+                    tint = LocalContentColor.current,
+                    modifier = Modifier
+                        .padding(start = 2.dp)
+                        .size(24.dp),
+                    contentDescription = null
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .padding(4.dp)
+            ) {
+                PhotoSelectorView(
+                    content = { Text(text = "Add Image", modifier = it) },
+                    onImageSelected = { bitmap ->
+                        bitmap?.let { onBitmapSet(it, contextPlaceMenu.second) }
+                    })
+
+                Icon(
+                    painter = painterResource(R.drawable.image),
+                    tint = LocalContentColor.current,
+                    modifier = Modifier
+                        .padding(start = 2.dp)
+                        .size(24.dp),
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 
@@ -108,21 +174,28 @@ private fun ToolMenu(
 
     ) {
         SelectedChipItem(
-            text = "Transform",
+            text = "",
             painterResource = R.drawable.transform,
             selected = paintMode == PaintMode.Transform
         ) {
             setPaintMode(PaintMode.Transform)
         }
         SelectedChipItem(
-            text = "Draw",
+            text = "",
+            painterResource = R.drawable.long_press,
+            selected = paintMode == PaintMode.Placeable
+        ) {
+            setPaintMode(PaintMode.Placeable)
+        }
+        SelectedChipItem(
+            text = "",
             painterResource = R.drawable.pencil,
             selected = paintMode == PaintMode.Draw
         ) {
             setPaintMode(PaintMode.Draw)
         }
         SelectedChipItem(
-            text = "Erase",
+            text = "",
             painterResource = R.drawable.erase,
             selected = paintMode == PaintMode.Erase
         ) {
@@ -133,7 +206,7 @@ private fun ToolMenu(
 }
 
 @Composable
-private fun ColumnScope.PencilModeMenu(
+private fun ColumnScope.PaintModeMenu(
     pathProperties: PathProperties,
     paintMode: PaintMode,
     showExpandedPencilProperties: Boolean,

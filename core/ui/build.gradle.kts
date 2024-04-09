@@ -18,6 +18,10 @@ android {
 }
 
 dependencies {
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation( "androidx.activity:activity-compose:1.8.2")
+
+    implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
