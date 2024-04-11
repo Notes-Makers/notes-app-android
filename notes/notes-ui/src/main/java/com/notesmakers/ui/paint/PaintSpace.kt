@@ -1,6 +1,5 @@
 package com.notesmakers.ui.paint
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -24,7 +23,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -33,12 +31,13 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.notesmakers.ui.image.ImageResizerView
+import com.notesmakers.ui.paint.components.BitmapManipulator
 import com.notesmakers.ui.paint.components.PlainText
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
 import com.notesmakers.ui.paint.menu.PropertiesMenu
+import com.notesmakers.ui.paint.models.BitmapProperties
 import com.notesmakers.ui.paint.models.MotionEvent
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
@@ -80,12 +79,12 @@ fun PaintSpace(modifier: Modifier) {
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
         val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
         //Bitmaps
-        val bitmaps = remember { mutableStateListOf<Pair<Bitmap, Offset>>() }
+        val bitmaps = remember { mutableStateListOf<BitmapProperties>() }
         //Texts
         val texts = remember { mutableStateListOf<TextProperties>() }
 
-        var tmpBitmap by remember {
-            mutableStateOf<Pair<Bitmap, Offset>?>(null)
+        var previewBitmap by remember {
+            mutableStateOf<BitmapProperties?>(null)
         }
         var tmpText by remember {
             mutableStateOf<TextProperties?>(null)
@@ -126,6 +125,7 @@ fun PaintSpace(modifier: Modifier) {
                 bitmaps = bitmaps,
                 texts = texts,
                 tmpText = tmpText,
+                tmpBitmap = previewBitmap,
                 currentPathProperty = currentPathProperty,
                 previousPosition = previousPosition,
                 setMotionEvent = { motionEvent = it },
@@ -138,16 +138,16 @@ fun PaintSpace(modifier: Modifier) {
                     contextPlaceMenu = it
                 }
             )
-            tmpBitmap?.let {
-                ImageResizerView(
+            previewBitmap?.let { bitmapProperties ->
+                BitmapManipulator(
                     isImageResizerView = true,
-                    imageBitmap = it.first.asImageBitmap(),
-                    offsetBefore = it.second,
-                    addNewBitmapWithOffset = { bitmap, currentOffset ->
-                        bitmaps.add(Pair(bitmap.asAndroidBitmap(), currentOffset))
-                        contextPlaceMenu = Pair(first = false, second = Offset.Zero)
-                        tmpBitmap = null
-                    }
+                    bitmapProperties = bitmapProperties,
+                    onAddBitmap = {
+                        bitmaps.add(it)
+                        previewBitmap = null
+                    },
+                    onDismiss = { previewBitmap = null },
+                    onChange = { previewBitmap = it }
                 )
             }
         }
@@ -171,9 +171,9 @@ fun PaintSpace(modifier: Modifier) {
             pathProperties = currentPathProperty,
             paintMode = paintMode,
             contextPlaceMenu = contextPlaceMenu,
-            onBitmapSet = { bitmap, currentOffset ->
+            onBitmapSet = { bitmapProperties ->
                 contextPlaceMenu = Pair(first = false, second = Offset.Zero)
-                tmpBitmap = Pair(bitmap, currentOffset)
+                previewBitmap = bitmapProperties
             },
             setPaintMode = {
                 contextPlaceMenu = Pair(first = false, second = Offset.Zero)
@@ -194,9 +194,10 @@ fun PaperLayout(
     paintMode: PaintMode,
     currentPath: Path,
     paths: List<Pair<Path, PathProperties>>,
-    bitmaps: List<Pair<Bitmap, Offset>>,
+    bitmaps: List<BitmapProperties>,
     texts: List<TextProperties>,
     tmpText: TextProperties?,
+    tmpBitmap: BitmapProperties?,
     motionEvent: MotionEvent,
     currentPosition: Offset,
     previousPosition: Offset,
@@ -273,7 +274,7 @@ fun PaperLayout(
         )
         drawWithLayer {
             bitmaps.forEach {
-                drawImage(it.first.asImageBitmap(), it.second)
+                drawImage(it.scaledBitmap.asImageBitmap(), it.offset)
             }
             texts.forEach {
                 drawText(
@@ -305,6 +306,9 @@ fun PaperLayout(
                         fontSize = 12.sp
                     )
                 )
+            }
+            tmpBitmap?.let {
+                drawImage(it.scaledBitmap.asImageBitmap(), it.offset)
             }
         }
     }

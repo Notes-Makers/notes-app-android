@@ -1,6 +1,5 @@
 package com.notesmakers.ui.paint.menu
 
-import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -49,6 +48,7 @@ import com.notesmakers.ui.R
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.SelectedChipItem
 import com.notesmakers.ui.image.PhotoSelectorView
+import com.notesmakers.ui.paint.models.BitmapProperties
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
 import com.notesmakers.ui.theme.paintColors
@@ -62,7 +62,7 @@ fun PropertiesMenu(
     paintMode: PaintMode,
     contextPlaceMenu: Pair<Boolean, Offset>,
     setPaintMode: (PaintMode) -> Unit,
-    onBitmapSet: (Bitmap, Offset) -> Unit,
+    onBitmapSet: (BitmapProperties) -> Unit,
     resetPosition: () -> Unit,
     onTextSet: (Offset) -> Unit,
 ) {
@@ -98,7 +98,7 @@ fun PropertiesMenu(
 
 @Composable
 fun PlaceableToolMenu(
-    onBitmapSet: (Bitmap, Offset) -> Unit,
+    onBitmapSet: (BitmapProperties) -> Unit,
     onTextSet: (Offset) -> Unit,
     contextPlaceMenu: Pair<Boolean, Offset>,
 ) {
@@ -135,7 +135,17 @@ fun PlaceableToolMenu(
                 PhotoSelectorView(
                     content = { Text(text = "Add Image", modifier = it) },
                     onImageSelected = { bitmap ->
-                        bitmap?.let { onBitmapSet(it, contextPlaceMenu.second) }
+                        bitmap?.let {
+                            onBitmapSet(
+                                BitmapProperties(
+                                    width = bitmap.width,
+                                    height = bitmap.height,
+                                    scale = 1f,
+                                    offset = contextPlaceMenu.second,
+                                    bitmap = bitmap
+                                ),
+                            )
+                        }
                     })
 
                 Icon(
