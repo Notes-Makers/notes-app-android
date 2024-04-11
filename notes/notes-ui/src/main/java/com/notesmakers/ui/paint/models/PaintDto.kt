@@ -3,6 +3,7 @@ package com.notesmakers.ui.paint.models
 import android.graphics.Bitmap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import com.notesmakers.ui.image.getResizedBitmap
@@ -13,7 +14,8 @@ class PathProperties(
     var alpha: Float = 1f,
     var strokeCap: StrokeCap = StrokeCap.Round,
     var strokeJoin: StrokeJoin = StrokeJoin.Round,
-    var eraseMode: Boolean = false
+    var eraseMode: Boolean = false,
+    var path: Path = Path(),
 )
 
 class BitmapProperties(

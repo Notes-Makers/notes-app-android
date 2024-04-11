@@ -82,7 +82,7 @@ fun PaintSpace(modifier: Modifier) {
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
 
         //Paths
-        val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
+        val paths = remember { mutableStateListOf<PathProperties>() }
         //Bitmaps
         val bitmaps = remember { mutableStateListOf<BitmapProperties>() }
         //Texts
@@ -136,7 +136,7 @@ fun PaintSpace(modifier: Modifier) {
                 setPreviousPosition = { previousPosition = it },
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
-                addPaths = { paths.add(Pair(it.first, it.second)) },
+                addPaths = { paths.add(it) },
                 setLongPressPositionOffset = {
                     isMenuVisible = true
                     longPressOffsetPosition = it
@@ -205,7 +205,7 @@ fun PaintSpace(modifier: Modifier) {
 fun PaperLayout(
     paintMode: PaintMode,
     currentPath: Path,
-    paths: List<Pair<Path, PathProperties>>,
+    paths: List<PathProperties>,
     bitmaps: List<BitmapProperties>,
     texts: List<TextProperties>,
     previewText: TextProperties?,
@@ -219,7 +219,7 @@ fun PaperLayout(
     setPreviousPosition: (Offset) -> Unit,
     setCurrentPathProperty: (PathProperties) -> Unit,
     setCurrentPath: (Path) -> Unit,
-    addPaths: (Pair<Path, PathProperties>) -> Unit,
+    addPaths: (PathProperties) -> Unit,
     setLongPressPositionOffset: (Offset) -> Unit,
 ) {
     val textMeasure = rememberTextMeasurer()
@@ -268,7 +268,16 @@ fun PaperLayout(
             },
             onUp = {
                 currentPath.lineTo(currentPosition.x, currentPosition.y)
-                addPaths(Pair(currentPath, currentPathProperty))
+                addPaths(
+                    PathProperties(
+                        strokeWidth = currentPathProperty.strokeWidth,
+                        color = currentPathProperty.color,
+                        strokeCap = currentPathProperty.strokeCap,
+                        strokeJoin = currentPathProperty.strokeJoin,
+                        eraseMode = currentPathProperty.eraseMode,
+                        path = currentPath
+                    )
+                )
                 setCurrentPath(Path())
                 setCurrentPathProperty(
                     PathProperties(
@@ -301,8 +310,7 @@ fun PaperLayout(
             }
             paths.forEach {
                 drawToolTrace(
-                    path = it.first,
-                    pathProperties = it.second
+                    pathProperties = it
                 )
             } //Without this can showing item can do
             if (motionEvent != MotionEvent.Idle) {
