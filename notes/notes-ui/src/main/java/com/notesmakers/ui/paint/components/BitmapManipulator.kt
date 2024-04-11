@@ -33,46 +33,43 @@ import com.notesmakers.ui.paint.models.BitmapProperties
 @Composable
 fun BitmapManipulator(
     bitmapProperties: BitmapProperties,
-    isImageResizerView: Boolean,
     onChange: (BitmapProperties) -> Unit,
     onAddBitmap: (BitmapProperties) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (isImageResizerView) {
-        var scale by remember { mutableFloatStateOf(bitmapProperties.scale) }
-        var offset by remember { mutableStateOf(bitmapProperties.offset) }
+    var scale by remember { mutableFloatStateOf(bitmapProperties.scale) }
+    var offset by remember { mutableStateOf(bitmapProperties.offset) }
 
-        LaunchedEffect(offset, scale) {
-            onChange(
-                BitmapProperties(
-                    bitmapProperties.width,
-                    height = bitmapProperties.height,
-                    scale = scale,
-                    offset = offset,
-                    bitmap = bitmapProperties.bitmap
-                )
+    LaunchedEffect(offset, scale) {
+        onChange(
+            BitmapProperties(
+                bitmapProperties.width,
+                height = bitmapProperties.height,
+                scale = scale,
+                offset = offset,
+                bitmap = bitmapProperties.bitmap
             )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        offset += pan
-                        scale *= zoom.takeIf { it > 0 && it < 3f } ?: zoom
-                    }
-                }
-        ) {
-        }
-        ControlMenu(
-            offset = offset,
-            bitmapProperties = bitmapProperties,
-            scale = scale,
-            onAddBitmap = onAddBitmap,
-            onDismiss = onDismiss
         )
     }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    offset += pan
+                    scale *= zoom.takeIf { it > 0 && it < 3f } ?: zoom
+                }
+            }
+    ) {
+    }
+    ControlMenu(
+        offset = offset,
+        bitmapProperties = bitmapProperties,
+        scale = scale,
+        onAddBitmap = onAddBitmap,
+        onDismiss = onDismiss
+    )
 }
 
 @Composable

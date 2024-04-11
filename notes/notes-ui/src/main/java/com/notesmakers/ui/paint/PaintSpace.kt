@@ -32,7 +32,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.notesmakers.ui.paint.components.BitmapManipulator
-import com.notesmakers.ui.paint.components.PlainText
+import com.notesmakers.ui.paint.components.PlainTextManipulator
 import com.notesmakers.ui.paint.extensions.drawToolTrace
 import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
@@ -54,8 +54,11 @@ fun PaintSpace(modifier: Modifier) {
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
 
     ) {
-        var contextPlaceMenu by remember {
-            mutableStateOf(Pair(first = false, second = Offset.Zero))
+        var isMenuVisible by remember {
+            mutableStateOf(false)
+        }
+        var longPressOffsetPosition by remember {
+            mutableStateOf(Offset.Zero)
         }
 
         var initScale by remember { mutableFloatStateOf(0f) }
@@ -77,6 +80,8 @@ fun PaintSpace(modifier: Modifier) {
         var currentPathProperty by remember { mutableStateOf(PathProperties()) }
         var currentPath by remember { mutableStateOf(Path()) }
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
+
+        //Paths
         val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
         //Bitmaps
         val bitmaps = remember { mutableStateListOf<BitmapProperties>() }
@@ -86,12 +91,10 @@ fun PaintSpace(modifier: Modifier) {
         var previewBitmap by remember {
             mutableStateOf<BitmapProperties?>(null)
         }
-        var tmpText by remember {
+        var previewText by remember {
             mutableStateOf<TextProperties?>(null)
         }
-        var showTextEditor by remember {
-            mutableStateOf<Offset?>(null)
-        }
+
         Box(modifier = Modifier
             .size(
                 width = 210.dp, height = 297.dp
@@ -124,7 +127,7 @@ fun PaintSpace(modifier: Modifier) {
                 paths = paths,
                 bitmaps = bitmaps,
                 texts = texts,
-                tmpText = tmpText,
+                previewText = previewText,
                 tmpBitmap = previewBitmap,
                 currentPathProperty = currentPathProperty,
                 previousPosition = previousPosition,
@@ -134,13 +137,13 @@ fun PaintSpace(modifier: Modifier) {
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
                 addPaths = { paths.add(Pair(it.first, it.second)) },
-                setContextPlaceMenu = {
-                    contextPlaceMenu = it
+                setLongPressPositionOffset = {
+                    isMenuVisible = true
+                    longPressOffsetPosition = it
                 }
             )
             previewBitmap?.let { bitmapProperties ->
                 BitmapManipulator(
-                    isImageResizerView = true,
                     bitmapProperties = bitmapProperties,
                     onAddBitmap = {
                         bitmaps.add(it)
@@ -151,36 +154,45 @@ fun PaintSpace(modifier: Modifier) {
                 )
             }
         }
-        showTextEditor?.let {
-            PlainText(
-                offsetBefore = it,
+        previewText?.let { textProperties ->
+            PlainTextManipulator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                textProperties = textProperties,
                 addNewText = {
                     texts.add(it)
-                    contextPlaceMenu = Pair(first = false, second = Offset.Zero)
-                    showTextEditor = null
+                    previewText = null
                 },
                 onChange = {
-                    tmpText = it
-                    showTextEditor = it.offset
+                    previewText = it
                 },
-                modifier = Modifier.align(Alignment.TopCenter)
+                onDismiss = {
+                    previewText = null
+                },
             )
         }
         PropertiesMenu(
             modifier = Modifier.align(Alignment.BottomCenter),
             pathProperties = currentPathProperty,
             paintMode = paintMode,
-            contextPlaceMenu = contextPlaceMenu,
+            isMenuVisible = isMenuVisible,
+            longPressOffsetPosition = longPressOffsetPosition,
             onBitmapSet = { bitmapProperties ->
-                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                isMenuVisible = false
+                longPressOffsetPosition = Offset.Zero
                 previewBitmap = bitmapProperties
             },
             setPaintMode = {
-                contextPlaceMenu = Pair(first = false, second = Offset.Zero)
+                previewBitmap = null
+                previewText = null
+                isMenuVisible = false
+                longPressOffsetPosition = Offset.Zero
                 paintMode = it
                 currentPathProperty.eraseMode = (paintMode == PaintMode.Erase)
             },
-            onTextSet = { showTextEditor = it },
+            onTextSet = {
+                previewText = it
+                isMenuVisible = false
+            },
             resetPosition = {
                 scale = initScale
                 rotation = 0f
@@ -196,7 +208,7 @@ fun PaperLayout(
     paths: List<Pair<Path, PathProperties>>,
     bitmaps: List<BitmapProperties>,
     texts: List<TextProperties>,
-    tmpText: TextProperties?,
+    previewText: TextProperties?,
     tmpBitmap: BitmapProperties?,
     motionEvent: MotionEvent,
     currentPosition: Offset,
@@ -208,7 +220,7 @@ fun PaperLayout(
     setCurrentPathProperty: (PathProperties) -> Unit,
     setCurrentPath: (Path) -> Unit,
     addPaths: (Pair<Path, PathProperties>) -> Unit,
-    setContextPlaceMenu: (Pair<Boolean, Offset>) -> Unit,
+    setLongPressPositionOffset: (Offset) -> Unit,
 ) {
     val textMeasure = rememberTextMeasurer()
     Canvas(
@@ -234,7 +246,7 @@ fun PaperLayout(
                     it.consume()
                 },
                 onLongPress = {
-                    setContextPlaceMenu(Pair(true, it))
+                    setLongPressPositionOffset(it)
                 }
             )
     ) {
@@ -296,7 +308,7 @@ fun PaperLayout(
             if (motionEvent != MotionEvent.Idle) {
                 drawToolTrace(path = currentPath, pathProperties = currentPathProperty)
             }
-            tmpText?.let {
+            previewText?.let {
                 drawText(
                     textMeasurer = textMeasure,
                     text = it.text,

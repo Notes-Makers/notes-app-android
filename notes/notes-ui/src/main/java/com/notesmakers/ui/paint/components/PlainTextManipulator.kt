@@ -1,6 +1,5 @@
 package com.notesmakers.ui.paint.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -9,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.OutlinedTextField
@@ -29,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
@@ -44,16 +45,17 @@ import com.notesmakers.ui.theme.paintColors
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PlainText(
-    offsetBefore: Offset,
+fun PlainTextManipulator(
+    textProperties: TextProperties,
     modifier: Modifier = Modifier,
     addNewText: (TextProperties) -> Unit,
+    onDismiss: () -> Unit,
     onChange: (TextProperties) -> Unit
 ) {
-    var text by remember { mutableStateOf(TextFieldValue("")) }
-    var selectedColor by remember { mutableStateOf<Color>(Color.Black) }
+    var text by remember { mutableStateOf(TextFieldValue(textProperties.text)) }
+    var selectedColor by remember { mutableStateOf(textProperties.color) }
 
-    var offset by remember { mutableStateOf(offsetBefore) }
+    var offset by remember { mutableStateOf(textProperties.offset) }
 
     LaunchedEffect(text, selectedColor, offset) {
         onChange(
@@ -69,8 +71,7 @@ fun PlainText(
         .background(color = Color.Transparent)
         .pointerInput(Unit) {
             detectTransformGestures { _, pan, _, _ ->
-                // Update the offset based on the gesture
-                offset += pan
+                offset += (pan * 0.5f)
             }
         }) {
         Card(
@@ -90,23 +91,38 @@ fun PlainText(
             )
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
-                BaseIconButton(
-                    onClick = {
-                        addNewText(
-                            TextProperties(
-                                text = text.text,
-                                color = selectedColor,
-                                offset = offset
+                Row {
+                    BaseIconButton(
+                        onClick = {
+                            addNewText(
+                                TextProperties(
+                                    text = text.text,
+                                    color = selectedColor,
+                                    offset = offset
+                                )
                             )
-                        )
-                    },
-                    modifier = Modifier.background(
-                        color = Color(0xff10B981).copy(alpha = 0.8f),
-                        shape = CircleShape
-                    ),
-                    imageVector = Icons.Default.Check,
-                    tint = Color.White
-                )
+                        },
+                        modifier = Modifier.background(
+                            color = Color(0xff10B981).copy(alpha = 0.8f),
+                            shape = CircleShape
+                        ),
+                        imageVector = Icons.Default.Check,
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.padding(end = 4.dp))
+                    BaseIconButton(
+                        onClick = {
+                            onDismiss()
+                        },
+                        modifier = Modifier.background(
+                            color = Color(0xffF43F5E).copy(alpha = 0.8f),
+                            shape = CircleShape
+                        ),
+                        imageVector = Icons.Default.Clear,
+                        tint = Color.White
+                    )
+                }
+
                 OutlinedTextField(
                     value = text,
                     modifier = Modifier.fillMaxWidth(),

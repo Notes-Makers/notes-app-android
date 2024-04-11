@@ -51,6 +51,7 @@ import com.notesmakers.ui.image.PhotoSelectorView
 import com.notesmakers.ui.paint.models.BitmapProperties
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
+import com.notesmakers.ui.paint.models.TextProperties
 import com.notesmakers.ui.theme.paintColors
 import com.notesmakers.ui.theme.sliderDefaultColors
 
@@ -60,11 +61,12 @@ fun PropertiesMenu(
     modifier: Modifier,
     pathProperties: PathProperties,
     paintMode: PaintMode,
-    contextPlaceMenu: Pair<Boolean, Offset>,
+    isMenuVisible: Boolean,
+    longPressOffsetPosition: Offset,
     setPaintMode: (PaintMode) -> Unit,
     onBitmapSet: (BitmapProperties) -> Unit,
     resetPosition: () -> Unit,
-    onTextSet: (Offset) -> Unit,
+    onTextSet: (TextProperties) -> Unit,
 ) {
     val properties by rememberUpdatedState(newValue = pathProperties)
 
@@ -78,7 +80,8 @@ fun PropertiesMenu(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PlaceableToolMenu(
-            contextPlaceMenu = contextPlaceMenu,
+            isMenuVisible = isMenuVisible,
+            longPressOffsetPosition = longPressOffsetPosition,
             onBitmapSet = onBitmapSet,
             onTextSet = onTextSet
         )
@@ -99,10 +102,11 @@ fun PropertiesMenu(
 @Composable
 fun PlaceableToolMenu(
     onBitmapSet: (BitmapProperties) -> Unit,
-    onTextSet: (Offset) -> Unit,
-    contextPlaceMenu: Pair<Boolean, Offset>,
+    onTextSet: (TextProperties) -> Unit,
+    isMenuVisible: Boolean,
+    longPressOffsetPosition: Offset,
 ) {
-    AnimatedVisibility(visible = contextPlaceMenu.first) {
+    AnimatedVisibility(visible = isMenuVisible) {
         Row(
             modifier = Modifier
                 .background(color = Color.White, shape = RoundedCornerShape(10.dp))
@@ -114,7 +118,7 @@ fun PlaceableToolMenu(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { onTextSet(contextPlaceMenu.second) }
+                    .clickable { onTextSet(TextProperties(offset = longPressOffsetPosition)) }
                     .padding(4.dp)) {
                 Text(text = "Add Text")
                 Icon(
@@ -141,7 +145,7 @@ fun PlaceableToolMenu(
                                     width = bitmap.width,
                                     height = bitmap.height,
                                     scale = 1f,
-                                    offset = contextPlaceMenu.second,
+                                    offset = longPressOffsetPosition,
                                     bitmap = bitmap
                                 ),
                             )
