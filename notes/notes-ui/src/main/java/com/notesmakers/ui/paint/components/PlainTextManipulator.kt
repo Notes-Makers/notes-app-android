@@ -54,7 +54,6 @@ fun PlainTextManipulator(
 ) {
     var text by remember { mutableStateOf(TextFieldValue(textProperties.text)) }
     var selectedColor by remember { mutableStateOf(textProperties.color) }
-
     var offset by remember { mutableStateOf(textProperties.offset) }
 
     LaunchedEffect(text, selectedColor, offset) {

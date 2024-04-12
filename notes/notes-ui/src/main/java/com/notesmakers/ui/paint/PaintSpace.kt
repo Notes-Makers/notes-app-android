@@ -215,7 +215,7 @@ fun PaperLayout(
     addPaths: (PathProperties) -> Unit,
     setLongPressPositionOffset: (Offset) -> Unit,
 ) {
-    val textMeasure = rememberTextMeasurer()
+    val textMeasure = rememberTextMeasurer(cacheSize = 0)
     Canvas(
         modifier = Modifier
             .fillMaxSize()
