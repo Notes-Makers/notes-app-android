@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.components
+package com.notesmakers.ui.paintnote.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.extensions.pxToDp
-import com.notesmakers.ui.paint.models.BitmapProperties
+import com.notesmakers.ui.paintnote.models.BitmapProperties
 
 @Composable
 fun BitmapManipulator(

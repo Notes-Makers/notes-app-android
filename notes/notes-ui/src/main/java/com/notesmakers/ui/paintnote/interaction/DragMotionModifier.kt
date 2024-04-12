@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.interaction
+package com.notesmakers.ui.paintnote.interaction
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -10,7 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
-import com.notesmakers.ui.paint.models.PaintMode
+import com.notesmakers.ui.paintnote.models.PaintMode
 
 fun Modifier.dragMotionEvent(
     paintMode: PaintMode,

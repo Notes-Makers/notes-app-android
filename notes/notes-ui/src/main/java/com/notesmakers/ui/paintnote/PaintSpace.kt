@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint
+package com.notesmakers.ui.paintnote
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -30,19 +30,19 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.notesmakers.ui.paint.components.BitmapManipulator
-import com.notesmakers.ui.paint.components.PlainTextManipulator
-import com.notesmakers.ui.paint.extensions.drawToolTrace
-import com.notesmakers.ui.paint.extensions.drawWithLayer
-import com.notesmakers.ui.paint.interaction.dragMotionEvent
-import com.notesmakers.ui.paint.menu.PropertiesMenu
-import com.notesmakers.ui.paint.models.BitmapProperties
-import com.notesmakers.ui.paint.models.DrawableComponent
-import com.notesmakers.ui.paint.models.MotionEvent
-import com.notesmakers.ui.paint.models.PaintMode
-import com.notesmakers.ui.paint.models.PathProperties
-import com.notesmakers.ui.paint.models.TextProperties
-import com.notesmakers.ui.paint.models.handleMotionEvent
+import com.notesmakers.ui.paintnote.components.BitmapManipulator
+import com.notesmakers.ui.paintnote.components.PlainTextManipulator
+import com.notesmakers.ui.paintnote.extensions.drawToolTrace
+import com.notesmakers.ui.paintnote.extensions.drawWithLayer
+import com.notesmakers.ui.paintnote.interaction.dragMotionEvent
+import com.notesmakers.ui.paintnote.menu.PropertiesMenu
+import com.notesmakers.ui.paintnote.models.BitmapProperties
+import com.notesmakers.ui.paintnote.models.DrawableComponent
+import com.notesmakers.ui.paintnote.models.MotionEvent
+import com.notesmakers.ui.paintnote.models.PaintMode
+import com.notesmakers.ui.paintnote.models.PathProperties
+import com.notesmakers.ui.paintnote.models.TextProperties
+import com.notesmakers.ui.paintnote.models.handleMotionEvent
 
 @Composable
 fun PaintSpace(modifier: Modifier) {

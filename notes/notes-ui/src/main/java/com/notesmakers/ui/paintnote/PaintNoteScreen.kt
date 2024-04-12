@@ -1,4 +1,4 @@
-package com.notesmakers.ui
+package com.notesmakers.ui.paintnote
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.composables.buttons.BaseIconButton
-import com.notesmakers.ui.paint.PaintSpace
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch

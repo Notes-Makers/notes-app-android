@@ -35,6 +35,8 @@ fun BaseTextField(
     isPassword: Boolean = false,
     errorColorText: Color = Color.Red,
     errorMessage: String?,
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
 ) {
     val valueState = remember {
         mutableStateOf(TextFieldValue(""))
@@ -47,8 +49,8 @@ fun BaseTextField(
                 onValueChange(newText.text)
             },
             isError = errorMessage.isNullOrBlank().not(),
-            singleLine = true,
-            maxLines = 1,
+            singleLine = singleLine,
+            maxLines = maxLines,
             label = { Text(text = labelText) },
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             placeholder = { Text(text = placeholderText) },

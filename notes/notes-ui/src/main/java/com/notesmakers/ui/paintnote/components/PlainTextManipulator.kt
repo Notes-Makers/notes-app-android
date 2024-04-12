@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.components
+package com.notesmakers.ui.paintnote.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,8 +38,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.composables.buttons.BaseIconButton
-import com.notesmakers.ui.paint.menu.ColorSelector
-import com.notesmakers.ui.paint.models.TextProperties
+import com.notesmakers.ui.paintnote.menu.ColorSelector
+import com.notesmakers.ui.paintnote.models.TextProperties
 import com.notesmakers.ui.theme.paintColors
 
 

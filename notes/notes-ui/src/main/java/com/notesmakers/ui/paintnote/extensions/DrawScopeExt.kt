@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.extensions
+package com.notesmakers.ui.paintnote.extensions
 
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
-import com.notesmakers.ui.paint.models.PathProperties
+import com.notesmakers.ui.paintnote.models.PathProperties
 
 fun DrawScope.drawToolTrace(path: Path? = null, pathProperties: PathProperties) {
     if (pathProperties.eraseMode) {

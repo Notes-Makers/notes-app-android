@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.menu
+package com.notesmakers.ui.paintnote.menu
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
@@ -48,10 +48,10 @@ import com.notesmakers.ui.R
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.SelectedChipItem
 import com.notesmakers.ui.image.PhotoSelectorView
-import com.notesmakers.ui.paint.models.BitmapProperties
-import com.notesmakers.ui.paint.models.PaintMode
-import com.notesmakers.ui.paint.models.PathProperties
-import com.notesmakers.ui.paint.models.TextProperties
+import com.notesmakers.ui.paintnote.models.BitmapProperties
+import com.notesmakers.ui.paintnote.models.PaintMode
+import com.notesmakers.ui.paintnote.models.PathProperties
+import com.notesmakers.ui.paintnote.models.TextProperties
 import com.notesmakers.ui.theme.paintColors
 import com.notesmakers.ui.theme.sliderDefaultColors
 
