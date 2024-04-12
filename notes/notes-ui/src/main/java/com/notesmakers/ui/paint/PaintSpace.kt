@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -50,7 +49,6 @@ fun PaintSpace(modifier: Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(2.dp)
             .shadow(1.dp)
             .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
 

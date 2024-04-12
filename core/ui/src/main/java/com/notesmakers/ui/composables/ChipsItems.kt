@@ -1,6 +1,7 @@
 package com.notesmakers.ui.composables
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FilterChip
@@ -32,7 +33,12 @@ fun SelectedChipItem(
         selected = selected,
         modifier = Modifier.padding(end = 4.dp),
         onClick = onClick,
-        label = { Text(text) },
+        border = null,
+        label = {
+            AnimatedVisibility(visible = selected) {
+                Text(text)
+            }
+        },
         leadingIcon = {
             Icon(
                 modifier = Modifier.size(24.dp),
