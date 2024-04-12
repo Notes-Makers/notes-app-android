@@ -45,6 +45,8 @@ import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.inputs.SearchBar
 import com.notesmakers.home_ui.components.BaseTopAppBar
+import com.notesmakers.ui.creation.NoteMode
+import com.notesmakers.ui.creation.navToNoteCreation
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -62,6 +64,8 @@ fun HomeScreen(
                 accountIconAction = {
                     navigator.goToLoginScreenDestination()
                 },
+                navToQuickNote = { navigator.navToNoteCreation(NoteMode.QUICK_NOTE) },
+                navToPaintNote = { navigator.navToNoteCreation(NoteMode.PAINT_NOTE) },
             )
         },
     ) { innerPadding ->

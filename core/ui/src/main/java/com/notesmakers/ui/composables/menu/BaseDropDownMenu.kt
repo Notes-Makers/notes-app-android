@@ -1,6 +1,5 @@
 package com.notesmakers.ui.composables.menu
 
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.DropdownMenu
@@ -11,14 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 
 @Composable
 fun BaseDropdownMenu(
+    navToQuickNote: () -> Unit,
+    navToPaintNote: () -> Unit,
     @DrawableRes painterResource: Int,
 ) {
-    val context = LocalContext.current
     var isExpanded by remember {
         mutableStateOf(false)
     }
@@ -32,12 +31,12 @@ fun BaseDropdownMenu(
             onDismissRequest = { isExpanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Load") },
-                onClick = { Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show() }
+                text = { Text("Create Quick Note") },
+                onClick = navToQuickNote
             )
             DropdownMenuItem(
-                text = { Text("Save") },
-                onClick = { Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show() }
+                text = { Text("Create Paint Note") },
+                onClick = navToPaintNote
             )
         }
     }

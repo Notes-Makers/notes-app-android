@@ -30,33 +30,55 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.notesmakers.ui.R
 import com.notesmakers.ui.composables.buttons.BaseButton
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
+import com.notesmakers.ui.destinations.NoteCreationScreenDestination
+import com.notesmakers.ui.paintnote.navToPaintNote
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import org.koin.androidx.compose.get
 
 @Composable
 @Destination
 fun NoteCreationScreen(navigator: DestinationsNavigator, noteMode: NoteMode = NoteMode.QUICK_NOTE) {
-    NoteCreationScreen(onBackNav = { navigator.popBackStack() }, noteMode = noteMode)
+    NoteCreationScreen(
+        onBackNav = { navigator.popBackStack() },
+        noteMode = noteMode,
+        navToPaintNote = {
+            navigator.popBackStack()
+            navigator.navToPaintNote()
+        }
+    )
 }
 
+fun DestinationsNavigator.navToNoteCreation(noteMode: NoteMode) =
+    navigate(NoteCreationScreenDestination(noteMode = noteMode))
+
 @Composable
-private fun NoteCreationScreen(onBackNav: () -> Unit, noteMode: NoteMode) {
+private fun NoteCreationScreen(
+    onBackNav: () -> Unit,
+    noteMode: NoteMode,
+    navToPaintNote: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopBarCreationScreen(onBackNav = onBackNav)
         },
     ) { innerPadding ->
-        CreationPage(modifier = Modifier.padding(innerPadding), noteMode = noteMode)
+        CreationPage(
+            modifier = Modifier.padding(innerPadding),
+            noteMode = noteMode,
+            navToPaintNote = navToPaintNote
+        )
     }
 }
 
 @Composable
-private fun CreationPage(modifier: Modifier, noteMode: NoteMode) {
+private fun CreationPage(
+    modifier: Modifier,
+    noteMode: NoteMode,
+    navToPaintNote: () -> Unit
+) {
     val focusManager = LocalFocusManager.current
 
     var title by remember { mutableStateOf("") }
@@ -92,7 +114,6 @@ private fun CreationPage(modifier: Modifier, noteMode: NoteMode) {
             onValueChange = { title = it },
             labelText = "Enter title",
             placeholderText = "title",
-            isPassword = true,
             focusManager = focusManager,
             errorMessage = null,
         )
@@ -114,7 +135,12 @@ private fun CreationPage(modifier: Modifier, noteMode: NoteMode) {
             BaseButton(
                 modifier = Modifier,
                 label = "Create",
-                onClick = {},
+                onClick = {
+                    when (noteMode) {
+                        NoteMode.QUICK_NOTE -> Unit//TODO
+                        NoteMode.PAINT_NOTE -> navToPaintNote()
+                    }
+                },
             )
         }
     }

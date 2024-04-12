@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.composables.buttons.BaseIconButton
+import com.notesmakers.ui.destinations.PaintNoteScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -73,6 +74,8 @@ fun PaintNoteScreen(navigator: DestinationsNavigator) {
         PaintNoteScreen(innerPadding)
     }
 }
+
+fun DestinationsNavigator.navToPaintNote() = navigate(PaintNoteScreenDestination())
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
