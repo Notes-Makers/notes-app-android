@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.models
+package com.notesmakers.ui.paintnote.models
 
 import android.graphics.Bitmap
 import androidx.compose.ui.geometry.Offset
@@ -13,7 +13,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.sp
 import com.notesmakers.ui.image.getResizedBitmap
-import com.notesmakers.ui.paint.extensions.drawToolTrace
+import com.notesmakers.ui.paintnote.extensions.drawToolTrace
 
 interface DrawableComponent {
     fun paint(drawScope: DrawScope, textMeasurer: TextMeasurer?)

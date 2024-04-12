@@ -1,4 +1,4 @@
-package com.notesmakers.ui.paint.models
+package com.notesmakers.ui.paintnote.models
 
 enum class MotionEvent {
     Idle, Down, Move, Up
