@@ -38,6 +38,7 @@ import com.notesmakers.ui.paint.extensions.drawWithLayer
 import com.notesmakers.ui.paint.interaction.dragMotionEvent
 import com.notesmakers.ui.paint.menu.PropertiesMenu
 import com.notesmakers.ui.paint.models.BitmapProperties
+import com.notesmakers.ui.paint.models.DrawableComponent
 import com.notesmakers.ui.paint.models.MotionEvent
 import com.notesmakers.ui.paint.models.PaintMode
 import com.notesmakers.ui.paint.models.PathProperties
@@ -81,12 +82,8 @@ fun PaintSpace(modifier: Modifier) {
         var currentPath by remember { mutableStateOf(Path()) }
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
 
-        //Paths
-        val paths = remember { mutableStateListOf<Pair<Path, PathProperties>>() }
-        //Bitmaps
-        val bitmaps = remember { mutableStateListOf<BitmapProperties>() }
-        //Texts
-        val texts = remember { mutableStateListOf<TextProperties>() }
+        //Path + Bitmap + Text
+        val drawableComponents = remember { mutableStateListOf<DrawableComponent>() }
 
         var previewBitmap by remember {
             mutableStateOf<BitmapProperties?>(null)
@@ -124,9 +121,7 @@ fun PaintSpace(modifier: Modifier) {
                 motionEvent = motionEvent,
                 currentPath = currentPath,
                 currentPosition = currentPosition,
-                paths = paths,
-                bitmaps = bitmaps,
-                texts = texts,
+                drawableComponents = drawableComponents,
                 previewText = previewText,
                 tmpBitmap = previewBitmap,
                 currentPathProperty = currentPathProperty,
@@ -136,7 +131,9 @@ fun PaintSpace(modifier: Modifier) {
                 setPreviousPosition = { previousPosition = it },
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
-                addPaths = { paths.add(Pair(it.first, it.second)) },
+                addPaths = {
+                    drawableComponents.add(it)
+                },
                 setLongPressPositionOffset = {
                     isMenuVisible = true
                     longPressOffsetPosition = it
@@ -146,7 +143,7 @@ fun PaintSpace(modifier: Modifier) {
                 BitmapManipulator(
                     bitmapProperties = bitmapProperties,
                     onAddBitmap = {
-                        bitmaps.add(it)
+                        drawableComponents.add(it)
                         previewBitmap = null
                     },
                     onDismiss = { previewBitmap = null },
@@ -159,7 +156,7 @@ fun PaintSpace(modifier: Modifier) {
                 modifier = Modifier.align(Alignment.TopCenter),
                 textProperties = textProperties,
                 addNewText = {
-                    texts.add(it)
+                    drawableComponents.add(it)
                     previewText = null
                 },
                 onChange = {
@@ -205,9 +202,7 @@ fun PaintSpace(modifier: Modifier) {
 fun PaperLayout(
     paintMode: PaintMode,
     currentPath: Path,
-    paths: List<Pair<Path, PathProperties>>,
-    bitmaps: List<BitmapProperties>,
-    texts: List<TextProperties>,
+    drawableComponents: List<DrawableComponent>,
     previewText: TextProperties?,
     tmpBitmap: BitmapProperties?,
     motionEvent: MotionEvent,
@@ -219,7 +214,7 @@ fun PaperLayout(
     setPreviousPosition: (Offset) -> Unit,
     setCurrentPathProperty: (PathProperties) -> Unit,
     setCurrentPath: (Path) -> Unit,
-    addPaths: (Pair<Path, PathProperties>) -> Unit,
+    addPaths: (PathProperties) -> Unit,
     setLongPressPositionOffset: (Offset) -> Unit,
 ) {
     val textMeasure = rememberTextMeasurer()
@@ -268,7 +263,16 @@ fun PaperLayout(
             },
             onUp = {
                 currentPath.lineTo(currentPosition.x, currentPosition.y)
-                addPaths(Pair(currentPath, currentPathProperty))
+                addPaths(
+                    PathProperties(
+                        strokeWidth = currentPathProperty.strokeWidth,
+                        color = currentPathProperty.color,
+                        strokeCap = currentPathProperty.strokeCap,
+                        strokeJoin = currentPathProperty.strokeJoin,
+                        eraseMode = currentPathProperty.eraseMode,
+                        path = currentPath
+                    )
+                )
                 setCurrentPath(Path())
                 setCurrentPathProperty(
                     PathProperties(
@@ -285,26 +289,9 @@ fun PaperLayout(
             },
         )
         drawWithLayer {
-            bitmaps.forEach {
-                drawImage(it.scaledBitmap.asImageBitmap(), it.offset)
+            drawableComponents.forEach {
+                it.paint(this, textMeasure)
             }
-            texts.forEach {
-                drawText(
-                    textMeasurer = textMeasure,
-                    text = it.text,
-                    topLeft = Offset(it.offset.x, it.offset.y),
-                    style = TextStyle(
-                        color = it.color,
-                        fontSize = 12.sp
-                    )
-                )
-            }
-            paths.forEach {
-                drawToolTrace(
-                    path = it.first,
-                    pathProperties = it.second
-                )
-            } //Without this can showing item can do
             if (motionEvent != MotionEvent.Idle) {
                 drawToolTrace(path = currentPath, pathProperties = currentPathProperty)
             }
