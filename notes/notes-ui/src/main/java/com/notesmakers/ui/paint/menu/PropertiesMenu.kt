@@ -188,28 +188,28 @@ private fun ToolMenu(
 
     ) {
         SelectedChipItem(
-            text = "",
+            text = "Transform",
             painterResource = R.drawable.transform,
             selected = paintMode == PaintMode.Transform
         ) {
             setPaintMode(PaintMode.Transform)
         }
         SelectedChipItem(
-            text = "",
+            text = "Placeable",
             painterResource = R.drawable.long_press,
             selected = paintMode == PaintMode.Placeable
         ) {
             setPaintMode(PaintMode.Placeable)
         }
         SelectedChipItem(
-            text = "",
+            text = "Draw",
             painterResource = R.drawable.pencil,
             selected = paintMode == PaintMode.Draw
         ) {
             setPaintMode(PaintMode.Draw)
         }
         SelectedChipItem(
-            text = "",
+            text = "Erase",
             painterResource = R.drawable.erase,
             selected = paintMode == PaintMode.Erase
         ) {
