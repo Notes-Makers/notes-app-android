@@ -38,7 +38,7 @@ fun BaseButton(
 ) {
     Button(
         modifier = modifier
-            .height(60.dp),
+            .height(45.dp),
         onClick = onClick,
         shape = CircleShape
     ) {
