@@ -4,6 +4,7 @@ import com.notesmakers.auth_ui.destinations.LoginScreenDestination
 import com.notesmakers.home_ui.destinations.HomeScreenDestination
 import com.notesmakers.ui.destinations.NoteCreationScreenDestination
 import com.notesmakers.ui.destinations.PaintNoteScreenDestination
+import com.notesmakers.ui.destinations.QuickNoteScreenDestination
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 
 object NavGraphs {
@@ -17,7 +18,8 @@ object NavGraphs {
             HomeScreenDestination,
             LoginScreenDestination,
             PaintNoteScreenDestination,
-            NoteCreationScreenDestination
+            NoteCreationScreenDestination,
+            QuickNoteScreenDestination,
         ).associateBy { it.route }
     }
 }

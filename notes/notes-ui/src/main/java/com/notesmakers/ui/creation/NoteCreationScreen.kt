@@ -9,16 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,10 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.notesmakers.ui.composables.buttons.BaseButton
-import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
+import com.notesmakers.ui.composables.topappbar.TopBarCreation
 import com.notesmakers.ui.destinations.NoteCreationScreenDestination
 import com.notesmakers.ui.paintnote.navToPaintNote
+import com.notesmakers.ui.quicknote.navToQuickNoteScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -47,6 +42,10 @@ fun NoteCreationScreen(navigator: DestinationsNavigator, noteMode: NoteMode = No
         navToPaintNote = {
             navigator.popBackStack()
             navigator.navToPaintNote()
+        },
+        navToQuickNote = {
+            navigator.popBackStack()
+            navigator.navToQuickNoteScreen()
         }
     )
 }
@@ -58,17 +57,19 @@ fun DestinationsNavigator.navToNoteCreation(noteMode: NoteMode) =
 private fun NoteCreationScreen(
     onBackNav: () -> Unit,
     noteMode: NoteMode,
-    navToPaintNote: () -> Unit
+    navToPaintNote: () -> Unit,
+    navToQuickNote: () -> Unit,
 ) {
     Scaffold(
         topBar = {
-            TopBarCreationScreen(onBackNav = onBackNav)
+            TopBarCreation(onBackNav = onBackNav)
         },
     ) { innerPadding ->
         CreationPage(
             modifier = Modifier.padding(innerPadding),
             noteMode = noteMode,
-            navToPaintNote = navToPaintNote
+            navToPaintNote = navToPaintNote,
+            navToQuickNote = navToQuickNote
         )
     }
 }
@@ -77,7 +78,8 @@ private fun NoteCreationScreen(
 private fun CreationPage(
     modifier: Modifier,
     noteMode: NoteMode,
-    navToPaintNote: () -> Unit
+    navToPaintNote: () -> Unit,
+    navToQuickNote: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -137,35 +139,11 @@ private fun CreationPage(
                 label = "Create",
                 onClick = {
                     when (noteMode) {
-                        NoteMode.QUICK_NOTE -> Unit//TODO
+                        NoteMode.QUICK_NOTE -> navToQuickNote()
                         NoteMode.PAINT_NOTE -> navToPaintNote()
                     }
                 },
             )
         }
     }
-}
-
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun TopBarCreationScreen(onBackNav: () -> Unit) {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        title = {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                BaseIconButton(
-                    onClick = onBackNav,
-                    imageVector = Icons.Default.Clear
-                )
-            }
-        }
-    )
 }

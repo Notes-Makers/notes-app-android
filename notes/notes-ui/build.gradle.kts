@@ -34,4 +34,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("io.insert-koin:koin-androidx-compose:3.4.1")
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc04")
 }

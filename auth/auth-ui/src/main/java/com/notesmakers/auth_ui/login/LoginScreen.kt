@@ -47,7 +47,6 @@ fun LoginScreen(
 
 @Composable
 private fun LoginScreen(navBack: () -> Unit) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
     var emailErrorMessage by remember { mutableStateOf("") }
