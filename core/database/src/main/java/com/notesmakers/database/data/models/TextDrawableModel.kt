@@ -9,7 +9,8 @@ data class TextDrawableModel(
     var color: Long,
     var offsetX: Float,
     var offsetY: Float,
-    var timestamp: Long,
+    var createdAt: Long,
+    var notePageIndex: Int,
 ) : DrawableModel<RealmTextDrawable> {
     override fun toRealmDrawableComponent() = RealmTextDrawable(
         id = id,
@@ -17,6 +18,7 @@ data class TextDrawableModel(
         color = color,
         offsetX = offsetX,
         offsetY = offsetY,
-        timestamp = timestamp,
+        createdAt = createdAt,
+        notePageIndex = notePageIndex,
     )
 }

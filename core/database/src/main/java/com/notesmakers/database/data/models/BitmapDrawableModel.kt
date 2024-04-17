@@ -11,7 +11,8 @@ data class BitmapDrawableModel(
     var offsetX: Float,
     var offsetY: Float,
     val bitmap: String,
-    var timestamp: Long,
+    var createdAt: Long,
+    var notePageIndex: Int,
 ) : DrawableModel<RealmBitmapDrawable> {
     override fun toRealmDrawableComponent(): RealmBitmapDrawable = RealmBitmapDrawable(
         id = id,
@@ -21,6 +22,7 @@ data class BitmapDrawableModel(
         offsetX = offsetX,
         offsetY = offsetY,
         bitmap = bitmap,
-        timestamp = timestamp
+        createdAt = createdAt,
+        notePageIndex = notePageIndex
     )
 }

@@ -15,9 +15,6 @@ class AppModule {
             noteTransformer = {
                 it.toNote()
             },
-            toDataNoteTransformer = {
-                it.toDomainNoteModel()
-            }
         )
 }
 

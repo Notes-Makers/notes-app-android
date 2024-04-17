@@ -1,21 +1,30 @@
 package com.notesmakers.noteapp.features.notes.presentation.creation
 
+import com.notesmakers.noteapp.features.notes.data.NoteDrawableType
+import com.notesmakers.noteapp.features.notes.presentation.creation.NoteMode.PAINT_NOTE
+import com.notesmakers.noteapp.features.notes.presentation.creation.NoteMode.QUICK_NOTE
+
 enum class NoteMode {
     QUICK_NOTE, PAINT_NOTE
 }
 
+fun NoteMode.toNoteType() = when (this) {
+    QUICK_NOTE -> NoteDrawableType.QUICK_NOTE.type
+    PAINT_NOTE -> NoteDrawableType.PAINT_NOTE.type
+}
+
 val NoteMode.icon
     get() = when (this) {
-        NoteMode.QUICK_NOTE -> com.notesmakers.common_ui.R.drawable.note
-        NoteMode.PAINT_NOTE -> com.notesmakers.common_ui.R.drawable.paint_net
+        QUICK_NOTE -> com.notesmakers.common_ui.R.drawable.note
+        PAINT_NOTE -> com.notesmakers.common_ui.R.drawable.paint_net
     }
 val NoteMode.title
     get() = when (this) {
-        NoteMode.QUICK_NOTE -> "Quick Note"
-        NoteMode.PAINT_NOTE -> "Paint Note"
+        QUICK_NOTE -> "Quick Note"
+        PAINT_NOTE -> "Paint Note"
     }
 val NoteMode.desc
     get() = when (this) {
-        NoteMode.QUICK_NOTE -> "Here, in this mode, you can write simple formatted text using Markdown conventions."
-        NoteMode.PAINT_NOTE -> "Here, in this mode, you can draw on the canvas, create lines, add text, and insert images."
+        QUICK_NOTE -> "Here, in this mode, you can write simple formatted text using Markdown conventions."
+        PAINT_NOTE -> "Here, in this mode, you can draw on the canvas, create lines, add text, and insert images."
     }

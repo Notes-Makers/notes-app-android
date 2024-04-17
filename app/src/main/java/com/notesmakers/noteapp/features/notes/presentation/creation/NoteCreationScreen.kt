@@ -25,28 +25,38 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.notesmakers.noteapp.features.destinations.NoteCreationScreenDestination
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.navToPaintNote
+import com.notesmakers.noteapp.features.notes.presentation.quicknote.navToQuickNoteScreen
 import com.notesmakers.ui.composables.buttons.BaseButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
 import com.notesmakers.ui.composables.topappbar.TopBarCreation
-import com.notesmakers.noteapp.features.notes.presentation.paintnote.navToPaintNote
-import com.notesmakers.noteapp.features.notes.presentation.quicknote.navToQuickNoteScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 @Destination
-fun NoteCreationScreen(navigator: DestinationsNavigator, noteMode: NoteMode = NoteMode.QUICK_NOTE) {
+fun NoteCreationScreen(
+    noteCreationViewModel: NoteCreationViewModel = koinViewModel(),
+    navigator: DestinationsNavigator,
+    noteMode: NoteMode = NoteMode.QUICK_NOTE
+) {
     NoteCreationScreen(
         onBackNav = { navigator.popBackStack() },
         noteMode = noteMode,
-        navToPaintNote = {
+        onCreateNote = { title, description ->
+            noteCreationViewModel.createNote(
+                title = title,
+                description = description,
+                ownerId = "",
+                noteType = noteMode.toNoteType()
+            )
             navigator.popBackStack()
-            navigator.navToPaintNote()
+            when (noteMode) {
+                NoteMode.QUICK_NOTE -> navigator.navToQuickNoteScreen()
+                NoteMode.PAINT_NOTE -> navigator.navToPaintNote()
+            }
         },
-        navToQuickNote = {
-            navigator.popBackStack()
-            navigator.navToQuickNoteScreen()
-        }
     )
 }
 
@@ -57,8 +67,7 @@ fun DestinationsNavigator.navToNoteCreation(noteMode: NoteMode) =
 private fun NoteCreationScreen(
     onBackNav: () -> Unit,
     noteMode: NoteMode,
-    navToPaintNote: () -> Unit,
-    navToQuickNote: () -> Unit,
+    onCreateNote: (String, String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -68,8 +77,7 @@ private fun NoteCreationScreen(
         CreationPage(
             modifier = Modifier.padding(innerPadding),
             noteMode = noteMode,
-            navToPaintNote = navToPaintNote,
-            navToQuickNote = navToQuickNote
+            onCreateNote = onCreateNote,
         )
     }
 }
@@ -78,8 +86,7 @@ private fun NoteCreationScreen(
 private fun CreationPage(
     modifier: Modifier,
     noteMode: NoteMode,
-    navToPaintNote: () -> Unit,
-    navToQuickNote: () -> Unit,
+    onCreateNote: (title: String, desc: String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -138,10 +145,7 @@ private fun CreationPage(
                 modifier = Modifier,
                 label = "Create",
                 onClick = {
-                    when (noteMode) {
-                        NoteMode.QUICK_NOTE -> navToQuickNote()
-                        NoteMode.PAINT_NOTE -> navToPaintNote()
-                    }
+                    onCreateNote(title, description)
                 },
             )
         }

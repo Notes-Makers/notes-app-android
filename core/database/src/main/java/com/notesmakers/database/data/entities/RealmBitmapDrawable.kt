@@ -16,7 +16,8 @@ class RealmBitmapDrawable() : RealmObject {
     var offsetY: Float = 0f
     var bitmap: String = ""
 
-    var timestamp: Long = 0
+    var notePageIndex = 0
+    var createdAt: Long = 0
     fun toDrawableComponentModel(): BitmapDrawableModel = BitmapDrawableModel(
         id = id,
         width = width,
@@ -25,7 +26,8 @@ class RealmBitmapDrawable() : RealmObject {
         offsetX = offsetX,
         offsetY = offsetY,
         bitmap = bitmap,
-        timestamp = timestamp
+        createdAt = createdAt,
+        notePageIndex = notePageIndex
     )
 
     constructor(
@@ -36,7 +38,8 @@ class RealmBitmapDrawable() : RealmObject {
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        timestamp: Long,
+        createdAt: Long= System.currentTimeMillis(),
+        notePageIndex: Int,
     ) : this() {
         this.id = id
         this.width = width
@@ -45,7 +48,8 @@ class RealmBitmapDrawable() : RealmObject {
         this.offsetX = offsetX
         this.offsetY = offsetY
         this.bitmap = bitmap
-        this.timestamp = timestamp
+        this.createdAt = createdAt
+        this.notePageIndex = notePageIndex
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,7 +65,8 @@ class RealmBitmapDrawable() : RealmObject {
         if (offsetX != other.offsetX) return false
         if (offsetY != other.offsetY) return false
         if (bitmap != other.bitmap) return false
-        if (timestamp != other.timestamp) return false
+        if (notePageIndex != other.notePageIndex) return false
+        if (createdAt != other.createdAt) return false
 
         return true
     }
@@ -74,7 +79,8 @@ class RealmBitmapDrawable() : RealmObject {
         result = 31 * result + offsetX.hashCode()
         result = 31 * result + offsetY.hashCode()
         result = 31 * result + bitmap.hashCode()
-        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + notePageIndex.hashCode()
+        result = 31 * result + createdAt.hashCode()
         return result
     }
 

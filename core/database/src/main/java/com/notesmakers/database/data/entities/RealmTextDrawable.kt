@@ -14,14 +14,16 @@ class RealmTextDrawable() : RealmObject {
     var offsetX: Float = 0f
     var offsetY: Float = 0f
 
-    var timestamp: Long = 0L
+    var createdAt: Long = 0L
+    var notePageIndex = 0
     fun toDrawableComponentModel(): TextDrawableModel = TextDrawableModel(
         id = id,
         text = text,
         color = color,
         offsetX = offsetX,
         offsetY = offsetY,
-        timestamp = timestamp,
+        createdAt = createdAt,
+        notePageIndex = notePageIndex,
     )
 
     constructor(
@@ -30,14 +32,16 @@ class RealmTextDrawable() : RealmObject {
         color: Long,
         offsetX: Float,
         offsetY: Float,
-        timestamp: Long,
+        createdAt: Long = System.currentTimeMillis(),
+        notePageIndex: Int,
     ) : this() {
         this.color = color
         this.offsetX = offsetX
         this.offsetY = offsetY
         this.text = text
         this.id = id
-        this.timestamp = timestamp
+        this.createdAt = createdAt
+        this.notePageIndex = notePageIndex
     }
 
     override fun equals(other: Any?): Boolean {
@@ -51,7 +55,7 @@ class RealmTextDrawable() : RealmObject {
         if (color != other.color) return false
         if (offsetX != other.offsetX) return false
         if (offsetY != other.offsetY) return false
-        if (timestamp != other.timestamp) return false
+        if (createdAt != other.createdAt) return false
 
         return true
     }
@@ -62,7 +66,7 @@ class RealmTextDrawable() : RealmObject {
         result = 31 * result + color.hashCode()
         result = 31 * result + offsetX.hashCode()
         result = 31 * result + offsetY.hashCode()
-        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + createdAt.hashCode()
         return result
     }
 

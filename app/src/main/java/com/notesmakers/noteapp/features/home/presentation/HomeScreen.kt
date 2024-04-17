@@ -2,6 +2,7 @@ package com.notesmakers.noteapp.features.home.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +19,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,28 +34,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.notesmakers.noteapp.R
+import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.features.auth.presentation.login.goToLoginScreenDestination
 import com.notesmakers.noteapp.features.home.presentation.components.BaseTopAppBar
+import com.notesmakers.noteapp.features.notes.data.Note
 import com.notesmakers.noteapp.features.notes.presentation.creation.NoteMode
 import com.notesmakers.noteapp.features.notes.presentation.creation.navToNoteCreation
 import com.notesmakers.ui.animations.getEnterScrollTransition
 import com.notesmakers.ui.animations.getExitScrollTransition
-import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.ChipItem
+import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.SearchBar
-import com.notesmakers.ui.composables.inputs.BaseTextField
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.time.format.DateTimeFormatter
 
 @Destination
 @Composable
@@ -79,14 +76,18 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeScreen(
             innerPadding = innerPadding,
-//            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
-//            addNote = { viewModel.addNote() }
+            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
+            test = { viewModel.test(it) }
         )
     }
 }
 
 @Composable
-private fun HomeScreen(innerPadding: PaddingValues) {//, notes: List<Note>, addNote: () -> Unit) {
+private fun HomeScreen(
+    innerPadding: PaddingValues,
+    notes: List<Note>,
+    test: (String) -> Unit
+) {//, notes: List<Note>, addNote: () -> Unit) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
         derivedStateOf {
@@ -94,16 +95,17 @@ private fun HomeScreen(innerPadding: PaddingValues) {//, notes: List<Note>, addN
         }
     }
     Box {
-        NoteGridLayout(listState = listState, innerPadding = innerPadding)
+        NoteGridLayout(
+            listState = listState,
+            innerPadding = innerPadding,
+            notes = notes,
+            test = test,
+        )
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
             showButton = showButton,
             listState = listState,
         )
-//        BaseIconButton(onClick = addNote, imageVector = Icons.Default.Add)
-//        notes.forEach {
-//            Text(text = "$it tekst")
-//        }
     }
 }
 
@@ -111,7 +113,9 @@ private fun HomeScreen(innerPadding: PaddingValues) {//, notes: List<Note>, addN
 @Composable
 private fun NoteGridLayout(
     listState: LazyStaggeredGridState,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    notes: List<Note>,
+    test: (String) -> Unit
 ) {
     var isCategoryVisible by remember {
         mutableStateOf(false)
@@ -166,8 +170,8 @@ private fun NoteGridLayout(
             ItemNote(
                 title = getTitleContent() ?: "",
                 textContent = getTextContent(),
-                categoryContent = getCategoryContent() ?: "",
-                dateTime = "10 march 2021"
+                dateTime = "10 march 2021",
+                onClick = {}
             )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -184,12 +188,14 @@ private fun NoteGridLayout(
                 Text(text = "My notes", fontSize = 20.sp)
             }
         }
-        items(5) { photo ->
+        items(notes.size) { index ->
             ItemNote(
-                title = getTitleContent() ?: "",
-                textContent = getTextContent(),
-                categoryContent = getCategoryContent() ?: "",
-                dateTime = "10 march 2021"
+                title = "${notes[index].title} ${notes[index].mergedDrawables.size}",
+                textContent = notes[index].description,
+                dateTime = notes[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
+                onClick = {
+                    notes[index].id?.let { test(it) }
+                }
             )
         }
     }
@@ -225,14 +231,15 @@ private fun ScrollToTopButton(
 private fun ItemNote(
     title: String,
     textContent: String,
-    categoryContent: String,
-    dateTime: String
+    dateTime: String,
+    onClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(20.dp))
             .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.8f))
+            .clickable { onClick() }
             .padding(12.dp)
     ) {
         Row {

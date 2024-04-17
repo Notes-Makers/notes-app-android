@@ -15,7 +15,8 @@ class RealmPathDrawable() : RealmObject {
     var eraseMode: Boolean = false
     var path: String = ""
 
-    var timestamp: Long = 0L
+    var notePageIndex = 0
+    var createdAt: Long = 0L
     fun toDrawableComponentModel(): PathDrawableModel = PathDrawableModel(
         id = id,
         strokeWidth = strokeWidth,
@@ -23,7 +24,8 @@ class RealmPathDrawable() : RealmObject {
         alpha = alpha,
         eraseMode = eraseMode,
         path = path,
-        timestamp = timestamp
+        createdAt = createdAt,
+        notePageIndex = notePageIndex
     )
 
     constructor(
@@ -33,7 +35,8 @@ class RealmPathDrawable() : RealmObject {
         alpha: Float,
         eraseMode: Boolean,
         path: String,
-        timestamp: Long,
+        createdAt: Long = System.currentTimeMillis(),
+        notePageIndex: Int,
     ) : this() {
         this.strokeWidth = strokeWidth
         this.color = color
@@ -41,7 +44,8 @@ class RealmPathDrawable() : RealmObject {
         this.alpha = alpha
         this.eraseMode = eraseMode
         this.path = path
-        this.timestamp = timestamp
+        this.createdAt = createdAt
+        this.notePageIndex = notePageIndex
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,7 +60,8 @@ class RealmPathDrawable() : RealmObject {
         if (alpha != other.alpha) return false
         if (eraseMode != other.eraseMode) return false
         if (path != other.path) return false
-        if (timestamp != other.timestamp) return false
+        if (createdAt != other.createdAt) return false
+        if (notePageIndex != other.notePageIndex) return false
 
         return true
     }
@@ -68,7 +73,8 @@ class RealmPathDrawable() : RealmObject {
         result = 31 * result + alpha.hashCode()
         result = 31 * result + eraseMode.hashCode()
         result = 31 * result + path.hashCode()
-        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + createdAt.hashCode()
+        result = 31 * result + notePageIndex.hashCode()
         return result
     }
 

@@ -10,7 +10,8 @@ data class PathDrawableModel(
     var alpha: Float,
     var eraseMode: Boolean,
     var path: String,
-    var timestamp: Long,
+    var createdAt: Long,
+    var notePageIndex: Int,
 ) : DrawableModel<RealmPathDrawable> {
     override fun toRealmDrawableComponent() = RealmPathDrawable(
         id = id,
@@ -19,6 +20,7 @@ data class PathDrawableModel(
         alpha = alpha,
         eraseMode = eraseMode,
         path = path,
-        timestamp = timestamp,
+        createdAt = createdAt,
+        notePageIndex = notePageIndex,
     )
 }

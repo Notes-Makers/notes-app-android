@@ -1,6 +1,10 @@
 package com.notesmakers.database.data.dao
 
+import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
+import com.notesmakers.database.data.entities.RealmPathDrawable
+import com.notesmakers.database.data.entities.RealmTextDrawable
+import com.notesmakers.database.data.entities.UNDEFINED
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
@@ -12,27 +16,115 @@ import org.koin.core.annotation.Factory
 class NotesDao(
     private val realm: Realm
 ) {
-    suspend fun insertNote(notes: RealmNote) = realm.write {
-        copyToRealm(notes, updatePolicy = UpdatePolicy.ALL)
+    suspend fun createNote(
+        title: String,
+        description: String,
+        ownerId: String,
+        noteType: String = UNDEFINED,
+    ) = realm.write {
+        copyToRealm(
+            RealmNote(
+                title = title, description = description, ownerId = ownerId, noteType = noteType
+            ), updatePolicy = UpdatePolicy.ALL
+        )
     }
 
-    // fetch all objects of a type as a flow, asynchronously
+    suspend fun addTextDrawableToNote(
+        noteId: String,
+        text: String,
+        color: Long,
+        offsetX: Float,
+        offsetY: Float,
+        notePageIndex: Int,
+    ) = realm.write {
+
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+
+        findRealmNote?.apply {
+            textDrawables.add(
+                RealmTextDrawable(
+                    text = text,
+                    color = color,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    notePageIndex = notePageIndex,
+                )
+            )
+        }
+    }
+
+    suspend fun addBitmapDrawableToNote(
+        noteId: String,
+        width: Int,
+        height: Int,
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float,
+        bitmap: String,
+        notePageIndex: Int,
+    ) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        findRealmNote?.apply {
+            bitmapDrawables.add(
+                RealmBitmapDrawable(
+                    width = width,
+                    height = height,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    bitmap = bitmap,
+                    notePageIndex = notePageIndex
+                )
+            )
+        }
+    }
+
+    suspend fun addPathDrawableToNote(
+        noteId: String,
+        strokeWidth: Float,
+        color: Long,
+        alpha: Float,
+        eraseMode: Boolean,
+        path: String,
+        notePageIndex: Int,
+    ) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        findRealmNote?.apply {
+            pathDrawables.add(
+                RealmPathDrawable(
+                    strokeWidth = strokeWidth,
+                    color = color,
+                    alpha = alpha,
+                    eraseMode = eraseMode,
+                    path = path,
+                    notePageIndex = notePageIndex
+                )
+            )
+        }
+    }
+
     fun getNotes(): Flow<List<RealmNote>> =
         realm.query<RealmNote>().asFlow().map { results -> results.list.toList() }
 
-    suspend fun deleteNote(id: String) = realm.write {
+    suspend fun deleteNote(noteId: String) = realm.write {
 
-        val findRealmNote = query<RealmNote>("id == $0", id).find()
+        val findRealmNote = query<RealmNote>("id == $0", noteId).find()
         delete(findRealmNote)
     }
 
-    suspend fun updateNote(notes: RealmNote?) = realm.write {
+    suspend fun updateNote(
+        noteId: String,
+        title: String,
+        description: String,
+        ownerId: String,
+    ) = realm.write {
 
-        val findRealmNote = query<RealmNote>("id == $0", notes?.id ?: "0").first().find()
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
 
         findRealmNote?.apply {
-            title = notes?.title ?: "-"
-            description = notes?.description ?: "-"
+            this.title = title
+            this.description = description
+            this.ownerId = ownerId
         }
     }
 
