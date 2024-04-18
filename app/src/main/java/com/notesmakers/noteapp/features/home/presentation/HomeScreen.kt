@@ -44,8 +44,12 @@ import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.features.auth.presentation.login.goToLoginScreenDestination
 import com.notesmakers.noteapp.features.home.presentation.components.BaseTopAppBar
 import com.notesmakers.noteapp.features.notes.data.Note
+import com.notesmakers.noteapp.features.notes.data.NoteDrawableType
+import com.notesmakers.noteapp.features.notes.data.toNoteDrawableType
 import com.notesmakers.noteapp.features.notes.presentation.creation.NoteMode
 import com.notesmakers.noteapp.features.notes.presentation.creation.navToNoteCreation
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.navToPaintNote
+import com.notesmakers.noteapp.features.notes.presentation.quicknote.navToQuickNoteScreen
 import com.notesmakers.ui.animations.getEnterScrollTransition
 import com.notesmakers.ui.animations.getExitScrollTransition
 import com.notesmakers.ui.composables.ChipItem
@@ -77,7 +81,13 @@ fun HomeScreen(
         HomeScreen(
             innerPadding = innerPadding,
             notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
-            test = { viewModel.test(it) }
+            navToNote = { noteID, noteType ->
+                when (noteType.toNoteDrawableType()) {
+                    NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen()
+                    NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
+                    NoteDrawableType.UNDEFINED -> TODO()
+                }
+            },
         )
     }
 }
@@ -86,7 +96,7 @@ fun HomeScreen(
 private fun HomeScreen(
     innerPadding: PaddingValues,
     notes: List<Note>,
-    test: (String) -> Unit
+    navToNote: (String, String) -> Unit
 ) {//, notes: List<Note>, addNote: () -> Unit) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
@@ -99,7 +109,7 @@ private fun HomeScreen(
             listState = listState,
             innerPadding = innerPadding,
             notes = notes,
-            test = test,
+            navToNote = navToNote
         )
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -115,7 +125,7 @@ private fun NoteGridLayout(
     listState: LazyStaggeredGridState,
     innerPadding: PaddingValues,
     notes: List<Note>,
-    test: (String) -> Unit
+    navToNote: (String, String) -> Unit
 ) {
     var isCategoryVisible by remember {
         mutableStateOf(false)
@@ -190,11 +200,11 @@ private fun NoteGridLayout(
         }
         items(notes.size) { index ->
             ItemNote(
-                title = "${notes[index].title} ${notes[index].mergedDrawables.size}",
+                title = notes[index].title,
                 textContent = notes[index].description,
                 dateTime = notes[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
-                    notes[index].id?.let { test(it) }
+                    notes[index].id?.let { navToNote(it, notes[index].noteType) }
                 }
             )
         }
@@ -264,13 +274,6 @@ private fun ItemNote(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-//            Text(
-//                text = categoryContent,
-//                fontSize = 12.sp,
-//                modifier = Modifier.weight(1f),
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis
-//            )
             Text(text = dateTime, fontSize = 12.sp)
         }
     }
@@ -284,41 +287,3 @@ fun getTextContent() =
 fun getTitleContent() =
     listOf("title", "twotwotwotwotwotwotwo", "three", "four", "five").asSequence().shuffled()
         .find { true }
-
-fun getCategoryContent() =
-    listOf("#Todos,#Todos,#Todos,#Todos", "#Todos", "#Todos,#Todos").asSequence().shuffled()
-        .find { true }
-
-//val focusManager = LocalFocusManager.current
-//var title by remember { mutableStateOf("") }
-//var description by remember { mutableStateOf("") }
-//
-//val listOfExistNotes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value
-//Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-//    BaseTextField(
-//        modifier = Modifier.padding(bottom = 12.dp),
-//        onValueChange = { title = it },
-//        labelText = "Enter title",
-//        placeholderText = "title",
-//        focusManager = focusManager,
-//        errorMessage = null,
-//    )
-//    BaseTextField(
-//        modifier = Modifier.padding(bottom = 12.dp),
-//        onValueChange = { description = it },
-//        labelText = "Enter description",
-//        placeholderText = "description",
-//        focusManager = focusManager,
-//        errorMessage = null,
-//    )
-//    BaseIconButton(onClick = {
-//        viewModel.addNote(
-//            title = title,
-//            description = description
-//        )
-//    }, imageVector = Icons.Default.Add)
-//
-//    listOfExistNotes.forEach { note ->
-//        Text(text = "${note.description} ${note.title}  ${note.mergedDrawables.size} ")
-//    }
-//}
