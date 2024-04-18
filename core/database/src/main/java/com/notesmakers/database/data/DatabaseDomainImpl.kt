@@ -92,6 +92,9 @@ class DatabaseDomainImpl<Note>(
         notesDao.getNotes()
             .map { results -> results.map { it.toNoteData().noteTransformer() }.toList() }
 
+    override fun getNoteById(noteId: String): Note? =
+        notesDao.getNoteById(noteId)?.toNoteData()?.noteTransformer()
+
     override suspend fun deleteNote(noteId: String) = withContext(Dispatchers.IO) {
         notesDao.deleteNote(noteId)
     }
@@ -109,4 +112,12 @@ class DatabaseDomainImpl<Note>(
             ownerId = ownerId,
         )?.toNoteData()?.noteTransformer()
     }
+
+    override suspend fun updatePageNote(noteId: String, pageCount: Int): Note? =
+        withContext(Dispatchers.IO) {
+            notesDao.updatePageNote(
+                noteId = noteId,
+                pageCount = pageCount,
+            )?.toNoteData()?.noteTransformer()
+        }
 }

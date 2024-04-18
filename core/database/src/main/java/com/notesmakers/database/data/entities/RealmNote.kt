@@ -17,9 +17,9 @@ class RealmNote() : RealmObject {
     var ownerId: String = ""
     var description: String = ""
     var createdAt: Long = 0
-    var pageCount: Int = 0
+    var pageCount: Int = 1
 
-    private var noteType: String = UNDEFINED
+    var noteType: String = UNDEFINED
     var bitmapDrawables: RealmList<RealmBitmapDrawable> = realmListOf()
     var pathDrawables: RealmList<RealmPathDrawable> = realmListOf()
     var textDrawables: RealmList<RealmTextDrawable> = realmListOf()
@@ -29,7 +29,7 @@ class RealmNote() : RealmObject {
         title: String,
         description: String,
         ownerId: String,
-        pageCount: Int = 0,
+        pageCount: Int = 1,
         createdAt: Long = System.currentTimeMillis(),
         noteType: String = UNDEFINED,
         bitmapDrawable: RealmList<RealmBitmapDrawable> = realmListOf(),

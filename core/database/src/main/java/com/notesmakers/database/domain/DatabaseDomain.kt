@@ -47,6 +47,8 @@ interface DatabaseDomain<Note> {
 
     fun getNotes(): Flow<List<Note>>
 
+    fun getNoteById(noteId: String): Note?
+
     suspend fun deleteNote(
         noteId: String,
     )
@@ -56,6 +58,11 @@ interface DatabaseDomain<Note> {
         title: String,
         description: String,
         ownerId: String,
+    ): Note?
+
+    suspend fun updatePageNote(
+        noteId: String,
+        pageCount: Int,
     ): Note?
 
     companion object {

@@ -106,6 +106,9 @@ class NotesDao(
     fun getNotes(): Flow<List<RealmNote>> =
         realm.query<RealmNote>().asFlow().map { results -> results.list.toList() }
 
+    fun getNoteById(noteId: String): RealmNote? =
+        realm.query<RealmNote>("id == $0", noteId).first().find()
+
     suspend fun deleteNote(noteId: String) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).find()
@@ -128,4 +131,11 @@ class NotesDao(
         }
     }
 
+    suspend fun updatePageNote(noteId: String, pageCount: Int) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+
+        findRealmNote?.apply {
+            this.pageCount = pageCount
+        }
+    }
 }

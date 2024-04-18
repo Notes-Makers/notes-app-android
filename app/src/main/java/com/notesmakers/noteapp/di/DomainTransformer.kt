@@ -12,6 +12,8 @@ fun DomainNoteModel.toNote() = Note(
     title = title,
     description = description,
     ownerId = ownerId,
+    pageCount = pageCount,
+    noteType = noteType,
     createdAt = createdAt.localDateFromTimeStamp(),
     bitmapDrawables = bitmapDrawable.map {
         BitmapDrawable(

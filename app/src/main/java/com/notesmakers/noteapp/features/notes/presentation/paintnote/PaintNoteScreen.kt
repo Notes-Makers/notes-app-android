@@ -29,22 +29,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notesmakers.noteapp.features.destinations.PaintNoteScreenDestination
+import com.notesmakers.noteapp.features.notes.data.Note
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun PaintNoteScreen(navigator: DestinationsNavigator) {
+fun PaintNoteScreen(
+    navigator: DestinationsNavigator,
+    noteId: String,
+    paintNoteViewModel: PaintNoteViewModel = koinViewModel { parametersOf(noteId) }
+) {
+    val noteState = paintNoteViewModel.noteState.collectAsStateWithLifecycle().value
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,18 +78,28 @@ fun PaintNoteScreen(navigator: DestinationsNavigator) {
             )
         },
     ) { innerPadding ->
-        PaintNoteScreen(innerPadding)
+        noteState?.let {
+            PaintNoteScreen(
+                innerPadding = innerPadding,
+                note = noteState,
+                updatePageCount = {
+                    paintNoteViewModel.updatePageCount(it)
+                })
+        }
     }
 }
 
-fun DestinationsNavigator.navToPaintNote() = navigate(PaintNoteScreenDestination())
+fun DestinationsNavigator.navToPaintNote(noteId: String) =
+    navigate(PaintNoteScreenDestination(noteId))
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun PaintNoteScreen(innerPadding: PaddingValues) {
-    val fakeData = remember { mutableStateListOf<Int>(1, 2) }
-
-    val pagerState = rememberPagerState(pageCount = { fakeData.size })
+private fun PaintNoteScreen(
+    innerPadding: PaddingValues,
+    note: Note,
+    updatePageCount: (Int) -> Unit
+) {
+    val pagerState = rememberPagerState(pageCount = { note.pageCount })
     var selectedTabIndex = pagerState.currentPage
     val coroutineScope = rememberCoroutineScope()
     Box(
@@ -90,7 +107,6 @@ private fun PaintNoteScreen(innerPadding: PaddingValues) {
             .padding(innerPadding)
             .fillMaxSize()
     ) {
-
         Column(
             modifier = Modifier
         ) {
@@ -109,7 +125,10 @@ private fun PaintNoteScreen(innerPadding: PaddingValues) {
                         )
                     }
                 ) {
-                    fakeData.forEachIndexed { index, item ->
+                    IntRange(
+                        start = 1,
+                        endInclusive = note.pageCount
+                    ).forEachIndexed { index, item ->
                         Tab(
                             modifier = Modifier
                                 .height(40.dp)
@@ -130,7 +149,8 @@ private fun PaintNoteScreen(innerPadding: PaddingValues) {
                     }
                 }
                 BaseIconButton(
-                    onClick = { fakeData.add(fakeData.size + 1) }, imageVector = Icons.Default.Add
+                    onClick = { updatePageCount(note.pageCount + 1) },
+                    imageVector = Icons.Default.Add
                 )
             }
             HorizontalPager(

@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,23 @@ fun NoteCreationScreen(
     navigator: DestinationsNavigator,
     noteMode: NoteMode = NoteMode.QUICK_NOTE
 ) {
+    LaunchedEffect(Unit) {
+        noteCreationViewModel.noteCreationEvent.collect {
+            when (it) {
+                is NoteCreationViewModel.NoteCreationEvent.NavToNote -> {
+                    navigator.popBackStack()
+                    when (noteMode) {
+                        NoteMode.QUICK_NOTE -> navigator.navToQuickNoteScreen()
+                        NoteMode.PAINT_NOTE -> {
+                            it.note.id?.let { noteId ->
+                                navigator.navToPaintNote(noteId)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     NoteCreationScreen(
         onBackNav = { navigator.popBackStack() },
         noteMode = noteMode,
@@ -51,11 +69,6 @@ fun NoteCreationScreen(
                 ownerId = "",
                 noteType = noteMode.toNoteType()
             )
-            navigator.popBackStack()
-            when (noteMode) {
-                NoteMode.QUICK_NOTE -> navigator.navToQuickNoteScreen()
-                NoteMode.PAINT_NOTE -> navigator.navToPaintNote()
-            }
         },
     )
 }
