@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.common.android.application.navigation)
     alias(libs.plugins.common.android.application.koin)
-    alias(libs.plugins.io.realm.kotlin)
 }
 
 android {
@@ -43,20 +42,17 @@ android {
 
 
 dependencies {
-    // realm db
-    implementation(libs.realm.base)
-    implementation(libs.realm.sync)
-
     implementation(project(":core:database"))
-    implementation(project(":home:home-ui"))
-    implementation(project(":auth:auth-ui"))
-    implementation(project(":notes:notes-ui"))
     implementation(project(":core:ui"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.raamcosta.destinations.animations)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("io.insert-koin:koin-androidx-compose:3.4.1")
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc04")
 }
