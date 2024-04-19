@@ -25,6 +25,7 @@ fun DomainNoteModel.toNote() = Note(
             offsetY = it.offsetY,
             bitmap = it.bitmap,
             createdAt = it.createdAt,
+            pageNumber = it.notePageIndex,
         )
     },
     pathDrawables = pathDrawables.map {
@@ -36,6 +37,7 @@ fun DomainNoteModel.toNote() = Note(
             eraseMode = it.eraseMode,
             path = it.path,
             createdAt = it.createdAt,
+            pageNumber = it.notePageIndex,
         )
     },
     textDrawables = textDrawables.map {
@@ -45,7 +47,8 @@ fun DomainNoteModel.toNote() = Note(
             color = it.color,
             offsetX = it.offsetX,
             offsetY = it.offsetY,
-            createdAt = it.createdAt
+            createdAt = it.createdAt,
+            pageNumber = it.notePageIndex,
         )
     },
 )

@@ -32,7 +32,7 @@ class NotesDao(
     suspend fun addTextDrawableToNote(
         noteId: String,
         text: String,
-        color: Long,
+        color: String,
         offsetX: Float,
         offsetY: Float,
         notePageIndex: Int,
@@ -82,7 +82,7 @@ class NotesDao(
     suspend fun addPathDrawableToNote(
         noteId: String,
         strokeWidth: Float,
-        color: Long,
+        color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,

@@ -11,4 +11,5 @@ data class BitmapDrawable(
     var offsetY: Float,
     val bitmap: String,
     override val createdAt: Long,
+    override val pageNumber: Int,
 ) : Drawable

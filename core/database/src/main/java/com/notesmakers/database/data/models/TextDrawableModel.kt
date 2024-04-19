@@ -6,7 +6,7 @@ import java.util.UUID
 data class TextDrawableModel(
     var id: String = UUID.randomUUID().toString(),
     var text: String,
-    var color: Long,
+    var color: String,
     var offsetX: Float,
     var offsetY: Float,
     var createdAt: Long,

@@ -10,7 +10,7 @@ class AddPathDrawableToNoteUseCase(
     suspend operator fun invoke(
         noteId: String,
         strokeWidth: Float,
-        color: Long,
+        color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,

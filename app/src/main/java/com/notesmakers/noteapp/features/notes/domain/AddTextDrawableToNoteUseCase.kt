@@ -10,7 +10,7 @@ class AddTextDrawableToNoteUseCase(
     suspend operator fun invoke(
         noteId: String,
         text: String,
-        color: Long,
+        color: String,
         offsetX: Float,
         offsetY: Float,
         notePageIndex: Int,

@@ -29,13 +29,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.notesmakers.noteapp.extension.encodeImage
+import com.notesmakers.noteapp.extension.getSvgPath
+import com.notesmakers.noteapp.extension.toHexCodeWithAlpha
 import com.notesmakers.noteapp.features.destinations.PaintNoteScreenDestination
 import com.notesmakers.noteapp.features.notes.data.Note
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.BitmapProperties
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.PathProperties
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.TextProperties
+import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.toDrawableComponent
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -82,6 +93,36 @@ fun PaintNoteScreen(
             PaintNoteScreen(
                 innerPadding = innerPadding,
                 note = noteState,
+                addPathDrawableToNote = { pathProperties, pagePosition ->
+                    paintNoteViewModel.addPathDrawableToNote(
+                        strokeWidth = pathProperties.strokeWidth,
+                        color = pathProperties.color.toHexCodeWithAlpha(),
+                        alpha = pathProperties.alpha,
+                        eraseMode = pathProperties.eraseMode,
+                        path = pathProperties.path.getSvgPath(),
+                        notePageIndex = pagePosition
+                    )
+                },
+                addBitmapDrawableToNote = { bitmapProperties, pagePosition ->
+                    paintNoteViewModel.addBitmapDrawableToNote(
+                        width = bitmapProperties.width,
+                        height = bitmapProperties.height,
+                        scale = bitmapProperties.scale,
+                        offsetX = bitmapProperties.offset.x,
+                        offsetY = bitmapProperties.offset.y,
+                        bitmap = bitmapProperties.bitmap.encodeImage() ?: "",
+                        notePageIndex = pagePosition
+                    )
+                },
+                addTextDrawableToNote = { textProperties, pagePosition ->
+                    paintNoteViewModel.addTextDrawableToNote(
+                        text = textProperties.text,
+                        color = textProperties.color.toHexCodeWithAlpha(),
+                        offsetX = textProperties.offset.x,
+                        offsetY = textProperties.offset.y,
+                        notePageIndex = pagePosition
+                    )
+                },
                 updatePageCount = {
                     paintNoteViewModel.updatePageCount(it)
                 })
@@ -97,10 +138,16 @@ fun DestinationsNavigator.navToPaintNote(noteId: String) =
 private fun PaintNoteScreen(
     innerPadding: PaddingValues,
     note: Note,
+    addPathDrawableToNote: (PathProperties, Int) -> Unit,
+    addBitmapDrawableToNote: (BitmapProperties, Int) -> Unit,
+    addTextDrawableToNote: (TextProperties, Int) -> Unit,
     updatePageCount: (Int) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { note.pageCount })
-    var selectedTabIndex = pagerState.currentPage
+    var selectedTabIndex by remember {
+        mutableIntStateOf(pagerState.currentPage)
+    }
+
     val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
@@ -149,7 +196,7 @@ private fun PaintNoteScreen(
                     }
                 }
                 BaseIconButton(
-                    onClick = { updatePageCount(note.pageCount + 1) },
+                    onClick = { updatePageCount(note.pageCount.startWithOne()) },
                     imageVector = Icons.Default.Add
                 )
             }
@@ -158,10 +205,27 @@ private fun PaintNoteScreen(
                 state = pagerState,
                 modifier = Modifier.weight(1f),
             ) {
-                PaintSpace(
-                    modifier = Modifier.weight(1f)
-                )
+                Column(Modifier.weight(1f)) {
+                    PaintSpace(
+                        modifier = Modifier.weight(1f),
+                        initDrawableComponents =
+                        note.mergedDrawables.filter {
+                            (selectedTabIndex.startWithOne()) == it.pageNumber
+                        }.toDrawableComponent(),
+                        addPathDrawableToNote = {
+                            addPathDrawableToNote(it, selectedTabIndex.startWithOne())
+                        },
+                        addBitmapDrawableToNote = {
+                            addBitmapDrawableToNote(it, selectedTabIndex.startWithOne())
+                        },
+                        addTextDrawableToNote = {
+                            addTextDrawableToNote(it, selectedTabIndex.startWithOne())
+                        },
+                    )
+                }
             }
         }
     }
 }
+
+private fun Int.startWithOne() = this + 1

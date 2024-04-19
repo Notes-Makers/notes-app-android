@@ -10,7 +10,7 @@ class RealmPathDrawable() : RealmObject {
     @PrimaryKey
     var id: String = ""
     var strokeWidth: Float = 5f
-    var color: Long = 0xFF3B82F6
+    var color: String = ""
     var alpha: Float = 1f
     var eraseMode: Boolean = false
     var path: String = ""
@@ -31,7 +31,7 @@ class RealmPathDrawable() : RealmObject {
     constructor(
         id: String = UUID.randomUUID().toString(),
         strokeWidth: Float,
-        color: Long,
+        color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,

@@ -45,7 +45,13 @@ import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.Text
 import com.notesmakers.noteapp.features.notes.presentation.paintnote.models.handleMotionEvent
 
 @Composable
-fun PaintSpace(modifier: Modifier) {
+fun PaintSpace(
+    modifier: Modifier,
+    initDrawableComponents: List<DrawableComponent> = emptyList(),
+    addPathDrawableToNote: (PathProperties) -> Unit,
+    addBitmapDrawableToNote: (BitmapProperties) -> Unit,
+    addTextDrawableToNote: (TextProperties) -> Unit,
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -81,7 +87,8 @@ fun PaintSpace(modifier: Modifier) {
         var previousPosition by remember { mutableStateOf(Offset.Unspecified) }
 
         //Path + Bitmap + Text
-        val drawableComponents = remember { mutableStateListOf<DrawableComponent>() }
+        val drawableComponents =
+            remember { mutableStateListOf<DrawableComponent>().apply { addAll(initDrawableComponents) } }
 
         var previewBitmap by remember {
             mutableStateOf<BitmapProperties?>(null)
@@ -130,6 +137,7 @@ fun PaintSpace(modifier: Modifier) {
                 setCurrentPathProperty = { currentPathProperty = it },
                 setCurrentPath = { currentPath = it },
                 addPaths = {
+                    addPathDrawableToNote(it)
                     drawableComponents.add(it)
                 },
                 setLongPressPositionOffset = {
@@ -141,6 +149,7 @@ fun PaintSpace(modifier: Modifier) {
                 BitmapManipulator(
                     bitmapProperties = bitmapProperties,
                     onAddBitmap = {
+                        addBitmapDrawableToNote(it)
                         drawableComponents.add(it)
                         previewBitmap = null
                     },
@@ -154,6 +163,7 @@ fun PaintSpace(modifier: Modifier) {
                 modifier = Modifier.align(Alignment.TopCenter),
                 textProperties = textProperties,
                 addNewText = {
+                    addTextDrawableToNote(it)
                     drawableComponents.add(it)
                     previewText = null
                 },

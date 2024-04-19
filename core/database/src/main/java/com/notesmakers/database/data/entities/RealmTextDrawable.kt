@@ -10,7 +10,7 @@ class RealmTextDrawable() : RealmObject {
     @PrimaryKey
     var id: String = ""
     var text: String = ""
-    var color: Long = 0xFF3B82F6
+    var color: String = ""
     var offsetX: Float = 0f
     var offsetY: Float = 0f
 
@@ -29,7 +29,7 @@ class RealmTextDrawable() : RealmObject {
     constructor(
         id: String = UUID.randomUUID().toString(),
         text: String,
-        color: Long,
+        color: String,
         offsetX: Float,
         offsetY: Float,
         createdAt: Long = System.currentTimeMillis(),

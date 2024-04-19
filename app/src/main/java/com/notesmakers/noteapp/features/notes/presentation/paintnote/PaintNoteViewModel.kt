@@ -26,12 +26,12 @@ class PaintNoteViewModel(
 
     fun addTextDrawableToNote(
         text: String,
-        color: Long,
+        color: String,
         offsetX: Float,
         offsetY: Float,
         notePageIndex: Int,
     ) = viewModelScope.launch {
-        addTextDrawableToNoteUseCase(
+        _noteState.value = addTextDrawableToNoteUseCase(
             noteId = noteId,
             text = text,
             color = color,
@@ -50,7 +50,7 @@ class PaintNoteViewModel(
         bitmap: String,
         notePageIndex: Int,
     ) = viewModelScope.launch {
-        addBitmapDrawableToNoteUseCase(
+        _noteState.value = addBitmapDrawableToNoteUseCase(
             noteId = noteId,
             width = width,
             height = height,
@@ -63,15 +63,14 @@ class PaintNoteViewModel(
     }
 
     fun addPathDrawableToNote(
-        noteId: String,
         strokeWidth: Float,
-        color: Long,
+        color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
         notePageIndex: Int,
     ) = viewModelScope.launch {
-        addPathDrawableToNoteUseCase(
+        _noteState.value = addPathDrawableToNoteUseCase(
             noteId = noteId,
             strokeWidth = strokeWidth,
             color = color,
