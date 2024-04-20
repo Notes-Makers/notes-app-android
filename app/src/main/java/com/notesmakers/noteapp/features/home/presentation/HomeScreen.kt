@@ -83,7 +83,7 @@ fun HomeScreen(
             notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
             navToNote = { noteID, noteType ->
                 when (noteType.toNoteDrawableType()) {
-                    NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen()
+                    NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
                     NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
                     NoteDrawableType.UNDEFINED -> TODO()
                 }

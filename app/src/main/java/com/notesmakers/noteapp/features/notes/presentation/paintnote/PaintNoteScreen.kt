@@ -99,7 +99,7 @@ fun PaintNoteScreen(
                         color = pathProperties.color.toHexCodeWithAlpha(),
                         alpha = pathProperties.alpha,
                         eraseMode = pathProperties.eraseMode,
-                        path = pathProperties.path.getSvgPath(),
+                        path = pathProperties.path,
                         notePageIndex = pagePosition
                     )
                 },

@@ -120,4 +120,12 @@ class DatabaseDomainImpl<Note>(
                 pageCount = pageCount,
             )?.toNoteData()?.noteTransformer()
         }
+
+    override suspend fun updateTextNote(noteId: String, text: String): Note? =
+        withContext(Dispatchers.IO) {
+            notesDao.updateTextNote(
+                noteId = noteId,
+                text = text,
+            )?.toNoteData()?.noteTransformer()
+        }
 }

@@ -4,6 +4,7 @@ import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
 import com.notesmakers.database.data.entities.RealmPathDrawable
 import com.notesmakers.database.data.entities.RealmTextDrawable
+import com.notesmakers.database.data.entities.TextQuickNote
 import com.notesmakers.database.data.entities.UNDEFINED
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
@@ -136,6 +137,13 @@ class NotesDao(
 
         findRealmNote?.apply {
             this.pageCount = pageCount
+        }
+    }
+
+    suspend fun updateTextNote(noteId: String, text: String) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        findRealmNote?.apply {
+            this.textQuickNote = TextQuickNote(text = text)
         }
     }
 }

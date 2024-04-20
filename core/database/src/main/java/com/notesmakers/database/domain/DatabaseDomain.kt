@@ -65,6 +65,11 @@ interface DatabaseDomain<Note> {
         pageCount: Int,
     ): Note?
 
+    suspend fun updateTextNote(
+        noteId: String,
+        text: String,
+    ): Note?
+
     companion object {
         fun <Note> createDatabaseDomain(
             noteTransformer: (DomainNoteModel) -> Note,

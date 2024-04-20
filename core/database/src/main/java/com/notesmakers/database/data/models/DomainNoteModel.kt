@@ -11,6 +11,7 @@ data class DomainNoteModel(
     val createdAt: Long,
     val pageCount: Int,
     val noteType: String,
+    val textQuickNote: TextQuickNoteModel?,
     var bitmapDrawable: List<BitmapDrawableModel> = listOf(),
     var pathDrawables: List<PathDrawableModel> = listOf(),
     var textDrawables: List<TextDrawableModel> = listOf(),
@@ -24,6 +25,12 @@ fun RealmNote.toNoteData() = DomainNoteModel(
     createdAt = createdAt,
     pageCount = pageCount,
     noteType = noteType,
+    textQuickNote = textQuickNote?.let {
+        TextQuickNoteModel(
+            id = it.id,
+            text = it.text
+        )
+    },
     bitmapDrawable = bitmapDrawables.map { it.toDrawableComponentModel() },
     pathDrawables = pathDrawables.map { it.toDrawableComponentModel() },
     textDrawables = textDrawables.map { it.toDrawableComponentModel() }

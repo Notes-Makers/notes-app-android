@@ -12,6 +12,7 @@ data class Note(
     val createdAt: LocalDateTime,
     val pageCount: Int,
     val noteType: String,
+    val textNote: TextNote?,
     var bitmapDrawables: List<BitmapDrawable> = listOf(),
     var pathDrawables: List<PathDrawable> = listOf(),
     var textDrawables: List<TextDrawable> = listOf(),

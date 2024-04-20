@@ -20,6 +20,7 @@ class RealmNote() : RealmObject {
     var pageCount: Int = 1
 
     var noteType: String = UNDEFINED
+    var textQuickNote: TextQuickNote? = TextQuickNote()
     var bitmapDrawables: RealmList<RealmBitmapDrawable> = realmListOf()
     var pathDrawables: RealmList<RealmPathDrawable> = realmListOf()
     var textDrawables: RealmList<RealmTextDrawable> = realmListOf()
@@ -32,6 +33,7 @@ class RealmNote() : RealmObject {
         pageCount: Int = 1,
         createdAt: Long = System.currentTimeMillis(),
         noteType: String = UNDEFINED,
+        textQuickNote: TextQuickNote = TextQuickNote(),
         bitmapDrawable: RealmList<RealmBitmapDrawable> = realmListOf(),
         pathDrawables: RealmList<RealmPathDrawable> = realmListOf(),
         textDrawables: RealmList<RealmTextDrawable> = realmListOf(),
@@ -46,5 +48,6 @@ class RealmNote() : RealmObject {
         this.textDrawables = textDrawables
         this.createdAt = createdAt
         this.pageCount = pageCount
+        this.textQuickNote = textQuickNote
     }
 }

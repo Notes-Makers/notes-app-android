@@ -6,6 +6,7 @@ import com.notesmakers.noteapp.features.notes.data.BitmapDrawable
 import com.notesmakers.noteapp.features.notes.data.Note
 import com.notesmakers.noteapp.features.notes.data.PathDrawable
 import com.notesmakers.noteapp.features.notes.data.TextDrawable
+import com.notesmakers.noteapp.features.notes.data.TextNote
 
 fun DomainNoteModel.toNote() = Note(
     id = id,
@@ -15,6 +16,12 @@ fun DomainNoteModel.toNote() = Note(
     pageCount = pageCount,
     noteType = noteType,
     createdAt = createdAt.localDateFromTimeStamp(),
+    textNote = textQuickNote?.let {
+        TextNote(
+            id = it.id,
+            text = it.text
+        )
+    },
     bitmapDrawables = bitmapDrawable.map {
         BitmapDrawable(
             id = it.id,
