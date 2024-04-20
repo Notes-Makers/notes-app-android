@@ -10,7 +10,9 @@ fun Path.getSvgPath(): String {
     }
     val pathLength = pathMeasure.length
     val stringBuilder = StringBuilder()
-
+    if (pathLength == 0f) {
+        throw Exception("Nothing to write")
+    }
     stringBuilder.append("M ${pathMeasure.getPosition(0f).x} ${pathMeasure.getPosition(0f).y} ")
     for (i in 1..pathLength.toInt()) {
         val offset = pathMeasure.getPosition(i.toFloat())

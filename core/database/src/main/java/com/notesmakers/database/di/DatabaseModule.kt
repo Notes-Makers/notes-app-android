@@ -4,6 +4,7 @@ import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
 import com.notesmakers.database.data.entities.RealmPathDrawable
 import com.notesmakers.database.data.entities.RealmTextDrawable
+import com.notesmakers.database.data.entities.TextQuickNote
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import org.koin.core.annotation.ComponentScan
@@ -20,7 +21,8 @@ class DatabaseModule {
                 RealmNote::class,
                 RealmBitmapDrawable::class,
                 RealmTextDrawable::class,
-                RealmPathDrawable::class
+                RealmPathDrawable::class,
+                TextQuickNote::class,
             )
         )
         return Realm.open(config)

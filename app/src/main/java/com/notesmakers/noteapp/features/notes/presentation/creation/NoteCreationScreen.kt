@@ -48,7 +48,12 @@ fun NoteCreationScreen(
                 is NoteCreationViewModel.NoteCreationEvent.NavToNote -> {
                     navigator.popBackStack()
                     when (noteMode) {
-                        NoteMode.QUICK_NOTE -> navigator.navToQuickNoteScreen()
+                        NoteMode.QUICK_NOTE -> it.note.id?.let { noteId ->
+                            navigator.navToQuickNoteScreen(
+                                noteId
+                            )
+                        }
+
                         NoteMode.PAINT_NOTE -> {
                             it.note.id?.let { noteId ->
                                 navigator.navToPaintNote(noteId)

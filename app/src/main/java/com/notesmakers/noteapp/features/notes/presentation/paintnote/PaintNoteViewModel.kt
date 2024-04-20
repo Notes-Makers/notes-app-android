@@ -1,7 +1,9 @@
 package com.notesmakers.noteapp.features.notes.presentation.paintnote
 
+import androidx.compose.ui.graphics.Path
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.notesmakers.noteapp.extension.getSvgPath
 import com.notesmakers.noteapp.features.notes.domain.AddBitmapDrawableToNoteUseCase
 import com.notesmakers.noteapp.features.notes.domain.AddPathDrawableToNoteUseCase
 import com.notesmakers.noteapp.features.notes.domain.AddTextDrawableToNoteUseCase
@@ -67,18 +69,22 @@ class PaintNoteViewModel(
         color: String,
         alpha: Float,
         eraseMode: Boolean,
-        path: String,
+        path: Path,
         notePageIndex: Int,
     ) = viewModelScope.launch {
-        _noteState.value = addPathDrawableToNoteUseCase(
-            noteId = noteId,
-            strokeWidth = strokeWidth,
-            color = color,
-            alpha = alpha,
-            eraseMode = eraseMode,
-            path = path,
-            notePageIndex = notePageIndex,
-        )
+        runCatching {
+            addPathDrawableToNoteUseCase(
+                noteId = noteId,
+                strokeWidth = strokeWidth,
+                color = color,
+                alpha = alpha,
+                eraseMode = eraseMode,
+                path = path.getSvgPath(),
+                notePageIndex = notePageIndex,
+            )
+        }.onSuccess {
+            _noteState.value = it
+        }
     }
 
     fun updatePageCount(
