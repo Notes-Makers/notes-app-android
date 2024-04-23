@@ -2,11 +2,11 @@ package com.notesmakers.noteapp.di
 
 import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.noteapp.extension.localDateFromTimeStamp
-import com.notesmakers.noteapp.features.notes.data.BitmapDrawable
-import com.notesmakers.noteapp.features.notes.data.Note
-import com.notesmakers.noteapp.features.notes.data.PathDrawable
-import com.notesmakers.noteapp.features.notes.data.TextDrawable
-import com.notesmakers.noteapp.features.notes.data.TextNote
+import com.notesmakers.noteapp.data.notes.BitmapDrawable
+import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.PathDrawable
+import com.notesmakers.noteapp.data.notes.TextDrawable
+import com.notesmakers.noteapp.data.notes.TextNote
 
 fun DomainNoteModel.toNote() = Note(
     id = id,

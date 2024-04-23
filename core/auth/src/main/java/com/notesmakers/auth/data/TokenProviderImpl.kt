@@ -38,7 +38,7 @@ class TokenProviderImpl(context: Context) : TokenProvider {
         return SessionToken(token = jtwToken, refreshToken = refreshToken)
     }
 
-    override suspend fun saveTokens(jtwToken: String, refreshToken: String) {
+    override suspend fun saveTokens(jtwToken: String?, refreshToken: String?) {
         sharedPreferences
             .edit()
             .putString("jtwToken", jtwToken)
