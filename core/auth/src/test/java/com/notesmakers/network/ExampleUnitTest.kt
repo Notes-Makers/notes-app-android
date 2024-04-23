@@ -1,4 +1,4 @@
-package com.notesmakers.network
+package com.notesmakers.auth
 
 import org.junit.Test
 

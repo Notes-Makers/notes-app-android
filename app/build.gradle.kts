@@ -47,12 +47,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(project(":core:auth"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.raamcosta.destinations.animations)
     debugImplementation(libs.androidx.ui.test.manifest)
-
     implementation("io.insert-koin:koin-androidx-compose:3.4.1")
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc04")
 }
