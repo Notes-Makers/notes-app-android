@@ -13,6 +13,12 @@ fun NoteMode.toNoteType() = when (this) {
     PAINT_NOTE -> NoteDrawableType.PAINT_NOTE.type
 }
 
+fun NoteDrawableType.toNoteType() = when (this) {
+    NoteDrawableType.QUICK_NOTE -> QUICK_NOTE
+    NoteDrawableType.PAINT_NOTE -> PAINT_NOTE
+    NoteDrawableType.UNDEFINED -> QUICK_NOTE
+}
+
 val NoteMode.icon
     get() = when (this) {
         QUICK_NOTE -> com.notesmakers.common_ui.R.drawable.note

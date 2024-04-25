@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun BaseTextField(
     modifier: Modifier = Modifier,
+    initValue: String = "",
     onValueChange: (String) -> Unit,
     labelText: String,
     placeholderText: String,
@@ -39,7 +40,7 @@ fun BaseTextField(
     singleLine: Boolean = true,
 ) {
     val valueState = remember {
-        mutableStateOf(TextFieldValue(""))
+        mutableStateOf(TextFieldValue(initValue))
     }
     Column {
         OutlinedTextField(

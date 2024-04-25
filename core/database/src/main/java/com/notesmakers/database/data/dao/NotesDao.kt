@@ -117,18 +117,24 @@ class NotesDao(
     }
 
     suspend fun updateNote(
-        noteId: String,
-        title: String,
-        description: String,
-        ownerId: String,
+        noteId: String?,
+        title: String?,
+        description: String?,
+        ownerId: String?,
     ) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
 
         findRealmNote?.apply {
-            this.title = title
-            this.description = description
-            this.ownerId = ownerId
+            if (title != null) {
+                this.title = title
+            }
+            if (description != null) {
+                this.description = description
+            }
+            if (ownerId != null) {
+                this.ownerId = ownerId
+            }
         }
     }
 

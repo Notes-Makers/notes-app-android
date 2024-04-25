@@ -54,10 +54,10 @@ interface DatabaseDomain<Note> {
     )
 
     suspend fun updateNote(
-        noteId: String,
-        title: String,
-        description: String,
-        ownerId: String,
+        noteId: String?,
+        title: String?,
+        description: String?,
+        ownerId: String?,
     ): Note?
 
     suspend fun updatePageNote(

@@ -100,10 +100,10 @@ class DatabaseDomainImpl<Note>(
     }
 
     override suspend fun updateNote(
-        noteId: String,
-        title: String,
-        description: String,
-        ownerId: String,
+        noteId: String?,
+        title: String?,
+        description: String?,
+        ownerId: String?,
     ): Note? = withContext(Dispatchers.IO) {
         notesDao.updateNote(
             noteId = noteId,
