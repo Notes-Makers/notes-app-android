@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -25,23 +26,29 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notesmakers.noteapp.presentation.destinations.NoteCreationScreenDestination
 import com.notesmakers.noteapp.presentation.notes.paintnote.navToPaintNote
 import com.notesmakers.noteapp.presentation.notes.quicknote.navToQuickNoteScreen
-import com.notesmakers.ui.composables.buttons.BaseButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
 import com.notesmakers.ui.composables.topappbar.TopBarCreation
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Destination
 fun NoteCreationScreen(
-    noteCreationViewModel: NoteCreationViewModel = koinViewModel(),
+    noteId: String?,
+    noteCreationViewModel: NoteCreationViewModel = koinViewModel { parametersOf(noteId) },
     navigator: DestinationsNavigator,
-    noteMode: NoteMode = NoteMode.QUICK_NOTE
+    noteMode: NoteMode = NoteMode.QUICK_NOTE,
+    resultNavigator: ResultBackNavigator<Boolean>,
 ) {
+    val noteCreationState =
+        noteCreationViewModel.noteCreationState.collectAsStateWithLifecycle().value
     LaunchedEffect(Unit) {
         noteCreationViewModel.noteCreationEvent.collect {
             when (it) {
@@ -61,10 +68,16 @@ fun NoteCreationScreen(
                         }
                     }
                 }
+
+                NoteCreationViewModel.NoteCreationEvent.BackEndUpdate -> resultNavigator.navigateBack(
+                    true
+                )
             }
         }
     }
     NoteCreationScreen(
+        isEditMode = noteId != null,
+        noteCreationState = noteCreationState as? NoteCreationViewModel.NoteCreationState.Success,
         onBackNav = { navigator.popBackStack() },
         noteMode = noteMode,
         onCreateNote = { title, description ->
@@ -75,17 +88,29 @@ fun NoteCreationScreen(
                 noteType = noteMode.toNoteType()
             )
         },
+        onUpdateNote = { title, description ->
+            noteId?.let { id ->
+                noteCreationViewModel.updateNote(
+                    noteId = id,
+                    title = title,
+                    description = description,
+                )
+            }
+        }
     )
 }
 
-fun DestinationsNavigator.navToNoteCreation(noteMode: NoteMode) =
-    navigate(NoteCreationScreenDestination(noteMode = noteMode))
+fun DestinationsNavigator.navToNoteCreation(noteMode: NoteMode, noteId: String? = null) =
+    navigate(NoteCreationScreenDestination(noteMode = noteMode, noteId = noteId))
 
 @Composable
 private fun NoteCreationScreen(
+    isEditMode: Boolean,
+    noteCreationState: NoteCreationViewModel.NoteCreationState.Success?,
     onBackNav: () -> Unit,
     noteMode: NoteMode,
     onCreateNote: (String, String) -> Unit,
+    onUpdateNote: (title: String, desc: String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -94,8 +119,12 @@ private fun NoteCreationScreen(
     ) { innerPadding ->
         CreationPage(
             modifier = Modifier.padding(innerPadding),
+            isEditMode = isEditMode,
             noteMode = noteMode,
             onCreateNote = onCreateNote,
+            onUpdateNote = onUpdateNote,
+            initTitle = noteCreationState?.note?.title ?: "",
+            initDesc = noteCreationState?.note?.description ?: ""
         )
     }
 }
@@ -103,8 +132,12 @@ private fun NoteCreationScreen(
 @Composable
 private fun CreationPage(
     modifier: Modifier,
+    initTitle: String,
+    initDesc: String,
     noteMode: NoteMode,
+    isEditMode: Boolean,
     onCreateNote: (title: String, desc: String) -> Unit,
+    onUpdateNote: (title: String, desc: String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -139,6 +172,7 @@ private fun CreationPage(
         BaseTextField(
             modifier = Modifier.padding(bottom = 12.dp),
             onValueChange = { title = it },
+            initValue = initTitle,
             labelText = "Enter title",
             placeholderText = "title",
             focusManager = focusManager,
@@ -149,6 +183,7 @@ private fun CreationPage(
                 .padding(bottom = 12.dp)
                 .defaultMinSize(minHeight = 300.dp)
                 .fillMaxWidth(),
+            initValue = initDesc,
             onValueChange = { description = it },
             labelText = "Enter description",
             placeholderText = "description",
@@ -159,13 +194,18 @@ private fun CreationPage(
         )
         Spacer(modifier = Modifier.weight(1f))
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            BaseButton(
-                modifier = Modifier,
-                label = "Create",
+            Button(
                 onClick = {
-                    onCreateNote(title, description)
+                    if (isEditMode) {
+                        onUpdateNote(title, description)
+                    } else {
+                        onCreateNote(title, description)
+                    }
                 },
-            )
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text(text = if (isEditMode) "Apply" else "Create")
+            }
         }
     }
 }

@@ -57,8 +57,10 @@ import com.notesmakers.noteapp.data.notes.toNoteDrawableType
 import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
+import com.notesmakers.noteapp.presentation.destinations.NoteCreationScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
+import com.notesmakers.noteapp.presentation.notes.creation.toNoteType
 import com.notesmakers.noteapp.presentation.notes.paintnote.navToPaintNote
 import com.notesmakers.noteapp.presentation.notes.quicknote.navToQuickNoteScreen
 import com.notesmakers.ui.animations.getEnterScrollTransition
@@ -78,12 +80,13 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator,
-    resultRecipient: ResultRecipient<LoginScreenDestination, Boolean>,
+    resultRecipientLogin: ResultRecipient<LoginScreenDestination, Boolean>,
+    resultRecipientNoteCreation: ResultRecipient<NoteCreationScreenDestination, Boolean>,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val userIsLoggedIn = viewModel.userIsLoggedIn.collectAsStateWithLifecycle().value
     val selectedNote = viewModel.selectedNote.collectAsStateWithLifecycle().value
-    resultRecipient.onNavResult { result ->
+    resultRecipientLogin.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}
 
@@ -91,6 +94,15 @@ fun HomeScreen(
                 if (result.value) {
                     viewModel.checkUserSignIn()
                 }
+            }
+        }
+    }
+    resultRecipientNoteCreation.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {}
+
+            is NavResult.Value -> {
+
             }
         }
     }
@@ -125,7 +137,10 @@ fun HomeScreen(
             is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
                 note = selectedNote.note,
                 onEditNote = {
-
+                    navigator.navToNoteCreation(
+                        noteMode = selectedNote.note.noteType.toNoteDrawableType().toNoteType(),
+                        noteId = selectedNote.note.id
+                    )
                 },
                 onDeleteNote = {
                     viewModel.onDeleteNote(note = selectedNote.note)
