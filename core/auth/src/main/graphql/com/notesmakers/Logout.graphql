@@ -1,0 +1,3 @@
+mutation Logout($refreshToken: String!) {
+    logout(logoutRequest: { refreshToken: $refreshToken })
+}
