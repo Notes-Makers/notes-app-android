@@ -41,12 +41,14 @@ import com.notesmakers.ui.composables.buttons.BaseWideButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import org.koin.androidx.compose.koinViewModel
 
 @Destination
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel = koinViewModel(),
+    resultNavigator: ResultBackNavigator<Boolean>,
     snackbarHandler: SnackbarHandler,
     navigator: DestinationsNavigator,
 ) {
@@ -56,7 +58,7 @@ fun LoginScreen(
             when (it) {
                 is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
                 BaseViewModel.MessageEvent.Success -> {
-                    navigator.popBackStack()
+                    resultNavigator.navigateBack(true)
                     snackbarHandler.showSuccessSnackbar(message = "Witamy zalogowanego użytkownika")
                 }
             }

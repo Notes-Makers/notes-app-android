@@ -74,6 +74,10 @@ fun BaseDropdownMenu(
     var isExpanded by remember {
         mutableStateOf(false)
     }
+
+    fun closeMenu() {
+        isExpanded = false
+    }
     Row {
         BaseIconButton(
             onClick = { isExpanded = !isExpanded },
@@ -85,11 +89,15 @@ fun BaseDropdownMenu(
         ) {
             DropdownMenuItem(
                 text = { Text("Create Quick Note") },
-                onClick = { navToNote(NoteMode.QUICK_NOTE) }
+                onClick = {
+                    navToNote(NoteMode.QUICK_NOTE)
+                }
             )
             DropdownMenuItem(
                 text = { Text("Create Paint Note") },
-                onClick = { navToNote(NoteMode.PAINT_NOTE) }
+                onClick = {
+                    navToNote(NoteMode.PAINT_NOTE)
+                }
             )
             HorizontalDivider(
                 color = Color.LightGray.copy(alpha = 0.5f),
@@ -98,7 +106,10 @@ fun BaseDropdownMenu(
             if (userIsLoggedIn) {
                 DropdownMenuItem(
                     text = { Text("Logout") },
-                    onClick = { logout() }
+                    onClick = {
+                        closeMenu()
+                        logout()
+                    }
                 )
             }
         }

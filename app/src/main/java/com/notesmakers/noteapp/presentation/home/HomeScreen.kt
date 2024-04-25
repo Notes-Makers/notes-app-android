@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.notesmakers.noteapp.presentation.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,8 +13,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
@@ -20,7 +25,11 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,13 +48,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.notesmakers.noteapp.extension.PATTERN
-import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
-import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.data.notes.Note
 import com.notesmakers.noteapp.data.notes.NoteDrawableType
 import com.notesmakers.noteapp.data.notes.toNoteDrawableType
+import com.notesmakers.noteapp.extension.PATTERN
+import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
+import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
+import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
 import com.notesmakers.noteapp.presentation.notes.paintnote.navToPaintNote
 import com.notesmakers.noteapp.presentation.notes.quicknote.navToQuickNoteScreen
@@ -56,6 +68,8 @@ import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.SearchBar
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.time.format.DateTimeFormatter
@@ -64,9 +78,22 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<LoginScreenDestination, Boolean>,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val userIsLoggedIn = viewModel.userIsLoggedIn.collectAsStateWithLifecycle().value
+    val selectedNote = viewModel.selectedNote.collectAsStateWithLifecycle().value
+    resultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {}
+
+            is NavResult.Value -> {
+                if (result.value) {
+                    viewModel.checkUserSignIn()
+                }
+            }
+        }
+    }
     Scaffold(
         topBar = {
             BaseTopAppBar(
@@ -86,10 +113,27 @@ fun HomeScreen(
                 when (noteType.toNoteDrawableType()) {
                     NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
                     NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
-                    NoteDrawableType.UNDEFINED -> TODO()
+                    NoteDrawableType.UNDEFINED -> Unit
                 }
             },
+            onNoteSelected = {
+                viewModel.onSelectNote(note = it)
+            }
         )
+        when (selectedNote) {
+            HomeViewModel.NoteSelectedStatus.None -> Unit
+            is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
+                note = selectedNote.note,
+                onEditNote = {
+
+                },
+                onDeleteNote = {
+                    viewModel.onDeleteNote(note = selectedNote.note)
+                },
+                onDismiss = viewModel::onDismissNote
+
+            )
+        }
     }
 }
 
@@ -97,8 +141,9 @@ fun HomeScreen(
 private fun HomeScreen(
     innerPadding: PaddingValues,
     notes: List<Note>,
-    navToNote: (String, String) -> Unit
-) {//, notes: List<Note>, addNote: () -> Unit) {
+    navToNote: (String, String) -> Unit,
+    onNoteSelected: (Note) -> Unit
+) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
         derivedStateOf {
@@ -110,7 +155,8 @@ private fun HomeScreen(
             listState = listState,
             innerPadding = innerPadding,
             notes = notes,
-            navToNote = navToNote
+            navToNote = navToNote,
+            onNoteSelected = onNoteSelected
         )
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -120,13 +166,15 @@ private fun HomeScreen(
     }
 }
 
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun NoteGridLayout(
     listState: LazyStaggeredGridState,
     innerPadding: PaddingValues,
     notes: List<Note>,
-    navToNote: (String, String) -> Unit
+    navToNote: (String, String) -> Unit,
+    onNoteSelected: (Note) -> Unit
 ) {
     var isCategoryVisible by remember {
         mutableStateOf(false)
@@ -177,12 +225,13 @@ private fun NoteGridLayout(
             }
 
         }
-        items(2) { photo ->
+        items(2) { item ->
             ItemNote(
                 title = getTitleContent() ?: "",
                 textContent = getTextContent(),
                 dateTime = "10 march 2021",
-                onClick = {}
+                onClick = {},
+                onLongClick = {}
             )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -206,9 +255,103 @@ private fun NoteGridLayout(
                 dateTime = notes[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
                     notes[index].id?.let { navToNote(it, notes[index].noteType) }
+                },
+                onLongClick = {
+                    onNoteSelected(notes[index])
                 }
             )
         }
+    }
+}
+
+@Composable
+fun NoteInfoDialog(
+    modifier: Modifier = Modifier,
+    note: Note,
+    onEditNote: () -> Unit,
+    onDeleteNote: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+    ) {
+        Card(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Informacje o notatce: \n${note.noteType.toNoteDrawableType().type}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    IconButton(
+                        onClick = { },
+                    ) {
+                        Icon(
+                            painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
+                            contentDescription = null
+                        )
+                    }
+                }
+                NoteInfoItem(
+                    label = "Data utworzenia:",
+                    value = note.createdAt.format(DateTimeFormatter.ofPattern(PATTERN))
+                )
+                NoteInfoItem(
+                    label = "Data ostatniej modyfikacji:",
+                    value = note.createdAt.format(DateTimeFormatter.ofPattern(PATTERN))
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = onEditNote,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(text = "Edytuj")
+                    }
+                    Button(
+                        onClick = onDeleteNote,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(text = "Usuń")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoteInfoItem(label: String, value: String) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -244,13 +387,17 @@ private fun ItemNote(
     textContent: String,
     dateTime: String,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(20.dp))
             .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.8f))
-            .clickable { onClick() }
+            .combinedClickable(
+                onClick = { onClick() },
+                onLongClick = { onLongClick() },
+            )
             .padding(12.dp)
     ) {
         Row {
