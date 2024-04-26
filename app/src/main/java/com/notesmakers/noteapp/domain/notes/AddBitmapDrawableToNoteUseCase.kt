@@ -8,22 +8,22 @@ class AddBitmapDrawableToNoteUseCase(
     private val databaseDomainModule: DatabaseDomainModule
 ) {
     suspend operator fun invoke(
-        noteId: String,
+        pageId: String,
         width: Int,
         height: Int,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        notePageIndex: Int,
+        bitmapUrl: String,
     ) = databaseDomainModule.addBitmapDrawableToNote(
-        noteId = noteId,
+        pageId = pageId,
         width = width,
         height = height,
         scale = scale,
         offsetX = offsetX,
         offsetY = offsetY,
         bitmap = bitmap,
-        notePageIndex = notePageIndex
+        bitmapUrl = bitmapUrl,
     )
 }

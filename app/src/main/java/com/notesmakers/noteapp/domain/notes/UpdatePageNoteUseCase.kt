@@ -8,9 +8,9 @@ class UpdatePageNoteUseCase(
     private val databaseDomainModule: DatabaseDomainModule
 ) {
     suspend operator fun invoke(
-        noteId: String, pageCount: Int
+        noteId: String, createdBy: String
     ) = databaseDomainModule.updatePageNote(
         noteId = noteId,
-        pageCount = pageCount,
+        createdBy = createdBy,
     )
 }

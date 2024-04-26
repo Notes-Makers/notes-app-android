@@ -34,17 +34,17 @@ class NoteCreationViewModel(
     private val _noteCreationEvent = MutableSharedFlow<NoteCreationEvent>()
     val noteCreationEvent = _noteCreationEvent.asSharedFlow()
     fun createNote(
-        title: String,
+        name: String,
         description: String,
-        ownerId: String,
+        createdBy: String,
         noteType: String
     ) = viewModelScope.launch {
         runCatching {
             _noteCreationState.value = NoteCreationState.Loading
             createNoteUseCase(
-                title = title,
+                name = name,
                 description = description,
-                ownerId = ownerId,
+                createdBy = createdBy,
                 noteType = noteType
             )
         }.onSuccess {
@@ -57,7 +57,7 @@ class NoteCreationViewModel(
 
     fun updateNote(
         noteId: String,
-        title: String,
+        name: String,
         description: String,
     ) {
         viewModelScope.launch {
@@ -65,7 +65,7 @@ class NoteCreationViewModel(
                 _noteCreationState.value = NoteCreationState.Loading
                 updateNoteByIdUseCase(
                     noteId = noteId,
-                    title = title,
+                    name = name,
                     description = description,
                 )!!
             }.onSuccess {

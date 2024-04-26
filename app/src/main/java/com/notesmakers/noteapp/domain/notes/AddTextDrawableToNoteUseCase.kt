@@ -8,18 +8,16 @@ class AddTextDrawableToNoteUseCase(
     private val databaseDomainModule: DatabaseDomainModule
 ) {
     suspend operator fun invoke(
-        noteId: String,
+        pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
-        notePageIndex: Int,
     ) = databaseDomainModule.addTextDrawableToNote(
-        noteId = noteId,
+        pageId = pageId,
         text = text,
         color = color,
         offsetX = offsetX,
         offsetY = offsetY,
-        notePageIndex = notePageIndex,
     )
 }

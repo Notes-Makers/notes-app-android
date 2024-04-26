@@ -8,20 +8,18 @@ class AddPathDrawableToNoteUseCase(
     private val databaseDomainModule: DatabaseDomainModule
 ) {
     suspend operator fun invoke(
-        noteId: String,
+        pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
-        notePageIndex: Int,
     ) = databaseDomainModule.addPathDrawableToNote(
-        noteId = noteId,
+        pageId = pageId,
         strokeWidth = strokeWidth,
         color = color,
         alpha = alpha,
         eraseMode = eraseMode,
         path = path,
-        notePageIndex = notePageIndex,
     )
 }

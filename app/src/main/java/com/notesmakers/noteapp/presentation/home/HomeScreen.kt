@@ -60,6 +60,7 @@ import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
 import com.notesmakers.noteapp.presentation.destinations.NoteCreationScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
+import com.notesmakers.noteapp.presentation.notes.creation.title
 import com.notesmakers.noteapp.presentation.notes.creation.toNoteType
 import com.notesmakers.noteapp.presentation.notes.paintnote.navToPaintNote
 import com.notesmakers.noteapp.presentation.notes.quicknote.navToQuickNoteScreen
@@ -265,11 +266,11 @@ private fun NoteGridLayout(
         }
         items(notes.size) { index ->
             ItemNote(
-                title = notes[index].title,
+                title = notes[index].name,
                 textContent = notes[index].description,
                 dateTime = notes[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
-                    notes[index].id?.let { navToNote(it, notes[index].noteType) }
+                    navToNote(notes[index].id, notes[index].noteType)
                 },
                 onLongClick = {
                     onNoteSelected(notes[index])
@@ -306,7 +307,9 @@ fun NoteInfoDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Informacje o notatce: \n${note.noteType.toNoteDrawableType().type}",
+                        text = "Informacje o notatce: \n${
+                            note.noteType.toNoteDrawableType().toNoteType().title
+                        }",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -326,7 +329,7 @@ fun NoteInfoDialog(
                 )
                 NoteInfoItem(
                     label = "Data ostatniej modyfikacji:",
-                    value = note.createdAt.format(DateTimeFormatter.ofPattern(PATTERN))
+                    value = note.modifiedAt.format(DateTimeFormatter.ofPattern(PATTERN))
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(

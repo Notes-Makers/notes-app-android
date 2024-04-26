@@ -27,72 +27,68 @@ class PaintNoteViewModel(
     val noteState = _noteState.asStateFlow()
 
     fun addTextDrawableToNote(
+        pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
-        notePageIndex: Int,
     ) = viewModelScope.launch {
-        _noteState.value = addTextDrawableToNoteUseCase(
-            noteId = noteId,
+        addTextDrawableToNoteUseCase(
+            pageId = pageId,
             text = text,
             color = color,
-            notePageIndex = notePageIndex,
             offsetX = offsetX,
             offsetY = offsetY
         )
     }
 
     fun addBitmapDrawableToNote(
+        pageId: String,
         width: Int,
         height: Int,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        notePageIndex: Int,
+        bitmapUrl: String,
     ) = viewModelScope.launch {
-        _noteState.value = addBitmapDrawableToNoteUseCase(
-            noteId = noteId,
+        addBitmapDrawableToNoteUseCase(
+            pageId = pageId,
             width = width,
             height = height,
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
             bitmap = bitmap,
-            notePageIndex = notePageIndex
+            bitmapUrl = bitmapUrl
         )
     }
 
     fun addPathDrawableToNote(
+        pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: Path,
-        notePageIndex: Int,
     ) = viewModelScope.launch {
         runCatching {
             addPathDrawableToNoteUseCase(
-                noteId = noteId,
+                pageId = pageId,
                 strokeWidth = strokeWidth,
                 color = color,
                 alpha = alpha,
                 eraseMode = eraseMode,
                 path = path.getSvgPath(),
-                notePageIndex = notePageIndex,
             )
-        }.onSuccess {
-            _noteState.value = it
         }
     }
 
     fun updatePageCount(
-        pageCount: Int,
     ) = viewModelScope.launch {
         _noteState.value = updatePageNoteUseCase(
             noteId = noteId,
-            pageCount = pageCount
+            createdBy = "GUEST"
         )
     }
 }

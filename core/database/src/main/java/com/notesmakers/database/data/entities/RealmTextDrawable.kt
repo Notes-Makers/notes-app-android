@@ -15,16 +15,6 @@ class RealmTextDrawable() : RealmObject {
     var offsetY: Float = 0f
 
     var createdAt: Long = 0L
-    var notePageIndex = 0
-    fun toDrawableComponentModel(): TextDrawableModel = TextDrawableModel(
-        id = id,
-        text = text,
-        color = color,
-        offsetX = offsetX,
-        offsetY = offsetY,
-        createdAt = createdAt,
-        notePageIndex = notePageIndex,
-    )
 
     constructor(
         id: String = UUID.randomUUID().toString(),
@@ -33,7 +23,6 @@ class RealmTextDrawable() : RealmObject {
         offsetX: Float,
         offsetY: Float,
         createdAt: Long = System.currentTimeMillis(),
-        notePageIndex: Int,
     ) : this() {
         this.color = color
         this.offsetX = offsetX
@@ -41,34 +30,6 @@ class RealmTextDrawable() : RealmObject {
         this.text = text
         this.id = id
         this.createdAt = createdAt
-        this.notePageIndex = notePageIndex
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as RealmTextDrawable
-
-        if (id != other.id) return false
-        if (text != other.text) return false
-        if (color != other.color) return false
-        if (offsetX != other.offsetX) return false
-        if (offsetY != other.offsetY) return false
-        if (createdAt != other.createdAt) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + text.hashCode()
-        result = 31 * result + color.hashCode()
-        result = 31 * result + offsetX.hashCode()
-        result = 31 * result + offsetY.hashCode()
-        result = 31 * result + createdAt.hashCode()
-        return result
-    }
-
 
 }

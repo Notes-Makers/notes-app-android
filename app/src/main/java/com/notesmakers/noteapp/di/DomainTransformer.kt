@@ -1,61 +1,78 @@
 package com.notesmakers.noteapp.di
 
+import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.DomainNoteModel
-import com.notesmakers.noteapp.extension.localDateFromTimeStamp
+import com.notesmakers.database.data.models.PathDrawableModel
+import com.notesmakers.database.data.models.TextDrawableModel
 import com.notesmakers.noteapp.data.notes.BitmapDrawable
 import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.PageOutput
 import com.notesmakers.noteapp.data.notes.PathDrawable
 import com.notesmakers.noteapp.data.notes.TextDrawable
 import com.notesmakers.noteapp.data.notes.TextNote
+import com.notesmakers.noteapp.extension.localDateFromTimeStamp
 
 fun DomainNoteModel.toNote() = Note(
     id = id,
-    title = title,
+    name = name,
     description = description,
-    ownerId = ownerId,
-    pageCount = pageCount,
-    noteType = noteType,
     createdAt = createdAt.localDateFromTimeStamp(),
-    textNote = textQuickNote?.let {
+    modifiedAt = modifiedAt.localDateFromTimeStamp(),
+    createdBy = createdBy,
+    modifiedBy = modifiedBy,
+    noteType = noteType,
+    isPrivate = isPrivate,
+    isShared = isShared,
+    isPinned = isPinned,
+    tag = tag,
+    textNote = quickNoteModel?.let { note ->
         TextNote(
-            id = it.id,
-            text = it.text
+            id = note.id,
+            text = note.text
         )
     },
-    bitmapDrawables = bitmapDrawable.map {
-        BitmapDrawable(
-            id = it.id,
-            width = it.width,
-            height = it.height,
-            scale = it.scale,
-            offsetX = it.offsetX,
-            offsetY = it.offsetY,
-            bitmap = it.bitmap,
-            createdAt = it.createdAt,
-            pageNumber = it.notePageIndex,
+    pages = pages.map { page ->
+        PageOutput(
+            id = page.id,
+            createdAt = page.createdAt.localDateFromTimeStamp(),
+            createdBy = page.createdBy,
+            modifiedAt = page.modifiedAt.localDateFromTimeStamp(),
+            modifiedBy = page.modifiedBy,
+            bitmapDrawables = page.bitmapDrawable.map { it.toBitmapDrawable() },
+            pathDrawables = page.pathDrawables.map { it.toPathDrawable() },
+            textDrawables = page.textDrawables.map { it.toTextDrawable() },
         )
+
     },
-    pathDrawables = pathDrawables.map {
-        PathDrawable(
-            id = it.id,
-            strokeWidth = it.strokeWidth,
-            color = it.color,
-            alpha = it.alpha,
-            eraseMode = it.eraseMode,
-            path = it.path,
-            createdAt = it.createdAt,
-            pageNumber = it.notePageIndex,
-        )
-    },
-    textDrawables = textDrawables.map {
-        TextDrawable(
-            id = it.id,
-            text = it.text,
-            color = it.color,
-            offsetX = it.offsetX,
-            offsetY = it.offsetY,
-            createdAt = it.createdAt,
-            pageNumber = it.notePageIndex,
-        )
-    },
+)
+
+fun BitmapDrawableModel.toBitmapDrawable() = BitmapDrawable(
+    id = id,
+    width = width,
+    height = height,
+    scale = scale,
+    offsetX = offsetX,
+    offsetY = offsetY,
+    bitmap = bitmap,
+    createdAt = createdAt,
+    bitmapUrl = bitmapUrl,
+)
+
+fun PathDrawableModel.toPathDrawable() = PathDrawable(
+    id = id,
+    strokeWidth = strokeWidth,
+    color = color,
+    alpha = alpha,
+    eraseMode = eraseMode,
+    path = path,
+    createdAt = createdAt,
+)
+
+fun TextDrawableModel.toTextDrawable() = TextDrawable(
+    id = id,
+    text = text,
+    color = color,
+    offsetX = offsetX,
+    offsetY = offsetY,
+    createdAt = createdAt,
 )

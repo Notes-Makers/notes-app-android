@@ -5,18 +5,18 @@ import java.util.UUID
 
 
 data class Note(
-    val id: String? = UUID.randomUUID().toString(),
-    val title: String,
+    val id: String = UUID.randomUUID().toString(),
+    val name: String,
     val description: String,
-    val ownerId: String,
-    val createdAt: LocalDateTime,
-    val pageCount: Int,
     val noteType: String,
+    val pages: List<PageOutput>,
+    val createdAt: LocalDateTime,
+    val createdBy: String,
+    val modifiedBy: String,
+    val modifiedAt: LocalDateTime,
+    val isPrivate: Boolean,
+    val isShared: Boolean,
+    val isPinned: Boolean,
+    val tag: List<String> = listOf(),
     val textNote: TextNote?,
-    var bitmapDrawables: List<BitmapDrawable> = listOf(),
-    var pathDrawables: List<PathDrawable> = listOf(),
-    var textDrawables: List<TextDrawable> = listOf(),
-) {
-    val mergedDrawables: List<Drawable> =
-        (bitmapDrawables + pathDrawables + textDrawables).sortedBy { it.createdAt }
-}
+)

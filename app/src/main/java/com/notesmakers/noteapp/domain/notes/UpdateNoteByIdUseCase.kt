@@ -9,14 +9,14 @@ class UpdateNoteByIdUseCase(
 ) {
     suspend operator fun invoke(
         noteId: String?,
-        title: String?=null,
+        name: String?=null,
         description: String?=null,
-        ownerId: String?=null,
+        modifiedBy: String?=null,
     ) = databaseDomainModule.updateNote(
         noteId = noteId,
-        title = title,
+        name = name,
         description = description,
-        ownerId = ownerId
+        modifiedBy = modifiedBy,
     )
 }
 
