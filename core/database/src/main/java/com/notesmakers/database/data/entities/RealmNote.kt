@@ -13,41 +13,50 @@ class RealmNote() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
-    var title: String = ""
-    var ownerId: String = ""
+    var name: String = ""
     var description: String = ""
+    var pages: RealmList<RealmPageOutput> = realmListOf()
     var createdAt: Long = 0
-    var pageCount: Int = 1
+    var createdBy: String = ""
+    var modifiedAt: Long = 0
+    var modifiedBy: String = ""
+    var isPrivate: Boolean = true
+    var isShared: Boolean = false
+    var tag: RealmList<String> = realmListOf()
 
     var noteType: String = UNDEFINED
-    var textQuickNote: TextQuickNote? = TextQuickNote()
-    var bitmapDrawables: RealmList<RealmBitmapDrawable> = realmListOf()
-    var pathDrawables: RealmList<RealmPathDrawable> = realmListOf()
-    var textDrawables: RealmList<RealmTextDrawable> = realmListOf()
+    var isPinned: Boolean = false
+    var realmQuickNote: RealmQuickNote? = RealmQuickNote()
 
     constructor(
         id: String = UUID.randomUUID().toString(),
-        title: String,
+        name: String,
         description: String,
-        ownerId: String,
-        pageCount: Int = 1,
+        noteType: String,
         createdAt: Long = System.currentTimeMillis(),
-        noteType: String = UNDEFINED,
-        textQuickNote: TextQuickNote = TextQuickNote(),
-        bitmapDrawable: RealmList<RealmBitmapDrawable> = realmListOf(),
-        pathDrawables: RealmList<RealmPathDrawable> = realmListOf(),
-        textDrawables: RealmList<RealmTextDrawable> = realmListOf(),
+        createdBy: String = "",
+        pages: RealmList<RealmPageOutput> = realmListOf(RealmPageOutput(createdBy = createdBy)),
+        modifiedBy: String = createdBy,
+        modifiedAt: Long = System.currentTimeMillis(),
+        isPrivate: Boolean = false,
+        isShared: Boolean = false,
+        isPinned: Boolean = false,
+        tag: RealmList<String> = realmListOf(),
+        realmQuickNote: RealmQuickNote = RealmQuickNote(),
     ) : this() {
-        this.title = title
-        this.description = description
         this.id = id
-        this.ownerId = ownerId
+        this.name = name
+        this.description = description
+        this.pages = pages
+        this.createdBy = createdBy
         this.noteType = noteType
-        this.bitmapDrawables = bitmapDrawable
-        this.pathDrawables = pathDrawables
-        this.textDrawables = textDrawables
+        this.modifiedAt = modifiedAt
+        this.modifiedBy = modifiedBy
+        this.isPrivate = isPrivate
         this.createdAt = createdAt
-        this.pageCount = pageCount
-        this.textQuickNote = textQuickNote
+        this.isShared = isShared
+        this.isPinned = isPinned
+        this.tag = tag
+        this.realmQuickNote = realmQuickNote
     }
 }

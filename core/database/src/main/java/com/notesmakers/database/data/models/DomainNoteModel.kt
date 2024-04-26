@@ -1,37 +1,21 @@
 package com.notesmakers.database.data.models
 
-import com.notesmakers.database.data.entities.RealmNote
 import java.util.UUID
 
 data class DomainNoteModel(
     val id: String = UUID.randomUUID().toString(),
-    val title: String,
+    val name: String,
     val description: String,
-    val ownerId: String,
-    val createdAt: Long,
-    val pageCount: Int,
     val noteType: String,
-    val textQuickNote: TextQuickNoteModel?,
-    var bitmapDrawable: List<BitmapDrawableModel> = listOf(),
-    var pathDrawables: List<PathDrawableModel> = listOf(),
-    var textDrawables: List<TextDrawableModel> = listOf(),
+    val pages: List<PageOutputModel>,
+    val createdAt: Long,
+    val createdBy: String,
+    val modifiedBy: String,
+    val modifiedAt: Long,
+    val isPrivate: Boolean,
+    val isShared: Boolean,
+    val isPinned: Boolean,
+    val tag: List<String> = listOf(),
+    val quickNoteModel: QuickNoteModel?,
 )
 
-fun RealmNote.toNoteData() = DomainNoteModel(
-    id = id,
-    title = title,
-    description = description,
-    ownerId = ownerId,
-    createdAt = createdAt,
-    pageCount = pageCount,
-    noteType = noteType,
-    textQuickNote = textQuickNote?.let {
-        TextQuickNoteModel(
-            id = it.id,
-            text = it.text
-        )
-    },
-    bitmapDrawable = bitmapDrawables.map { it.toDrawableComponentModel() },
-    pathDrawables = pathDrawables.map { it.toDrawableComponentModel() },
-    textDrawables = textDrawables.map { it.toDrawableComponentModel() }
-)

@@ -80,19 +80,19 @@ fun NoteCreationScreen(
         noteCreationState = noteCreationState as? NoteCreationViewModel.NoteCreationState.Success,
         onBackNav = { navigator.popBackStack() },
         noteMode = noteMode,
-        onCreateNote = { title, description ->
+        onCreateNote = { name, description ->
             noteCreationViewModel.createNote(
-                title = title,
+                name = name,
                 description = description,
-                ownerId = "",
+                createdBy = "GUEST",
                 noteType = noteMode.toNoteType()
             )
         },
-        onUpdateNote = { title, description ->
+        onUpdateNote = { name, description ->
             noteId?.let { id ->
                 noteCreationViewModel.updateNote(
                     noteId = id,
-                    title = title,
+                    name = name,
                     description = description,
                 )
             }
@@ -110,7 +110,7 @@ private fun NoteCreationScreen(
     onBackNav: () -> Unit,
     noteMode: NoteMode,
     onCreateNote: (String, String) -> Unit,
-    onUpdateNote: (title: String, desc: String) -> Unit,
+    onUpdateNote: (name: String, desc: String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -123,7 +123,7 @@ private fun NoteCreationScreen(
             noteMode = noteMode,
             onCreateNote = onCreateNote,
             onUpdateNote = onUpdateNote,
-            initTitle = noteCreationState?.note?.title ?: "",
+            initTitle = noteCreationState?.note?.name ?: "",
             initDesc = noteCreationState?.note?.description ?: ""
         )
     }
@@ -136,12 +136,12 @@ private fun CreationPage(
     initDesc: String,
     noteMode: NoteMode,
     isEditMode: Boolean,
-    onCreateNote: (title: String, desc: String) -> Unit,
-    onUpdateNote: (title: String, desc: String) -> Unit,
+    onCreateNote: (name: String, desc: String) -> Unit,
+    onUpdateNote: (name: String, desc: String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
-    var title by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
     Column(
@@ -171,7 +171,7 @@ private fun CreationPage(
         }
         BaseTextField(
             modifier = Modifier.padding(bottom = 12.dp),
-            onValueChange = { title = it },
+            onValueChange = { name = it },
             initValue = initTitle,
             labelText = "Enter title",
             placeholderText = "title",
@@ -197,9 +197,9 @@ private fun CreationPage(
             Button(
                 onClick = {
                     if (isEditMode) {
-                        onUpdateNote(title, description)
+                        onUpdateNote(name, description)
                     } else {
-                        onCreateNote(title, description)
+                        onCreateNote(name, description)
                     }
                 },
                 modifier = Modifier.padding(end = 8.dp)

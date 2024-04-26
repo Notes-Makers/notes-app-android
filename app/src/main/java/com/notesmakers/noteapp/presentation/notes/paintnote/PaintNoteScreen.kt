@@ -92,38 +92,39 @@ fun PaintNoteScreen(
             PaintNoteScreen(
                 innerPadding = innerPadding,
                 note = noteState,
-                addPathDrawableToNote = { pathProperties, pagePosition ->
+                addPathDrawableToNote = { pathProperties, pageId ->
                     paintNoteViewModel.addPathDrawableToNote(
+                        pageId = pageId,
                         strokeWidth = pathProperties.strokeWidth,
                         color = pathProperties.color.toHexCodeWithAlpha(),
                         alpha = pathProperties.alpha,
                         eraseMode = pathProperties.eraseMode,
                         path = pathProperties.path,
-                        notePageIndex = pagePosition
                     )
                 },
-                addBitmapDrawableToNote = { bitmapProperties, pagePosition ->
+                addBitmapDrawableToNote = { bitmapProperties, pageId ->
                     paintNoteViewModel.addBitmapDrawableToNote(
+                        pageId = pageId,
                         width = bitmapProperties.width,
                         height = bitmapProperties.height,
                         scale = bitmapProperties.scale,
                         offsetX = bitmapProperties.offset.x,
                         offsetY = bitmapProperties.offset.y,
                         bitmap = bitmapProperties.bitmap.encodeImage() ?: "",
-                        notePageIndex = pagePosition
+                        bitmapUrl = ""
                     )
                 },
-                addTextDrawableToNote = { textProperties, pagePosition ->
+                addTextDrawableToNote = { textProperties, pageId ->
                     paintNoteViewModel.addTextDrawableToNote(
+                        pageId = pageId,
                         text = textProperties.text,
                         color = textProperties.color.toHexCodeWithAlpha(),
                         offsetX = textProperties.offset.x,
                         offsetY = textProperties.offset.y,
-                        notePageIndex = pagePosition
                     )
                 },
                 updatePageCount = {
-                    paintNoteViewModel.updatePageCount(it)
+                    paintNoteViewModel.updatePageCount()
                 })
         }
     }
@@ -137,12 +138,12 @@ fun DestinationsNavigator.navToPaintNote(noteId: String) =
 private fun PaintNoteScreen(
     innerPadding: PaddingValues,
     note: Note,
-    addPathDrawableToNote: (PathProperties, Int) -> Unit,
-    addBitmapDrawableToNote: (BitmapProperties, Int) -> Unit,
-    addTextDrawableToNote: (TextProperties, Int) -> Unit,
-    updatePageCount: (Int) -> Unit
+    addPathDrawableToNote: (PathProperties, String) -> Unit,
+    addBitmapDrawableToNote: (BitmapProperties, String) -> Unit,
+    addTextDrawableToNote: (TextProperties, String) -> Unit,
+    updatePageCount: () -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { note.pageCount })
+    val pagerState = rememberPagerState(pageCount = { note.pages.size })
     var selectedTabIndex by remember {
         mutableIntStateOf(pagerState.currentPage)
     }
@@ -173,7 +174,7 @@ private fun PaintNoteScreen(
                 ) {
                     IntRange(
                         start = 1,
-                        endInclusive = note.pageCount
+                        endInclusive = note.pages.size
                     ).forEachIndexed { index, item ->
                         Tab(
                             modifier = Modifier
@@ -195,7 +196,7 @@ private fun PaintNoteScreen(
                     }
                 }
                 BaseIconButton(
-                    onClick = { updatePageCount(note.pageCount.startWithOne()) },
+                    onClick = { updatePageCount() },
                     imageVector = Icons.Default.Add
                 )
             }
@@ -208,17 +209,15 @@ private fun PaintNoteScreen(
                     PaintSpace(
                         modifier = Modifier.weight(1f),
                         initDrawableComponents =
-                        note.mergedDrawables.filter {
-                            (selectedTabIndex.startWithOne()) == it.pageNumber
-                        }.toDrawableComponent(),
+                        note.pages[selectedTabIndex].mergedDrawables.toDrawableComponent(),
                         addPathDrawableToNote = {
-                            addPathDrawableToNote(it, selectedTabIndex.startWithOne())
+                            addPathDrawableToNote(it, note.pages[selectedTabIndex].id)
                         },
                         addBitmapDrawableToNote = {
-                            addBitmapDrawableToNote(it, selectedTabIndex.startWithOne())
+                            addBitmapDrawableToNote(it, note.pages[selectedTabIndex].id)
                         },
                         addTextDrawableToNote = {
-                            addTextDrawableToNote(it, selectedTabIndex.startWithOne())
+                            addTextDrawableToNote(it, note.pages[selectedTabIndex].id)
                         },
                     )
                 }
@@ -226,5 +225,3 @@ private fun PaintNoteScreen(
         }
     }
 }
-
-private fun Int.startWithOne() = this + 1

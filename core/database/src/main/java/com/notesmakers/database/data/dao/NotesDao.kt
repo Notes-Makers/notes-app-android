@@ -2,9 +2,10 @@ package com.notesmakers.database.data.dao
 
 import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
+import com.notesmakers.database.data.entities.RealmPageOutput
 import com.notesmakers.database.data.entities.RealmPathDrawable
 import com.notesmakers.database.data.entities.RealmTextDrawable
-import com.notesmakers.database.data.entities.TextQuickNote
+import com.notesmakers.database.data.entities.RealmQuickNote
 import com.notesmakers.database.data.entities.UNDEFINED
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
@@ -18,28 +19,30 @@ class NotesDao(
     private val realm: Realm
 ) {
     suspend fun createNote(
-        title: String,
+        name: String,
         description: String,
-        ownerId: String,
+        createdBy: String,
         noteType: String = UNDEFINED,
     ) = realm.write {
         copyToRealm(
             RealmNote(
-                title = title, description = description, ownerId = ownerId, noteType = noteType
+                name = name,
+                description = description,
+                createdBy = createdBy,
+                noteType = noteType
             ), updatePolicy = UpdatePolicy.ALL
         )
     }
 
     suspend fun addTextDrawableToNote(
-        noteId: String,
+        pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
-        notePageIndex: Int,
     ) = realm.write {
 
-        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
 
         findRealmNote?.apply {
             textDrawables.add(
@@ -48,23 +51,22 @@ class NotesDao(
                     color = color,
                     offsetX = offsetX,
                     offsetY = offsetY,
-                    notePageIndex = notePageIndex,
                 )
             )
         }
     }
 
     suspend fun addBitmapDrawableToNote(
-        noteId: String,
+        pageId: String,
         width: Int,
         height: Int,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        notePageIndex: Int,
+        bitmapUrl: String,
     ) = realm.write {
-        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
         findRealmNote?.apply {
             bitmapDrawables.add(
                 RealmBitmapDrawable(
@@ -74,22 +76,21 @@ class NotesDao(
                     offsetX = offsetX,
                     offsetY = offsetY,
                     bitmap = bitmap,
-                    notePageIndex = notePageIndex
+                    bitmapUrl = bitmapUrl
                 )
             )
         }
     }
 
     suspend fun addPathDrawableToNote(
-        noteId: String,
+        pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
-        notePageIndex: Int,
     ) = realm.write {
-        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
         findRealmNote?.apply {
             pathDrawables.add(
                 RealmPathDrawable(
@@ -98,7 +99,6 @@ class NotesDao(
                     alpha = alpha,
                     eraseMode = eraseMode,
                     path = path,
-                    notePageIndex = notePageIndex
                 )
             )
         }
@@ -118,38 +118,42 @@ class NotesDao(
 
     suspend fun updateNote(
         noteId: String?,
-        title: String?,
+        name: String?,
         description: String?,
-        ownerId: String?,
+        modifiedBy: String?,
     ) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
 
         findRealmNote?.apply {
-            if (title != null) {
-                this.title = title
+            if (name != null) {
+                this.name = name
             }
             if (description != null) {
                 this.description = description
             }
-            if (ownerId != null) {
-                this.ownerId = ownerId
+            if (modifiedBy != null) {
+                this.modifiedBy = modifiedBy
             }
         }
     }
 
-    suspend fun updatePageNote(noteId: String, pageCount: Int) = realm.write {
+    suspend fun updatePageNote(noteId: String, createdBy: String) = realm.write {
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
 
         findRealmNote?.apply {
-            this.pageCount = pageCount
+            this.pages.add(
+                RealmPageOutput(
+                    createdBy = createdBy
+                )
+            )
         }
     }
 
     suspend fun updateTextNote(noteId: String, text: String) = realm.write {
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
         findRealmNote?.apply {
-            this.textQuickNote = TextQuickNote(text = text)
+            this.realmQuickNote = RealmQuickNote(text = text)
         }
     }
 }

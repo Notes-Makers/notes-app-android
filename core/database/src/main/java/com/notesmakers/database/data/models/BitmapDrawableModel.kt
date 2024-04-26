@@ -1,6 +1,5 @@
 package com.notesmakers.database.data.models
 
-import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import java.util.UUID
 
 data class BitmapDrawableModel(
@@ -11,18 +10,6 @@ data class BitmapDrawableModel(
     var offsetX: Float,
     var offsetY: Float,
     val bitmap: String,
+    val bitmapUrl: String,
     var createdAt: Long,
-    var notePageIndex: Int,
-) : DrawableModel<RealmBitmapDrawable> {
-    override fun toRealmDrawableComponent(): RealmBitmapDrawable = RealmBitmapDrawable(
-        id = id,
-        width = width,
-        height = height,
-        scale = scale,
-        offsetX = offsetX,
-        offsetY = offsetY,
-        bitmap = bitmap,
-        createdAt = createdAt,
-        notePageIndex = notePageIndex
-    )
-}
+)

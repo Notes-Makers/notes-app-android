@@ -2,7 +2,6 @@ package com.notesmakers.database.data
 
 import com.notesmakers.database.data.dao.NotesDao
 import com.notesmakers.database.data.models.DomainNoteModel
-import com.notesmakers.database.data.models.toNoteData
 import com.notesmakers.database.domain.DatabaseDomain
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -15,77 +14,73 @@ class DatabaseDomainImpl<Note>(
 ) : DatabaseDomain<Note> {
     override val notesDao: NotesDao by getKoin().inject<NotesDao>()
     override suspend fun createNote(
-        title: String,
+        name: String,
         description: String,
-        ownerId: String,
-        noteType: String
+        createdBy: String,
+        noteType: String,
     ): Note = withContext(Dispatchers.IO) {
         notesDao.createNote(
-            title = title,
+            name = name,
             description = description,
-            ownerId = ownerId,
+            createdBy = createdBy,
             noteType = noteType
         ).toNoteData().noteTransformer()
     }
 
     override suspend fun addTextDrawableToNote(
-        noteId: String,
+        pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
-        notePageIndex: Int
-    ): Note? = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addTextDrawableToNote(
-            noteId = noteId,
+            pageId = pageId,
             text = text,
             color = color,
             offsetX = offsetX,
             offsetY = offsetY,
-            notePageIndex = notePageIndex,
-        )?.toNoteData()?.noteTransformer()
+        ) == null
     }
 
     override suspend fun addBitmapDrawableToNote(
-        noteId: String,
+        pageId: String,
         width: Int,
         height: Int,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        notePageIndex: Int
-    ): Note? = withContext(Dispatchers.IO) {
+        bitmapUrl: String,
+    ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addBitmapDrawableToNote(
-            noteId = noteId,
+            pageId = pageId,
             width = width,
             height = height,
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
             bitmap = bitmap,
-            notePageIndex = notePageIndex
-        )?.toNoteData()?.noteTransformer()
+            bitmapUrl = bitmapUrl,
+        ) == null
     }
 
     override suspend fun addPathDrawableToNote(
-        noteId: String,
+        pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
-        notePageIndex: Int
-    ): Note? = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addPathDrawableToNote(
-            noteId = noteId,
+            pageId = pageId,
             strokeWidth = strokeWidth,
             color = color,
             alpha = alpha,
             eraseMode = eraseMode,
             path = path,
-            notePageIndex = notePageIndex,
-        )?.toNoteData()?.noteTransformer()
+        ) == null
     }
 
     override fun getNotes(): Flow<List<Note>> =
@@ -101,23 +96,23 @@ class DatabaseDomainImpl<Note>(
 
     override suspend fun updateNote(
         noteId: String?,
-        title: String?,
+        name: String?,
         description: String?,
-        ownerId: String?,
+        modifiedBy: String?,
     ): Note? = withContext(Dispatchers.IO) {
         notesDao.updateNote(
             noteId = noteId,
-            title = title,
+            name = name,
             description = description,
-            ownerId = ownerId,
+            modifiedBy = modifiedBy,
         )?.toNoteData()?.noteTransformer()
     }
 
-    override suspend fun updatePageNote(noteId: String, pageCount: Int): Note? =
+    override suspend fun updatePageNote(noteId: String, createdBy: String): Note? =
         withContext(Dispatchers.IO) {
             notesDao.updatePageNote(
                 noteId = noteId,
-                pageCount = pageCount,
+                createdBy = createdBy,
             )?.toNoteData()?.noteTransformer()
         }
 

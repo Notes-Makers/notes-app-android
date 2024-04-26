@@ -9,41 +9,39 @@ import kotlinx.coroutines.flow.Flow
 interface DatabaseDomain<Note> {
     val notesDao: NotesDao
     suspend fun createNote(
-        title: String,
+        name: String,
         description: String,
-        ownerId: String,
+        createdBy: String,
         noteType: String = UNDEFINED,
     ): Note
 
     suspend fun addTextDrawableToNote(
-        noteId: String,
+        pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
-        notePageIndex: Int,
-    ): Note?
+    ): Boolean
 
     suspend fun addBitmapDrawableToNote(
-        noteId: String,
+        pageId: String,
         width: Int,
         height: Int,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
         bitmap: String,
-        notePageIndex: Int,
-    ): Note?
+        bitmapUrl: String,
+    ): Boolean
 
     suspend fun addPathDrawableToNote(
-        noteId: String,
+        pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
-        notePageIndex: Int,
-    ): Note?
+    ): Boolean
 
     fun getNotes(): Flow<List<Note>>
 
@@ -55,14 +53,14 @@ interface DatabaseDomain<Note> {
 
     suspend fun updateNote(
         noteId: String?,
-        title: String?,
+        name: String?,
         description: String?,
-        ownerId: String?,
+        modifiedBy: String?,
     ): Note?
 
     suspend fun updatePageNote(
         noteId: String,
-        pageCount: Int,
+        createdBy: String
     ): Note?
 
     suspend fun updateTextNote(
