@@ -156,4 +156,11 @@ class NotesDao(
             this.realmQuickNote = RealmQuickNote(text = text)
         }
     }
+
+    suspend fun updatePinned(noteId: String, isPinned: Boolean) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+        findRealmNote?.apply {
+            this.isPinned = isPinned
+        }
+    }
 }
