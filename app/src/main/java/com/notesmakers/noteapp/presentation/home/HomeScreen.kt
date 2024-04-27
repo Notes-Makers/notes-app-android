@@ -30,6 +30,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -109,18 +110,12 @@ fun HomeScreen(
     }
     Scaffold(
         topBar = {
-            BaseTopAppBar(
-                userIsLoggedIn = userIsLoggedIn,
-                accountIconAction = {
-                    navigator.goToLoginScreenDestination()
-                },
-                navToNote = { navigator.navToNoteCreation(it) },
-                logout = { viewModel.logout() }
-            )
+            BaseTopAppBar(userIsLoggedIn = userIsLoggedIn, accountIconAction = {
+                navigator.goToLoginScreenDestination()
+            }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
         },
     ) { innerPadding ->
-        HomeScreen(
-            innerPadding = innerPadding,
+        HomeScreen(innerPadding = innerPadding,
             notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
             navToNote = { noteID, noteType ->
                 when (noteType.toNoteDrawableType()) {
@@ -131,8 +126,7 @@ fun HomeScreen(
             },
             onNoteSelected = {
                 viewModel.onSelectNote(note = it)
-            }
-        )
+            })
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
             is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
@@ -142,6 +136,9 @@ fun HomeScreen(
                         noteMode = selectedNote.note.noteType.toNoteDrawableType().toNoteType(),
                         noteId = selectedNote.note.id
                     )
+                },
+                onPinned = {
+                    viewModel.onPinned(note = selectedNote.note)
                 },
                 onDeleteNote = {
                     viewModel.onDeleteNote(note = selectedNote.note)
@@ -195,6 +192,12 @@ private fun NoteGridLayout(
     var isCategoryVisible by remember {
         mutableStateOf(false)
     }
+    val pinnedItems by remember(notes) {
+        mutableStateOf(notes.filter { it.isPinned })
+    }
+    val notPinnedItems by remember(notes) {
+        mutableStateOf(notes.filter { !it.isPinned })
+    }
     LazyVerticalStaggeredGrid(
         state = listState,
         modifier = Modifier
@@ -241,14 +244,16 @@ private fun NoteGridLayout(
             }
 
         }
-        items(2) { item ->
-            ItemNote(
-                title = getTitleContent() ?: "",
-                textContent = getTextContent(),
-                dateTime = "10 march 2021",
-                onClick = {},
-                onLongClick = {}
-            )
+        items(pinnedItems.size) { index ->
+            ItemNote(title = pinnedItems[index].name,
+                textContent = pinnedItems[index].description,
+                dateTime = pinnedItems[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
+                onClick = {
+                    navToNote(notes[index].id, pinnedItems[index].noteType)
+                },
+                onLongClick = {
+                    onNoteSelected(notes[index])
+                })
         }
         item(span = StaggeredGridItemSpan.FullLine) {
             Row(
@@ -261,21 +266,23 @@ private fun NoteGridLayout(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(30.dp)
                 )
-                Text(text = "My notes", fontSize = 20.sp)
+                Text(text = "Other notes", fontSize = 20.sp)
             }
         }
-        items(notes.size) { index ->
-            ItemNote(
-                title = notes[index].name,
-                textContent = notes[index].description,
-                dateTime = notes[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
+        items(notPinnedItems.size) { index ->
+            ItemNote(title = notPinnedItems[index].name,
+                textContent = notPinnedItems[index].description,
+                dateTime = notPinnedItems[index].createdAt.format(
+                    DateTimeFormatter.ofPattern(
+                        PATTERN
+                    )
+                ),
                 onClick = {
-                    navToNote(notes[index].id, notes[index].noteType)
+                    navToNote(notPinnedItems[index].id, notPinnedItems[index].noteType)
                 },
                 onLongClick = {
-                    onNoteSelected(notes[index])
-                }
-            )
+                    onNoteSelected(notPinnedItems[index])
+                })
         }
     }
 }
@@ -284,6 +291,7 @@ private fun NoteGridLayout(
 fun NoteInfoDialog(
     modifier: Modifier = Modifier,
     note: Note,
+    onPinned: () -> Unit,
     onEditNote: () -> Unit,
     onDeleteNote: () -> Unit,
     onDismiss: () -> Unit
@@ -299,12 +307,10 @@ fun NoteInfoDialog(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.Center
             ) {
                 Row(
-                    modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = "Informacje o notatce: \n${
@@ -315,11 +321,14 @@ fun NoteInfoDialog(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     IconButton(
-                        onClick = { },
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = if (note.isPinned) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.tertiaryContainer),
+                        onClick = {
+                            onPinned()
+                        },
                     ) {
                         Icon(
                             painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -333,18 +342,15 @@ fun NoteInfoDialog(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
                 ) {
                     Button(
-                        onClick = onEditNote,
-                        modifier = Modifier.padding(end = 8.dp)
+                        onClick = onEditNote, modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Text(text = "Edytuj")
                     }
                     Button(
-                        onClick = onDeleteNote,
-                        modifier = Modifier.padding(end = 8.dp)
+                        onClick = onDeleteNote, modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Text(text = "Usuń")
                     }
@@ -428,8 +434,7 @@ private fun ItemNote(
             )
         }
         Text(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             text = textContent,
             fontSize = 14.sp,
             maxLines = 7,
@@ -437,8 +442,7 @@ private fun ItemNote(
             overflow = TextOverflow.Ellipsis
         )
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End
         ) {
             Text(text = dateTime, fontSize = 12.sp)
         }

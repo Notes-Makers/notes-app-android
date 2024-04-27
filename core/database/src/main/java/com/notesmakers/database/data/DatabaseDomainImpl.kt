@@ -123,4 +123,12 @@ class DatabaseDomainImpl<Note>(
                 text = text,
             )?.toNoteData()?.noteTransformer()
         }
+
+    override suspend fun updatePinned(noteId: String, isPinned: Boolean): Note? =
+        withContext(Dispatchers.IO) {
+            notesDao.updatePinned(
+                noteId = noteId,
+                isPinned = isPinned,
+            )?.toNoteData()?.noteTransformer()
+        }
 }

@@ -67,7 +67,10 @@ interface DatabaseDomain<Note> {
         noteId: String,
         text: String,
     ): Note?
-
+    suspend fun updatePinned(
+        noteId: String,
+        isPinned: Boolean,
+    ): Note?
     companion object {
         fun <Note> createDatabaseDomain(
             noteTransformer: (DomainNoteModel) -> Note,

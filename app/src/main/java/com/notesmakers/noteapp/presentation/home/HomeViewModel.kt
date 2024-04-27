@@ -6,6 +6,7 @@ import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.GetNotesUseCase
+import com.notesmakers.noteapp.domain.notes.UpdatePinnedStatusUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,7 @@ import org.koin.android.annotation.KoinViewModel
 class HomeViewModel(
     val checkUserSignInStatusUseCase: CheckUserSignInStatusUseCase,
     val deleteNoteByIdUseCase: DeleteNoteByIdUseCase,
+    val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -47,9 +49,16 @@ class HomeViewModel(
         }
     }
 
+    fun onPinned(note: Note) {
+        viewModelScope.launch {
+            updatePinnedStatusUseCase(note.id, !note.isPinned)
+        }
+        _selectedNote.value = NoteSelectedStatus.None
+    }
+
     fun onDeleteNote(note: Note) {
         viewModelScope.launch {
-            note.id?.let { deleteNoteByIdUseCase(it) }
+            deleteNoteByIdUseCase(note.id)
         }
         _selectedNote.value = NoteSelectedStatus.None
     }
