@@ -19,7 +19,7 @@ class AuthModule {
     fun provideApolloClient(): ApolloClient {
         return ApolloClient.Builder()
             .httpEngine(DefaultHttpEngine(timeoutMillis = 1000))
-            .serverUrl("http://10.0.2.2:8080/graphql")
+            .serverUrl("http://10.0.2.2:8081/graphql")
             .build()
     }
 

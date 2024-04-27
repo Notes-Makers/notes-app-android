@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -89,7 +90,7 @@ private fun LoginScreen(
     var emailText by remember { mutableStateOf("") }
     var passwordText by remember { mutableStateOf("") }
 
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     Box {
         BaseIconButton(
             onClick = navBack, imageVector = Icons.Default.Clear
@@ -127,7 +128,10 @@ private fun LoginScreen(
             BaseWideButton(
                 modifier = Modifier.padding(top = 5.dp),
                 label = "Log In",
-                onClick = { login(emailText, passwordText) },
+                onClick = {
+                    keyboardController?.hide()
+                    login(emailText, passwordText)
+                },
             )
             FooterSignInScreen(onClick = { navToRegistrationScreen() })
         }

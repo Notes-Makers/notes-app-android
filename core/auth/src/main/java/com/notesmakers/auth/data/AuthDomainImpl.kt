@@ -23,7 +23,7 @@ class AuthDomainImpl(
 
     override suspend fun logout(refreshToken: String): Boolean =
         runCatching { apolloAuthClient.logout(refreshToken = refreshToken) }.onSuccess {
-            tokenProvider.saveTokens(null,null)
+            tokenProvider.saveTokens(null, null)
         }.getOrElse { exception ->
             throw LogoutException(cause = exception, message = exception.message)
         }

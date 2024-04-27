@@ -33,3 +33,10 @@ class RegisterUserException(
     message = message,
     cause = cause
 )
+class ExtendedValidationError(
+    message: String?,
+    cause: Throwable?
+) : AuthException(
+    message = message,
+    cause = cause
+)

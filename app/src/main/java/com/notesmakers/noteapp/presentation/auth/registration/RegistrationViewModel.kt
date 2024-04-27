@@ -1,12 +1,14 @@
 package com.notesmakers.noteapp.presentation.auth.registration
 
 import androidx.lifecycle.viewModelScope
+import com.notesmakers.auth.domain.AuthErrorMapper
 import com.notesmakers.noteapp.data.auth.EmailInputError
 import com.notesmakers.noteapp.data.auth.InputError
 import com.notesmakers.noteapp.data.auth.NameInputError
 import com.notesmakers.noteapp.data.auth.NicknameInputError
 import com.notesmakers.noteapp.data.auth.PasswordInputError
 import com.notesmakers.noteapp.data.auth.SurnameInputError
+import com.notesmakers.noteapp.domain.auth.GetAuthErrorMapperUseCase
 import com.notesmakers.noteapp.domain.auth.RegisterUserUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class RegistrationViewModel(
-    private val registerUseCase: RegisterUserUseCase
+    private val registerUseCase: RegisterUserUseCase,
+    private val authErrorMapper: GetAuthErrorMapperUseCase,
 ) : BaseViewModel() {
 
     private val _registerState = MutableStateFlow<RegisterState>(RegisterState.None)
@@ -48,13 +51,9 @@ class RegistrationViewModel(
                         surname = surname
                     )
                 }.onFailure {
-                    sendMessageEvent(MessageEvent.Error("Something gone wrong"))
+                    sendMessageEvent(MessageEvent.Error(authErrorMapper(it)))
                 }.onSuccess {
-                    if (it) {
-                        sendMessageEvent(MessageEvent.Success)
-                    } else {
-                        sendMessageEvent(MessageEvent.Error("Not correct data"))
-                    }
+                    sendMessageEvent(MessageEvent.Success)
                 }
             }
         }
