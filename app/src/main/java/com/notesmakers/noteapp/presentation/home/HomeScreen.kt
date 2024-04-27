@@ -249,10 +249,10 @@ private fun NoteGridLayout(
                 textContent = pinnedItems[index].description,
                 dateTime = pinnedItems[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
-                    navToNote(notes[index].id, pinnedItems[index].noteType)
+                    navToNote(pinnedItems[index].id, pinnedItems[index].noteType)
                 },
                 onLongClick = {
-                    onNoteSelected(notes[index])
+                    onNoteSelected(pinnedItems[index])
                 })
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -448,12 +448,3 @@ private fun ItemNote(
         }
     }
 }
-
-fun getTextContent() =
-    "Jaja nosy niezasnąć moździerza Pani Opatrzonych roli Gors kapeluszach. Mój trzy boku Białopiotrowiczowi wiem inne woń dwie Wara. Batystową przyjezdny gęstość wstydu zwycięsca włościan dział Szabli świat wejrzeniem dzień. Stare przyszłą kołnierzy Jaszczurem wyraz pomniejszy wróciwszy pasem powrócił serce organ Godna Jutro. Dwoma Nauka dojeżdżaczów dziad pokrewieństwem mogę Worończańskim. Woń Najpiękniejszego Rzeczypospolitéj najpiękniejszéj żyt izba bór dali piki rogi. Ludu Jego uczy psem najpiękniejszéj krew wnet znak Rzeczypospolitéj Najpiękniejszego.".let {
-        it.substring(0, (70..200).random())
-    }
-
-fun getTitleContent() =
-    listOf("title", "twotwotwotwotwotwotwo", "three", "four", "five").asSequence().shuffled()
-        .find { true }
