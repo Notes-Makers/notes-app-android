@@ -1,10 +1,11 @@
 package com.notesmakers.noteapp.presentation.auth.login
 
 import androidx.lifecycle.viewModelScope
+import com.notesmakers.auth.domain.AuthErrorMapper
 import com.notesmakers.noteapp.data.auth.EmailInputError
-import com.notesmakers.noteapp.data.auth.ErrorInputType
 import com.notesmakers.noteapp.data.auth.InputError
 import com.notesmakers.noteapp.data.auth.PasswordInputError
+import com.notesmakers.noteapp.domain.auth.GetAuthErrorMapperUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import com.notesmakers.noteapp.domain.auth.LoginUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class LoginViewModel(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val authErrorMapper: GetAuthErrorMapperUseCase,
 ) : BaseViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.None)
@@ -31,7 +33,7 @@ class LoginViewModel(
                 runCatching {
                     loginUseCase(email = email, password = password)
                 }.onFailure {
-                    sendMessageEvent(MessageEvent.Error("Something gone wrong"))
+                    sendMessageEvent(MessageEvent.Error(authErrorMapper(it)))
                 }.onSuccess {
                     sendMessageEvent(MessageEvent.Success)
                 }

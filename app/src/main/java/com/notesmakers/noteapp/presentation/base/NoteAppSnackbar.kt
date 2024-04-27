@@ -144,4 +144,4 @@ data class SnackbarData(
  * Calculate snackbar duration basing on message length
  */
 private fun calculateSnackbarDuration(message: String) =
-    (message.length * 35L).coerceAtLeast(2000L).coerceAtMost(4000L)
+    (message.length * 45L).coerceAtLeast(2000L).coerceAtMost(4000L)
