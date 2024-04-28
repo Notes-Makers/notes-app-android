@@ -11,6 +11,7 @@ import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -33,6 +34,16 @@ class HomeViewModel(
 
     private val _selectedNote = MutableStateFlow<NoteSelectedStatus>(NoteSelectedStatus.None)
     val selectedNote = _selectedNote.asStateFlow()
+
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    //second state the text typed by the user
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+
     fun checkUserSignIn() {
         _userIsLoggedIn.value = checkUserSignInStatusUseCase()
     }
@@ -44,8 +55,6 @@ class HomeViewModel(
             }.onSuccess {
                 _userIsLoggedIn.value = checkUserSignInStatusUseCase()
             }
-                .onFailure {
-                }
         }
     }
 
@@ -69,6 +78,29 @@ class HomeViewModel(
 
     fun onDismissNote() {
         _selectedNote.value = NoteSelectedStatus.None
+    }
+
+    val notesList = searchText
+        .combine(notesEventFlow) { text, notes ->//combine searchText with _contriesList
+            if (text.isBlank()) { //return the entery list of notes if not is typed
+                notes
+            }
+            notes.filter { note ->// filter and return a list of notes based on the text the user typed
+                note.name.uppercase().contains(text.trim().uppercase())
+            }
+        }.stateIn(//basically convert the Flow returned from combine operator to StateFlow
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
+            initialValue = notesEventFlow.value
+        )
+
+    fun onSearchTextChange(text: String) {
+        _searchText.value = text
+        if (text.isNotBlank()) {
+            _isSearching.value = true
+        } else {
+            _isSearching.value = false
+        }
     }
 
     sealed interface NoteSelectedStatus {
