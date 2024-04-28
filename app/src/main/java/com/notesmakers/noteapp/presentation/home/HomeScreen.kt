@@ -25,9 +25,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -35,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,7 +64,6 @@ import com.notesmakers.noteapp.data.notes.toNoteDrawableType
 import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
-import com.notesmakers.noteapp.presentation.destinations.NoteCreationScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
 import com.notesmakers.noteapp.presentation.notes.creation.title
@@ -69,7 +74,7 @@ import com.notesmakers.ui.animations.getEnterScrollTransition
 import com.notesmakers.ui.animations.getExitScrollTransition
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.buttons.BaseIconButton
-import com.notesmakers.ui.composables.inputs.SearchBar
+import com.notesmakers.ui.composables.inputs.CustomSearchBar
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -83,11 +88,15 @@ import java.time.format.DateTimeFormatter
 fun HomeScreen(
     navigator: DestinationsNavigator,
     resultRecipientLogin: ResultRecipient<LoginScreenDestination, Boolean>,
-    resultRecipientNoteCreation: ResultRecipient<NoteCreationScreenDestination, Boolean>,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val userIsLoggedIn = viewModel.userIsLoggedIn.collectAsStateWithLifecycle().value
     val selectedNote = viewModel.selectedNote.collectAsStateWithLifecycle().value
+
+    val searchText by viewModel.searchText.collectAsState()
+    val isSearching by viewModel.isSearching.collectAsState()
+    val notesList by viewModel.notesList.collectAsState()
+
     resultRecipientLogin.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {}
@@ -99,15 +108,7 @@ fun HomeScreen(
             }
         }
     }
-    resultRecipientNoteCreation.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {}
 
-            is NavResult.Value -> {
-
-            }
-        }
-    }
     Scaffold(
         topBar = {
             BaseTopAppBar(userIsLoggedIn = userIsLoggedIn, accountIconAction = {
@@ -115,7 +116,11 @@ fun HomeScreen(
             }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
         },
     ) { innerPadding ->
-        HomeScreen(innerPadding = innerPadding,
+        HomeScreen(
+            searchText = searchText,
+            isSearching = isSearching,
+            notesList = notesList,
+            innerPadding = innerPadding,
             notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value,
             navToNote = { noteID, noteType ->
                 when (noteType.toNoteDrawableType()) {
@@ -126,7 +131,9 @@ fun HomeScreen(
             },
             onNoteSelected = {
                 viewModel.onSelectNote(note = it)
-            })
+            },
+            onSearchTextChange = viewModel::onSearchTextChange,
+        )
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
             is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
@@ -150,12 +157,17 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
     innerPadding: PaddingValues,
     notes: List<Note>,
     navToNote: (String, String) -> Unit,
-    onNoteSelected: (Note) -> Unit
+    onNoteSelected: (Note) -> Unit,
+    searchText: String,
+    isSearching: Boolean,
+    notesList: List<Note>,
+    onSearchTextChange: (text: String) -> Unit,
 ) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
@@ -165,11 +177,15 @@ private fun HomeScreen(
     }
     Box {
         NoteGridLayout(
+            searchText = searchText,
+            isSearching = isSearching,
+            notesList = notesList,
             listState = listState,
             innerPadding = innerPadding,
             notes = notes,
             navToNote = navToNote,
-            onNoteSelected = onNoteSelected
+            onNoteSelected = onNoteSelected,
+            onSearchTextChange = onSearchTextChange,
         )
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -183,11 +199,15 @@ private fun HomeScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun NoteGridLayout(
+    searchText: String,
+    isSearching: Boolean,
+    notesList: List<Note>,
     listState: LazyStaggeredGridState,
     innerPadding: PaddingValues,
     notes: List<Note>,
     navToNote: (String, String) -> Unit,
-    onNoteSelected: (Note) -> Unit
+    onNoteSelected: (Note) -> Unit,
+    onSearchTextChange: (text: String) -> Unit,
 ) {
     var isCategoryVisible by remember {
         mutableStateOf(false)
@@ -210,12 +230,21 @@ private fun NoteGridLayout(
     ) {
         item(span = StaggeredGridItemSpan.FullLine) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SearchBar(hint = "Search", modifier = Modifier.weight(1f))
-                BaseIconButton(
-                    onClick = { isCategoryVisible = !isCategoryVisible },
-                    painterResource = com.notesmakers.common_ui.R.drawable.collections_bookmark,
-                    tint = MaterialTheme.colorScheme.primary
+                CustomSearchBar(
+                    hint = "Search",
+                    searchText = searchText,
+                    modifier = Modifier.weight(1f),
+                    onSearchClicked = onSearchTextChange,
+                    onTextChange = onSearchTextChange,
+                    height = 55.dp,
+                    cornerShape = RoundedCornerShape(40.dp)
                 )
+                //TODO CATEGORY
+//                BaseIconButton(
+//                    onClick = { isCategoryVisible = !isCategoryVisible },
+//                    painterResource = com.notesmakers.common_ui.R.drawable.collections_bookmark,
+//                    tint = MaterialTheme.colorScheme.primary
+//                )
             }
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -229,20 +258,68 @@ private fun NoteGridLayout(
                 }
             }
         }
-        item(span = StaggeredGridItemSpan.FullLine) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(30.dp)
-                )
-                Text(text = "Pinned", fontSize = 20.sp)
-            }
+        if (isSearching) {
+            item(span = StaggeredGridItemSpan.FullLine) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )
+                    Text(text = "Result for $searchText", fontSize = 20.sp)
+                }
 
+            }
+            if (notesList.isEmpty()) {
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    Text(text = "Not found", fontSize = 14.sp)
+                }
+            }
+            items(notesList.size) { index ->
+                ItemNote(
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                    title = notesList[index].name,
+                    textContent = notesList[index].description,
+                    dateTime = notesList[index].createdAt.format(
+                        DateTimeFormatter.ofPattern(
+                            PATTERN
+                        )
+                    ),
+                    onClick = {
+                        navToNote(notesList[index].id, notesList[index].noteType)
+                    },
+                    onLongClick = {
+                        onNoteSelected(notesList[index])
+                    })
+            }
+            item(span = StaggeredGridItemSpan.FullLine) {
+                HorizontalDivider(
+                    color = Color.LightGray.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+        }
+        if (pinnedItems.isNotEmpty()) {
+            item(span = StaggeredGridItemSpan.FullLine) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(30.dp)
+                    )
+                    Text(text = "Pinned", fontSize = 20.sp)
+                }
+
+            }
         }
         items(pinnedItems.size) { index ->
             ItemNote(title = pinnedItems[index].name,
@@ -266,7 +343,7 @@ private fun NoteGridLayout(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(30.dp)
                 )
-                Text(text = "Other notes", fontSize = 20.sp)
+                Text(text = "My notes", fontSize = 20.sp)
             }
         }
         items(notPinnedItems.size) { index ->
@@ -407,6 +484,7 @@ private fun ScrollToTopButton(
 
 @Composable
 private fun ItemNote(
+    modifier: Modifier = Modifier,
     title: String,
     textContent: String,
     dateTime: String,
@@ -414,7 +492,7 @@ private fun ItemNote(
     onLongClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(20.dp))
             .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.8f))

@@ -1,8 +1,9 @@
 package com.notesmakers.ui.composables.inputs
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -40,24 +43,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SearchBar(
+fun CustomSearchBar(
     hint: String,
+    searchText: String,
     modifier: Modifier = Modifier,
     isEnabled: (Boolean) = true,
     height: Dp = 40.dp,
     elevation: Dp = 3.dp,
     cornerShape: Shape = RoundedCornerShape(8.dp),
     backgroundColor: Color = Color.White,
-    onSearchClicked: () -> Unit = {},
+    onSearchClicked: (String) -> Unit = {},
     onTextChange: (String) -> Unit = {},
 ) {
-    var text by remember { mutableStateOf(TextFieldValue()) }
+    var text by remember { mutableStateOf(TextFieldValue(searchText)) }
+    val keyboardController = LocalSoftwareKeyboardController.current
     Row(
         modifier = modifier
+            .padding(top = 5.dp)
             .height(height)
             .shadow(elevation = elevation, shape = cornerShape)
             .background(color = backgroundColor, shape = cornerShape)
-            .clickable { onSearchClicked() },
+            .border(border = BorderStroke(Dp.Hairline, Color.LightGray), shape = cornerShape)
+            .clickable { onSearchClicked(text.text) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicTextField(
@@ -91,26 +98,31 @@ fun SearchBar(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Search
             ),
-            keyboardActions = KeyboardActions(onSearch = { onSearchClicked() }),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearchClicked(text.text)
+                    keyboardController?.hide()
+                }),
             singleLine = true
         )
-        Box(
+        IconButton(
+            onClick = {
+                if (text.text.isNotEmpty()) {
+                    text = TextFieldValue(text = "")
+                    onTextChange("")
+                }
+            },
             modifier = modifier
                 .weight(1f)
                 .size(40.dp)
                 .background(color = Color.Transparent, shape = CircleShape)
-                .clickable {
-                    if (text.text.isNotEmpty()) {
-                        text = TextFieldValue(text = "")
-                        onTextChange("")
-                    }
-                },
+
         ) {
             if (text.text.isNotEmpty()) {
                 Icon(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(10.dp),
+                        .padding(5.dp),
                     imageVector = Icons.Default.Clear,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
@@ -119,7 +131,7 @@ fun SearchBar(
                 Icon(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(10.dp),
+                        .padding(5.dp),
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
