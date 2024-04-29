@@ -6,12 +6,12 @@ plugins {
 }
 apollo {
     service("auth") {
-        packageName.set("com.notesmakers.auth")
+        packageName.set("com.notesmakers.network")
     }
 }
 
 android {
-    namespace = "com.notesmakers.auth"
+    namespace = "com.notesmakers.network"
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,6 +32,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
+    implementation(project(":core:auth"))
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

@@ -1,0 +1,11 @@
+query GetPagesInfo($noteId: ID!) {
+    getPagesInfo(noteId: $noteId) {
+        id
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        isDeleted
+        itemSize
+    }
+}

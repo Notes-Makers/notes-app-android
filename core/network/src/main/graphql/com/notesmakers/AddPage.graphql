@@ -1,0 +1,12 @@
+mutation AddPage($noteId: ID!, $pageId: ID!, $createdAt: DateTime!, $createdBy: String!, $modifiedAt: DateTime!, $modifiedBy: String!) {
+    addPage(
+        noteId: $noteId
+        page: {
+            id: $pageId
+            createdAt: $createdAt
+            createdBy: $createdBy
+            modifiedAt: $modifiedAt
+            modifiedBy: $modifiedBy
+        }
+    )
+}

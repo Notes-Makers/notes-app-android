@@ -1,0 +1,15 @@
+query GetNote($noteId: ID!) {
+    getNote(noteId: $noteId) {
+        id
+        name
+        description
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        isPrivate
+        isShared
+        isDeleted
+        tag
+    }
+}

@@ -1,6 +1,5 @@
 package com.notesmakers.database.data.entities
 
-import com.notesmakers.database.data.models.TextDrawableModel
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 import java.util.UUID

@@ -1,0 +1,17 @@
+mutation CreateNote($name: String!, $description: String!, $createdBy: String!, $isShared: Boolean!, $createdAt: DateTime!, $isPrivate: Boolean!, $modifiedAt: DateTime!, $modifiedBy: String!) {
+    addNote(
+        createNoteRequest: {
+            id: null
+            name: $name
+            description: $description
+            createdBy: $createdBy
+            isShared: $isShared
+            createdAt: $createdAt
+            isPrivate: $isPrivate
+            modifiedAt: $modifiedAt
+            modifiedBy: $modifiedBy
+        }
+    ) {
+        noteId
+    }
+}

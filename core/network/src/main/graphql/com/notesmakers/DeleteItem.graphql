@@ -1,0 +1,3 @@
+mutation DeleteItem($noteId: ID!, $pageId: ID!, $itemId: ID!) {
+    deleteItem(noteId: $noteId, pageId: $pageId, itemId: $itemId)
+}

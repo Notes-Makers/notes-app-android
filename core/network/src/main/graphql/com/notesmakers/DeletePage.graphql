@@ -1,0 +1,3 @@
+mutation DeletePage($noteId: ID!, $pageId: ID!) {
+    deletePage(noteId: $noteId, pageId: $pageId)
+}

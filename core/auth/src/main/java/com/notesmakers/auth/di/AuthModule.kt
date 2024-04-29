@@ -10,12 +10,14 @@ import com.notesmakers.auth.domain.AuthDomain
 import com.notesmakers.auth.domain.TokenProvider
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
+import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
 @Module
 @ComponentScan("com.notesmakers.auth")
 class AuthModule {
     @Single
+    @Named("Auth")
     fun provideApolloClient(): ApolloClient {
         return ApolloClient.Builder()
             .httpEngine(DefaultHttpEngine(timeoutMillis = 1000))
@@ -24,7 +26,7 @@ class AuthModule {
     }
 
     @Single
-    fun provideApolloAuthClient(apolloClient: ApolloClient): ApolloAuthClient {
+    fun provideApolloAuthClient(@Named("Auth")apolloClient: ApolloClient): ApolloAuthClient {
         return ApolloAuthClient(apolloClient)
     }
 

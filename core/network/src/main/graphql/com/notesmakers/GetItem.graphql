@@ -1,0 +1,13 @@
+query GetItem($noteId: ID!, $pageId: ID!, $itemId: ID!) {
+    getItem(noteId: $noteId, pageId: $pageId, itemId: $itemId) {
+        id
+        type
+        isDeleted
+        content
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        hash
+    }
+}

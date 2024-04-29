@@ -1,5 +1,6 @@
 package com.notesmakers.auth.data
 
+import com.notesmakers.auth.data.models.SessionToken
 import com.notesmakers.auth.domain.AuthDomain
 import com.notesmakers.auth.domain.TokenProvider
 
@@ -29,15 +30,14 @@ class AuthDomainImpl(
         }
 
 
-    override suspend fun refreshToken(refreshToken: String): Boolean =
-        runCatching { apolloAuthClient.refreshToken(refreshToken = refreshToken) }
-            .onSuccess {
-                tokenProvider.saveTokens(it?.token!!, it.refreshToken!!)
-            }.map {
-                it != null
-            }.getOrElse { exception ->
-                throw LoginException(cause = exception, message = exception.message)
-            }
+    override suspend fun refreshToken(refreshToken: String): SessionToken =
+        runCatching {
+            apolloAuthClient.refreshToken(refreshToken = refreshToken)!!
+        }.onSuccess {
+            tokenProvider.saveTokens(it.token!!, it.refreshToken!!)
+        }.getOrElse { exception ->
+            throw LoginException(cause = exception, message = exception.message)
+        }
 
     override suspend fun registerUser(
         name: String,
