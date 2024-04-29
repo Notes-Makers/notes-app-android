@@ -58,9 +58,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.notesmakers.noteapp.data.notes.Note
-import com.notesmakers.noteapp.data.notes.NoteDrawableType
-import com.notesmakers.noteapp.data.notes.toNoteDrawableType
+import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
+import com.notesmakers.noteapp.data.notes.local.toNoteDrawableType
 import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination

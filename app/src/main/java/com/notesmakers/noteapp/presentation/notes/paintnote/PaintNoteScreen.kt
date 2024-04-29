@@ -41,7 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notesmakers.noteapp.extension.encodeImage
 import com.notesmakers.noteapp.extension.toHexCodeWithAlpha
 import com.notesmakers.noteapp.presentation.destinations.PaintNoteScreenDestination
-import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.BitmapProperties
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.PathProperties
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.TextProperties

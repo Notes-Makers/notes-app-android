@@ -1,4 +1,4 @@
-package com.notesmakers.noteapp.data.notes
+package com.notesmakers.noteapp.data.notes.local
 
 
 enum class NoteDrawableType(var type: String) {

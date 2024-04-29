@@ -1,4 +1,4 @@
-package com.notesmakers.noteapp.data.notes
+package com.notesmakers.noteapp.data.notes.local
 
 import java.util.UUID
 

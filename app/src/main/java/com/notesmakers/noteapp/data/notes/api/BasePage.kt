@@ -1,6 +1,8 @@
-package com.notesmakers.network.data.api
+package com.notesmakers.noteapp.data.notes.api
 
-data class ApiGetPage(
+import com.notesmakers.network.data.api.ApiGetItem
+
+data class BasePage(
     val id: String?,
     val isDeleted: Boolean?,
     val createdAt: Any?,

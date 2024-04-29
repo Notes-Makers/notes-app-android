@@ -7,10 +7,10 @@ import androidx.compose.ui.text.TextMeasurer
 import com.notesmakers.noteapp.extension.decodeImage
 import com.notesmakers.noteapp.extension.toColorInt
 import com.notesmakers.noteapp.extension.toPath
-import com.notesmakers.noteapp.data.notes.BitmapDrawable
-import com.notesmakers.noteapp.data.notes.Drawable
-import com.notesmakers.noteapp.data.notes.PathDrawable
-import com.notesmakers.noteapp.data.notes.TextDrawable
+import com.notesmakers.noteapp.data.notes.local.BitmapDrawable
+import com.notesmakers.noteapp.data.notes.local.Drawable
+import com.notesmakers.noteapp.data.notes.local.PathDrawable
+import com.notesmakers.noteapp.data.notes.local.TextDrawable
 
 interface DrawableComponent {
     fun paint(drawScope: DrawScope, textMeasurer: TextMeasurer?)

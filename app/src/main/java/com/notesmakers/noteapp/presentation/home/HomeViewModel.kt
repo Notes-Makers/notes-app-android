@@ -1,7 +1,7 @@
 package com.notesmakers.noteapp.presentation.home
 
 import androidx.lifecycle.viewModelScope
-import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase

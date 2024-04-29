@@ -1,5 +1,6 @@
 package com.notesmakers.network.domain
 
+import com.notesmakers.network.data.NetworkDomainImpl
 import com.notesmakers.network.data.api.ApiGetItem
 import com.notesmakers.network.data.api.ApiGetItemsInfo
 import com.notesmakers.network.data.api.ApiGetNote
@@ -8,7 +9,8 @@ import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.type.ItemType
 
-interface NetworkDomain {
+interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
+    val networkClient: NetworkClient
     suspend fun addItem(
         noteId: String,
         pageId: String,
@@ -52,17 +54,34 @@ interface NetworkDomain {
 
     suspend fun deletePage(noteId: String, pageId: String): Boolean
 
+
+    suspend fun getNote(noteId: String): Note
+    suspend fun getNotesInfo(): List<NotesInfo>
     suspend fun getItem(
         noteId: String,
         pageId: String,
         itemId: String
-    ): ApiGetItem
+    ): Item
 
-    suspend fun getItemsInfo(noteId: String, pageId: String): List<ApiGetItemsInfo>
-    suspend fun getNote(noteId: String): ApiGetNote
+    suspend fun getItemsInfo(noteId: String, pageId: String): List<ItemsInfo>
+    suspend fun getPage(noteId: String, pageId: String): Page
+    suspend fun getPagesInfo(noteId: String): List<PagesInfo>
 
-    suspend fun getNotesInfo(): List<ApiGetNotesInfo>
-
-    suspend fun getPage(noteId: String, pageId: String): ApiGetPage
-    suspend fun getPagesInfo(noteId: String): List<ApiGetPagesInfo>
+    companion object {
+        fun <Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> createNetworkDomain(
+            noteTransformer: (ApiGetNote) -> Note,
+            notesInfoTransformer: (ApiGetNotesInfo) -> NotesInfo,
+            itemTransformer: (ApiGetItem) -> Item,
+            itemsInfoTransformer: (ApiGetItemsInfo) -> ItemsInfo,
+            pageTransformer: (ApiGetPage) -> Page,
+            pagesInfoTransformer: (ApiGetPagesInfo) -> PagesInfo,
+        ): NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> = NetworkDomainImpl(
+            noteTransformer = noteTransformer,
+            notesInfoTransformer = notesInfoTransformer,
+            itemTransformer = itemTransformer,
+            itemsInfoTransformer = itemsInfoTransformer,
+            pageTransformer = pageTransformer,
+            pagesInfoTransformer = pagesInfoTransformer
+        )
+    }
 }

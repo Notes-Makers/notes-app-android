@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.notesmakers.noteapp.presentation.destinations.QuickNoteScreenDestination
-import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.ui.composables.topappbar.TopBarCreation
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator

@@ -9,10 +9,19 @@ import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.domain.NetworkClient
 import com.notesmakers.network.domain.NetworkDomain
 import com.notesmakers.network.type.ItemType
+import org.koin.java.KoinJavaComponent
 
-class NetworkDomainImpl(
-    private val networkClient: NetworkClient,
-) : NetworkDomain {
+class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
+    private val noteTransformer: (ApiGetNote) -> Note,
+    private val notesInfoTransformer: (ApiGetNotesInfo) -> NotesInfo,
+    private val itemTransformer: (ApiGetItem) -> Item,
+    private val itemsInfoTransformer: (ApiGetItemsInfo) -> ItemsInfo,
+    private val pageTransformer: (ApiGetPage) -> Page,
+    private val pagesInfoTransformer: (ApiGetPagesInfo) -> PagesInfo,
+) :
+    NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
+    override val networkClient: NetworkClient by KoinJavaComponent.getKoin().inject<NetworkClient>()
+
     override suspend fun addItem(
         noteId: String,
         pageId: String,
@@ -112,52 +121,52 @@ class NetworkDomainImpl(
         ).data?.deletePage!!
     }.getOrDefault(false)
 
-    override suspend fun getItem(noteId: String, pageId: String, itemId: String): ApiGetItem =
-        runCatching {
+    override suspend fun getItem(noteId: String, pageId: String, itemId: String): Item =
+        itemTransformer(runCatching {
             networkClient.getItem(
                 noteId = noteId, pageId = pageId, itemId = itemId
             ).data?.getItem!!
-        }.getOrElse { throw GetItemException(it.message, it) }.toApiGetItem()
+        }.getOrElse { throw GetItemException(it.message, it) }.toApiGetItem())
 
-    override suspend fun getItemsInfo(noteId: String, pageId: String): List<ApiGetItemsInfo> =
+    override suspend fun getItemsInfo(noteId: String, pageId: String): List<ItemsInfo> =
         runCatching {
             networkClient.getItemsInfo(
                 noteId = noteId, pageId = pageId
             ).data?.getItemsInfo!!
         }.getOrElse { throw GetItemsInfoException(it.message, it) }
-            .mapNotNull { it?.toApiGetItemsInfo() }
+            .mapNotNull { it?.toApiGetItemsInfo() }.map(itemsInfoTransformer)
 
 
-    override suspend fun getNote(noteId: String): ApiGetNote =
-        runCatching {
+    override suspend fun getNote(noteId: String): Note =
+        noteTransformer(runCatching {
             networkClient.getNote(
                 noteId = noteId,
             ).data?.getNote!!
-        }.getOrElse { throw GetNoteException(it.message, it) }.toApiGetNote()
+        }.getOrElse { throw GetNoteException(it.message, it) }.toApiGetNote())
 
 
-    override suspend fun getNotesInfo(): List<ApiGetNotesInfo> =
+    override suspend fun getNotesInfo(): List<NotesInfo> =
         runCatching {
             networkClient.getNotesInfo(
             ).data?.getNotesInfo!!
         }.getOrElse { throw GetNoteException(it.message, it) }
-            .mapNotNull { it?.toApiGetNotesInfo() }
+            .mapNotNull { it?.toApiGetNotesInfo() }.map(notesInfoTransformer)
 
 
-    override suspend fun getPage(noteId: String, pageId: String): ApiGetPage =
-        runCatching {
+    override suspend fun getPage(noteId: String, pageId: String): Page =
+        pageTransformer(runCatching {
             networkClient.getPage(
                 noteId = noteId, pageId = pageId
             ).data?.getPage!!
-        }.getOrElse { throw GetNoteException(it.message, it) }.toApiGetPage()
+        }.getOrElse { throw GetNoteException(it.message, it) }.toApiGetPage())
 
 
-    override suspend fun getPagesInfo(noteId: String): List<ApiGetPagesInfo> =
+    override suspend fun getPagesInfo(noteId: String): List<PagesInfo> =
         runCatching {
             networkClient.getPagesInfo(
                 noteId = noteId
             ).data?.getPagesInfo!!
         }.getOrElse { throw GetNoteException(it.message, it) }
-            .mapNotNull { it?.toApiGetPagesInfo() }
+            .mapNotNull { it?.toApiGetPagesInfo() }.map(pagesInfoTransformer)
 
 }

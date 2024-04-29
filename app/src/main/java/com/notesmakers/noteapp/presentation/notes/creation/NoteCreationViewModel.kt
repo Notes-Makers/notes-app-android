@@ -1,7 +1,7 @@
 package com.notesmakers.noteapp.presentation.notes.creation
 
 import androidx.lifecycle.viewModelScope
-import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.domain.notes.CreateNoteUseCase
 import com.notesmakers.noteapp.domain.notes.GetNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.UpdateNoteByIdUseCase

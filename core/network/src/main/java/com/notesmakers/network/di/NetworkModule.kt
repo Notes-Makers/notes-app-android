@@ -29,10 +29,10 @@ class NetworkModule {
         return ApolloNetworkClient(apolloClient)
     }
 
-    @Single
-    fun provideNetworkDomain(
-        networkClient: ApolloNetworkClient,
-    ): NetworkDomain {
-        return NetworkDomainImpl(networkClient)
-    }
+//    @Single
+//    fun provideNetworkDomain(
+//        networkClient: ApolloNetworkClient,
+//    ): NetworkDomain {
+//        return NetworkDomainImpl(networkClient)
+//    }
 }

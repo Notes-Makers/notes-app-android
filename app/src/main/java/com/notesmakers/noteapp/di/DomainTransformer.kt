@@ -4,12 +4,24 @@ import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.database.data.models.PathDrawableModel
 import com.notesmakers.database.data.models.TextDrawableModel
-import com.notesmakers.noteapp.data.notes.BitmapDrawable
-import com.notesmakers.noteapp.data.notes.Note
-import com.notesmakers.noteapp.data.notes.PageOutput
-import com.notesmakers.noteapp.data.notes.PathDrawable
-import com.notesmakers.noteapp.data.notes.TextDrawable
-import com.notesmakers.noteapp.data.notes.TextNote
+import com.notesmakers.network.data.api.ApiGetItem
+import com.notesmakers.network.data.api.ApiGetItemsInfo
+import com.notesmakers.network.data.api.ApiGetNote
+import com.notesmakers.network.data.api.ApiGetNotesInfo
+import com.notesmakers.network.data.api.ApiGetPage
+import com.notesmakers.network.data.api.ApiGetPagesInfo
+import com.notesmakers.noteapp.data.notes.api.BaseItem
+import com.notesmakers.noteapp.data.notes.api.BaseItemsInfo
+import com.notesmakers.noteapp.data.notes.api.BaseNote
+import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
+import com.notesmakers.noteapp.data.notes.api.BasePage
+import com.notesmakers.noteapp.data.notes.api.BasePagesInfo
+import com.notesmakers.noteapp.data.notes.local.BitmapDrawable
+import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.data.notes.local.PageOutput
+import com.notesmakers.noteapp.data.notes.local.PathDrawable
+import com.notesmakers.noteapp.data.notes.local.TextDrawable
+import com.notesmakers.noteapp.data.notes.local.TextNote
 import com.notesmakers.noteapp.extension.localDateFromTimeStamp
 
 fun DomainNoteModel.toNote() = Note(
@@ -75,4 +87,71 @@ fun TextDrawableModel.toTextDrawable() = TextDrawable(
     offsetX = offsetX,
     offsetY = offsetY,
     createdAt = createdAt,
+)
+
+
+fun ApiGetNote.toBaseNote() = BaseNote(
+    id = id,
+    name = name,
+    description = description,
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    isPrivate = isPrivate,
+    isShared = isShared,
+    isDeleted = isDeleted,
+    tag = tag
+
+)
+
+fun ApiGetNotesInfo.toBaseNotesInfo() = BaseNotesInfo(
+    noteId = noteId,
+    name = name,
+    description = description,
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    isPrivate = isPrivate,
+    isShared = isShared,
+    isDeleted = isDeleted,
+    pageSize = pageSize,
+    itemSize = itemSize
+)
+
+fun ApiGetItem.toBaseItem() = BaseItem(
+    id = id,
+    type = type,
+    isDeleted = isDeleted,
+    content = content,
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    hash = hash
+)
+
+fun ApiGetItemsInfo.toBaseItemsInfo() = BaseItemsInfo(
+    id = id, isDeleted = isDeleted, modifiedAt = modifiedAt, hash = hash
+)
+
+fun ApiGetPage.toBasePage() = BasePage(
+    id = id,
+    isDeleted = isDeleted,
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    items = items
+)
+
+fun ApiGetPagesInfo.toBasePagesInfo() = BasePagesInfo(
+    id = id,
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    isDeleted = isDeleted,
+    itemSize = itemSize
 )
