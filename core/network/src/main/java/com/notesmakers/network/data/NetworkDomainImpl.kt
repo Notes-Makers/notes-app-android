@@ -6,6 +6,9 @@ import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
+import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiPath
+import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.domain.NetworkClient
 import com.notesmakers.network.domain.NetworkDomain
 import com.notesmakers.network.type.ItemType
@@ -27,7 +30,9 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
         pageId: String,
         itemId: String,
         itemType: ItemType,
-        itemContent: String,
+        imgContent: ApiImg?,
+        pathContent: ApiPath?,
+        textContent: ApiText?,
         itemPosX: Double,
         itemPosY: Double,
         itemWidth: Double,
@@ -43,7 +48,9 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
             pageId = pageId,
             itemId = itemId,
             itemType = itemType,
-            itemContent = itemContent,
+            imgContent = imgContent,
+            pathContent = pathContent,
+            textContent = textContent,
             itemPosX = itemPosX,
             itemPosY = itemPosY,
             itemWidth = itemWidth,

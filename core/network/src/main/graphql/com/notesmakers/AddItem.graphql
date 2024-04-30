@@ -1,11 +1,13 @@
-mutation AddItem($noteId: ID!, $pageId: ID!, $itemId: ID!, $itemType: ItemType!, $itemContent: String!, $itemPosX: Float!, $itemPosY: Float!, $itemWidth: Float!, $itemHeight: Float!, $itemCreatedAt: DateTime!, $itemCreatedBy: String!, $itemModifiedAt: DateTime!, $itemModifiedBy: String!, $itemHash: String!) {
+mutation AddItem($noteId: ID!, $pageId: ID!, $itemId: ID!, $itemType: ItemType!, $imgContent: ImgInputType!, $pathContent: PathInputType!, $textContent: TextInputType!,$itemPosX: Float!, $itemPosY: Float!, $itemWidth: Float!, $itemHeight: Float!, $itemCreatedAt: DateTime!, $itemCreatedBy: String!, $itemModifiedAt: DateTime!, $itemModifiedBy: String!, $itemHash: String!) {
     addItem(
         noteId: $noteId
         pageId: $pageId
         items: {
             id: $itemId
             type: $itemType
-            content: $itemContent
+            imgContent: $imgContent
+            pathContent: $pathContent
+            textContent: $textContent
             position: {
                 posX: $itemPosX
                 posY: $itemPosY

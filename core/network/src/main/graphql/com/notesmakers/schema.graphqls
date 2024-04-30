@@ -264,6 +264,18 @@ enum ErrorType {
   FAILED_PRECONDITION
 }
 
+input ImgInputType {
+  noteId: String
+
+  itemId: String
+}
+
+type ImgOutputType {
+  noteId: String
+
+  itemId: String
+}
+
 type ItemInfo {
   id: ID
 
@@ -279,7 +291,11 @@ input ItemInput {
 
   type: ItemType
 
-  content: String
+  textContent: TextInputType
+
+  pathContent: PathInputType
+
+  imgContent: ImgInputType
 
   position: PositionInput
 
@@ -301,11 +317,8 @@ type ItemOutput {
 
   isDeleted: Boolean
 
-  content: String
+  content: ItemOutputContent
 
-  """
-  To będzie jako object
-  """
   position: PositionOutput
 
   createdAt: DateTime
@@ -319,17 +332,13 @@ type ItemOutput {
   hash: String
 }
 
+union ItemOutputContent = TextOutputType|ImgOutputType|PathOutputType
+
 enum ItemType {
   MD
 
-  """
-  Zamiast MD będzie sam text
-  """
   SVG
 
-  """
-  Zamiast svg będzie Path
-  """
   IMG
 }
 
@@ -471,6 +480,30 @@ type PageOutput {
   modifiedBy: String
 }
 
+input PathInputType {
+  strokeWidth: Float
+
+  color: String
+
+  alpha: Float
+
+  eraseMode: Boolean
+
+  path: String
+}
+
+type PathOutputType {
+  strokeWidth: Float
+
+  color: String
+
+  alpha: Float
+
+  eraseMode: Boolean
+
+  path: String
+}
+
 input PositionInput {
   posX: Float
 
@@ -505,6 +538,18 @@ type Query {
   getItem(noteId: ID, pageId: ID, itemId: ID): ItemOutput!
 
   _service: _Service!
+}
+
+input TextInputType {
+  text: String
+
+  color: String
+}
+
+type TextOutputType {
+  text: String
+
+  color: String
 }
 
 scalar _FieldSet

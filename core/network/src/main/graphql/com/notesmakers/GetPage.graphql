@@ -10,7 +10,23 @@ query GetPage($noteId: ID!, $pageId: ID!) {
             id
             type
             isDeleted
-            content
+            content {
+                ... on TextOutputType {
+                    text
+                    color
+                }
+                ... on ImgOutputType {
+                    noteId
+                    itemId
+                }
+                ... on PathOutputType {
+                    strokeWidth
+                    color
+                    alpha
+                    eraseMode
+                    path
+                }
+            }
             createdAt
             createdBy
             modifiedAt

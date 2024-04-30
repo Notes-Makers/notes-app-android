@@ -10,12 +10,16 @@ import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
+import com.notesmakers.noteapp.data.notes.api.BaseContent
+import com.notesmakers.noteapp.data.notes.api.BaseImg
 import com.notesmakers.noteapp.data.notes.api.BaseItem
 import com.notesmakers.noteapp.data.notes.api.BaseItemsInfo
 import com.notesmakers.noteapp.data.notes.api.BaseNote
 import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.data.notes.api.BasePage
 import com.notesmakers.noteapp.data.notes.api.BasePagesInfo
+import com.notesmakers.noteapp.data.notes.api.BasePath
+import com.notesmakers.noteapp.data.notes.api.BaseText
 import com.notesmakers.noteapp.data.notes.local.BitmapDrawable
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.data.notes.local.PageOutput
@@ -124,7 +128,24 @@ fun ApiGetItem.toBaseItem() = BaseItem(
     id = id,
     type = type,
     isDeleted = isDeleted,
-    content = content,
+    content = BaseContent(
+        typename = content?.typename,
+        onPathOutputType = BasePath(
+            strokeWidth = content?.onPathOutputType?.strokeWidth,
+            color = content?.onPathOutputType?.color,
+            alpha = content?.onPathOutputType?.alpha,
+            eraseMode = content?.onPathOutputType?.eraseMode,
+            path = content?.onPathOutputType?.path
+        ),
+        onImgOutputType = BaseImg(
+            itemId = content?.onImgOutputType?.itemId,
+            noteId = content?.onImgOutputType?.noteId,
+        ),
+        onTextOutputType = BaseText(
+            text = content?.onTextOutputType?.text,
+            color = content?.onTextOutputType?.color
+        )
+    ),
     createdAt = createdAt,
     createdBy = createdBy,
     modifiedAt = modifiedAt,

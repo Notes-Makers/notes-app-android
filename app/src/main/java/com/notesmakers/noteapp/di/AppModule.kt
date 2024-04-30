@@ -1,13 +1,6 @@
 package com.notesmakers.noteapp.di
 
-import com.notesmakers.auth.domain.AuthDomain
 import com.notesmakers.database.domain.DatabaseDomain
-import com.notesmakers.network.data.api.ApiGetItem
-import com.notesmakers.network.data.api.ApiGetItemsInfo
-import com.notesmakers.network.data.api.ApiGetNote
-import com.notesmakers.network.data.api.ApiGetNotesInfo
-import com.notesmakers.network.data.api.ApiGetPage
-import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.domain.NetworkDomain
 import com.notesmakers.noteapp.data.notes.api.BaseItem
 import com.notesmakers.noteapp.data.notes.api.BaseItemsInfo
@@ -16,13 +9,19 @@ import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.data.notes.api.BasePage
 import com.notesmakers.noteapp.data.notes.api.BasePagesInfo
 import com.notesmakers.noteapp.data.notes.local.Note
+import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Singleton
 
 @Module
 @ComponentScan("com.notesmakers.noteapp")
 class AppModule {
+
+    @Factory
+    fun provideDispatcher() = Dispatchers.IO
+
     @Singleton
     fun createDatabaseDomain(): DatabaseDomain<Note> =
         DatabaseDomain.createDatabaseDomain(

@@ -6,7 +6,7 @@ data class BaseItem(
     val id: String?,
     val type: ItemType?,
     val isDeleted: Boolean?,
-    val content: String?,
+    val content: BaseContent?,
     val createdAt: Any?,
     val createdBy: String?,
     val modifiedAt: Any?,

@@ -1,6 +1,7 @@
 package com.notesmakers.network.data
 
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import com.notesmakers.network.AddItemMutation
 import com.notesmakers.network.AddPageMutation
 import com.notesmakers.network.CreateNoteMutation
@@ -13,8 +14,14 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiPath
+import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.domain.NetworkClient
+import com.notesmakers.network.type.ImgInputType
 import com.notesmakers.network.type.ItemType
+import com.notesmakers.network.type.PathInputType
+import com.notesmakers.network.type.TextInputType
 
 class ApolloNetworkClient(
     private val apolloClient: ApolloClient,
@@ -24,7 +31,9 @@ class ApolloNetworkClient(
         pageId: String,
         itemId: String,
         itemType: ItemType,
-        itemContent: String,
+        imgContent: ApiImg?,
+        pathContent: ApiPath?,
+        textContent: ApiText?,
         itemPosX: Double,
         itemPosY: Double,
         itemWidth: Double,
@@ -40,7 +49,21 @@ class ApolloNetworkClient(
             pageId = pageId,
             itemId = itemId,
             itemType = itemType,
-            itemContent = itemContent,
+            imgContent = ImgInputType(
+                noteId = Optional.present(imgContent?.noteId),
+                itemId = Optional.present(imgContent?.itemId)
+            ),
+            pathContent = PathInputType(
+                strokeWidth = Optional.present(pathContent?.strokeWidth),
+                color = Optional.present(pathContent?.color),
+                alpha = Optional.present(pathContent?.alpha),
+                eraseMode = Optional.present(pathContent?.eraseMode),
+                path = Optional.present(pathContent?.path),
+            ),
+            textContent = TextInputType(
+                text = Optional.present(textContent?.text),
+                color = Optional.present(textContent?.color),
+            ),
             itemPosX = itemPosX,
             itemPosY = itemPosY,
             itemWidth = itemWidth,

@@ -6,19 +6,40 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.data.api.ApiContent
 import com.notesmakers.network.data.api.ApiGetItem
 import com.notesmakers.network.data.api.ApiGetItemsInfo
 import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
-
+import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiPath
+import com.notesmakers.network.data.api.ApiText
 
 fun GetItemQuery.GetItem.toApiGetItem() = ApiGetItem(
     id = id,
     type = type,
     isDeleted = isDeleted,
-    content = content,
+    content = ApiContent(
+        typename = content?.__typename,
+        onTextOutputType = ApiText(
+            text = content?.onTextOutputType?.text,
+            color = content?.onTextOutputType?.color,
+        ),
+        onImgOutputType = ApiImg(
+            noteId = content?.onImgOutputType?.noteId,
+            itemId = content?.onImgOutputType?.itemId,
+        ),
+        onPathOutputType = ApiPath(
+            strokeWidth = content?.onPathOutputType?.strokeWidth,
+            color = content?.onPathOutputType?.color,
+            alpha = content?.onPathOutputType?.alpha,
+            eraseMode = content?.onPathOutputType?.eraseMode,
+            path = content?.onPathOutputType?.path,
+        )
+
+    ),
     createdAt = createdAt,
     createdBy = createdBy,
     modifiedAt = modifiedAt,
@@ -75,7 +96,24 @@ fun GetPageQuery.Item.toApiItem() = ApiGetItem(
     id = id,
     type = type,
     isDeleted = isDeleted,
-    content = content,
+    content = ApiContent(
+        typename = content?.__typename,
+        onTextOutputType = ApiText(
+            text = content?.onTextOutputType?.text,
+            color = content?.onTextOutputType?.color,
+        ),
+        onImgOutputType = ApiImg(
+            noteId = content?.onImgOutputType?.noteId,
+            itemId = content?.onImgOutputType?.itemId,
+        ),
+        onPathOutputType = ApiPath(
+            strokeWidth = content?.onPathOutputType?.strokeWidth,
+            color = content?.onPathOutputType?.color,
+            alpha = content?.onPathOutputType?.alpha,
+            eraseMode = content?.onPathOutputType?.eraseMode,
+            path = content?.onPathOutputType?.path,
+        )
+    ),
     createdAt = createdAt,
     createdBy = createdBy,
     modifiedAt = modifiedAt,

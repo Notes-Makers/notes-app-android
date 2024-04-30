@@ -7,6 +7,9 @@ import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
+import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiPath
+import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
 
 interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
@@ -16,7 +19,9 @@ interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
         pageId: String,
         itemId: String,
         itemType: ItemType,
-        itemContent: String,
+        imgContent: ApiImg?,
+        pathContent: ApiPath?,
+        textContent: ApiText?,
         itemPosX: Double,
         itemPosY: Double,
         itemWidth: Double,
