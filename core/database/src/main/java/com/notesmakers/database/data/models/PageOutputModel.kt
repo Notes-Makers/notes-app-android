@@ -4,6 +4,7 @@ import java.util.UUID
 
 data class PageOutputModel(
     var id: String = UUID.randomUUID().toString(),
+    var remotePageId: String?,
     var createdAt: Long,
     var createdBy: String,
     var modifiedAt: Long,

@@ -9,7 +9,6 @@ import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.data.api.ApiImg
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
-import com.notesmakers.network.domain.NetworkClient
 import com.notesmakers.network.domain.NetworkDomain
 import com.notesmakers.network.type.ItemType
 import org.koin.java.KoinJavaComponent
@@ -23,7 +22,9 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
     private val pagesInfoTransformer: (ApiGetPagesInfo) -> PagesInfo,
 ) :
     NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
-    override val networkClient: NetworkClient by KoinJavaComponent.getKoin().inject<NetworkClient>()
+
+    override val networkClient: ApolloNetworkClient by KoinJavaComponent.getKoin()
+        .inject<ApolloNetworkClient>()
 
     override suspend fun addItem(
         noteId: String,

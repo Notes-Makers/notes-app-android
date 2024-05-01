@@ -2,6 +2,7 @@ package com.notesmakers.noteapp.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.domain.NotesRepository
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
@@ -21,6 +22,7 @@ class HomeViewModel(
     val checkUserSignInStatusUseCase: CheckUserSignInStatusUseCase,
     val deleteNoteByIdUseCase: DeleteNoteByIdUseCase,
     val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
+    val notesRepository: NotesRepository,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -28,6 +30,16 @@ class HomeViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(),
         emptyList()
     )
+
+    init {
+        viewModelScope.launch {
+            runCatching {
+                notesRepository.syncNotes()
+            }.onFailure { exception ->
+                exception.printStackTrace()
+            }
+        }
+    }
 
     private val _userIsLoggedIn = MutableStateFlow(checkUserSignInStatusUseCase())
     val userIsLoggedIn = _userIsLoggedIn.asStateFlow()

@@ -36,7 +36,8 @@ class AuthDomainImpl(
         }.onSuccess {
             tokenProvider.saveTokens(it.token!!, it.refreshToken!!)
         }.getOrElse { exception ->
-            throw LoginException(cause = exception, message = exception.message)
+            tokenProvider.saveTokens(null, null)
+            throw RefreshTokenException(cause = exception, message = exception.message)
         }
 
     override suspend fun registerUser(

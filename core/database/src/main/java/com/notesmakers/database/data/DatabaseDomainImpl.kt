@@ -2,6 +2,8 @@ package com.notesmakers.database.data
 
 import com.notesmakers.database.data.dao.NotesDao
 import com.notesmakers.database.data.models.DomainNoteModel
+import com.notesmakers.database.data.models.PageOutputModel
+import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.database.domain.DatabaseDomain
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +26,40 @@ class DatabaseDomainImpl<Note>(
             description = description,
             createdBy = createdBy,
             noteType = noteType
+        ).toNoteData().noteTransformer()
+    }
+
+    override suspend fun createCompleteNote(
+        remoteNoteId: String,
+        name: String,
+        description: String,
+        noteType: String,
+        createdAt: Long,
+        createdBy: String,
+        pages: List<PageOutputModel>,
+        modifiedBy: String,
+        modifiedAt: Long,
+        isPrivate: Boolean,
+        isShared: Boolean,
+        isPinned: Boolean,
+        tag: List<String>,
+        quickNote: QuickNoteModel,
+    ): Note = withContext(Dispatchers.IO) {
+        notesDao.createCompleteNote(
+            remoteNoteId = remoteNoteId,
+            name = name,
+            description = description,
+            noteType = noteType,
+            createdAt = createdAt,
+            createdBy = createdBy,
+            pages = pages,
+            modifiedBy = modifiedBy,
+            modifiedAt = modifiedAt,
+            isPrivate = isPrivate,
+            isShared = isShared,
+            isPinned = isPinned,
+            tag = tag,
+            quickNote = quickNote,
         ).toNoteData().noteTransformer()
     }
 
@@ -105,6 +141,16 @@ class DatabaseDomainImpl<Note>(
             name = name,
             description = description,
             modifiedBy = modifiedBy,
+        )?.toNoteData()?.noteTransformer()
+    }
+
+    override suspend fun updateRemoteNoteId(
+        noteId: String,
+        remoteNoteId: String?
+    ): Note? = withContext(Dispatchers.IO) {
+        notesDao.updateRemoteNoteId(
+            noteId = noteId,
+            remoteNoteId = remoteNoteId,
         )?.toNoteData()?.noteTransformer()
     }
 

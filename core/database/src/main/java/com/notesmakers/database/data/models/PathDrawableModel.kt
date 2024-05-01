@@ -4,6 +4,7 @@ import java.util.UUID
 
 data class PathDrawableModel(
     var id: String = UUID.randomUUID().toString(),
+    var remoteItemId: String?,
     var strokeWidth: Float,
     var color: String,
     var alpha: Float,

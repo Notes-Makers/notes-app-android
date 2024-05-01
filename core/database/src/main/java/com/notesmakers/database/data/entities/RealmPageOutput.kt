@@ -11,7 +11,7 @@ class RealmPageOutput() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
-
+    var remotePageId: String? = ""
     var createdAt: Long = 0
     var createdBy: String = ""
     var modifiedAt: Long = 0

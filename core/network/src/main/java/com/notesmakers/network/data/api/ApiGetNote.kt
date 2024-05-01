@@ -12,4 +12,5 @@ data class ApiGetNote(
     val isShared: Boolean?,
     val isDeleted: Boolean?,
     val tag: List<String?>?,
+    val pages: List<ApiGetPage>,
 )

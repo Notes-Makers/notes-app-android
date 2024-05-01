@@ -28,7 +28,7 @@ class AuthorizationInterceptor(
         val response =
             chain.proceed(request.newBuilder().addHeader("Authorization", "Bearer $token").build())
 
-        return if (response.statusCode == 401) {
+        return if (response.statusCode == 403) {
             token = mutex.withLock {
                 refreshTokenUseCase(tokenProvider.getTokens().refreshToken!!).token
             }

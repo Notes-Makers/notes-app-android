@@ -11,5 +11,46 @@ query GetNote($noteId: ID!) {
         isShared
         isDeleted
         tag
+        pages {
+            id
+            isDeleted
+            createdAt
+            createdBy
+            modifiedAt
+            modifiedBy
+            items {
+                id
+                type
+                isDeleted
+                content {
+                    ... on TextOutputType {
+                        text
+                        color
+                    }
+                    ... on ImgOutputType {
+                        noteId
+                        itemId
+                    }
+                    ... on PathOutputType {
+                        strokeWidth
+                        color
+                        alpha
+                        eraseMode
+                        path
+                    }
+                }
+                createdAt
+                createdBy
+                modifiedAt
+                modifiedBy
+                hash
+                position {
+                    posX
+                    posY
+                    width
+                    height
+                }
+            }
+        }
     }
 }

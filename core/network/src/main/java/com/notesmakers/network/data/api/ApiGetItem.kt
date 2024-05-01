@@ -12,4 +12,5 @@ data class ApiGetItem(
     val modifiedAt: Any?,
     val modifiedBy: String?,
     val hash: String?,
+    val position: ApiPosition? = null
 )

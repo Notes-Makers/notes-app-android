@@ -7,9 +7,15 @@ import com.notesmakers.database.data.entities.RealmPathDrawable
 import com.notesmakers.database.data.entities.RealmTextDrawable
 import com.notesmakers.database.data.entities.RealmQuickNote
 import com.notesmakers.database.data.entities.UNDEFINED
+import com.notesmakers.database.data.models.BitmapDrawableModel
+import com.notesmakers.database.data.models.PageOutputModel
+import com.notesmakers.database.data.models.QuickNoteModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
+import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.types.RealmList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
@@ -30,6 +36,81 @@ class NotesDao(
                 description = description,
                 createdBy = createdBy,
                 noteType = noteType
+            ), updatePolicy = UpdatePolicy.ALL
+        )
+    }
+
+    suspend fun createCompleteNote(
+        remoteNoteId: String,
+        name: String,
+        description: String,
+        noteType: String,
+        createdAt: Long = System.currentTimeMillis(),
+        createdBy: String = "",
+        pages: List<PageOutputModel>,
+        modifiedBy: String = createdBy,
+        modifiedAt: Long = System.currentTimeMillis(),
+        isPrivate: Boolean = false,
+        isShared: Boolean = false,
+        isPinned: Boolean = false,
+        tag: List<String> = listOf(),
+        quickNote: QuickNoteModel,
+    ) = realm.write {
+        copyToRealm(
+            RealmNote(
+                remoteNoteId = remoteNoteId,
+                name = name,
+                description = description,
+                createdBy = createdBy,
+                noteType = noteType,
+                modifiedBy = modifiedBy,
+                createdAt = createdAt,
+                modifiedAt = modifiedAt,
+                isPrivate = isPrivate,
+                isShared = isShared,
+                isPinned = isPinned,
+                tag = tag.toRealmList(),
+                realmQuickNote = RealmQuickNote(text = quickNote.text),
+                pages = pages.map { page ->
+                    RealmPageOutput(
+                        createdBy = page.createdBy,
+                        modifiedBy = page.modifiedBy,
+                        createdAt = page.createdAt,
+                        modifiedAt = page.modifiedAt,
+                        bitmapDrawable = page.bitmapDrawable.map { bitmap ->
+                            RealmBitmapDrawable(
+                                //TODO
+                                width = bitmap.width,
+                                height = bitmap.height,
+                                scale = bitmap.scale,
+                                offsetX = bitmap.offsetX,
+                                offsetY = bitmap.offsetY,
+                                bitmap = bitmap.bitmap,
+                                createdAt = bitmap.createdAt,
+                                bitmapUrl = bitmap.bitmapUrl,
+                            )
+                        }.toRealmList(),
+                        pathDrawables = page.pathDrawables.map { path ->
+                            RealmPathDrawable(
+                                strokeWidth = path.strokeWidth,
+                                color = path.color,
+                                alpha = path.alpha,
+                                eraseMode = path.eraseMode,
+                                path = path.path,
+                            )
+                        }.toRealmList(),
+                        textDrawables = page.textDrawables.map { text ->
+                            RealmTextDrawable(
+                                text = text.text,
+                                color = text.color,
+                                offsetX = text.offsetX,
+                                offsetY = text.offsetY,
+                                createdAt = text.createdAt,
+                            )
+
+                        }.toRealmList(),
+                    )
+                }.toRealmList()
             ), updatePolicy = UpdatePolicy.ALL
         )
     }
@@ -134,6 +215,20 @@ class NotesDao(
             }
             if (modifiedBy != null) {
                 this.modifiedBy = modifiedBy
+            }
+        }
+    }
+
+    suspend fun updateRemoteNoteId(
+        noteId: String,
+        remoteNoteId: String?
+    ) = realm.write {
+
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+
+        findRealmNote?.apply {
+            if (remoteNoteId != null) {
+                this.remoteNoteId = remoteNoteId
             }
         }
     }

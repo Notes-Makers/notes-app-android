@@ -4,6 +4,8 @@ import com.notesmakers.database.data.DatabaseDomainImpl
 import com.notesmakers.database.data.dao.NotesDao
 import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.database.data.models.DomainNoteModel
+import com.notesmakers.database.data.models.PageOutputModel
+import com.notesmakers.database.data.models.QuickNoteModel
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseDomain<Note> {
@@ -13,6 +15,23 @@ interface DatabaseDomain<Note> {
         description: String,
         createdBy: String,
         noteType: String = UNDEFINED,
+    ): Note
+
+    suspend fun createCompleteNote(
+        remoteNoteId: String,
+        name: String,
+        description: String,
+        noteType: String,
+        createdAt: Long,
+        createdBy: String = "",
+        pages: List<PageOutputModel>,
+        modifiedBy: String = createdBy,
+        modifiedAt: Long = System.currentTimeMillis(),
+        isPrivate: Boolean = false,
+        isShared: Boolean = false,
+        isPinned: Boolean = false,
+        tag: List<String> = listOf(),
+        quickNote: QuickNoteModel,
     ): Note
 
     suspend fun addTextDrawableToNote(
@@ -58,6 +77,11 @@ interface DatabaseDomain<Note> {
         modifiedBy: String?,
     ): Note?
 
+    suspend fun updateRemoteNoteId(
+        noteId: String,
+        remoteNoteId: String?
+    ): Note?
+
     suspend fun updatePageNote(
         noteId: String,
         createdBy: String
@@ -67,10 +91,12 @@ interface DatabaseDomain<Note> {
         noteId: String,
         text: String,
     ): Note?
+
     suspend fun updatePinned(
         noteId: String,
         isPinned: Boolean,
     ): Note?
+
     companion object {
         fun <Note> createDatabaseDomain(
             noteTransformer: (DomainNoteModel) -> Note,

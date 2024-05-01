@@ -10,6 +10,7 @@ import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
+import com.notesmakers.network.data.toApiItem
 import com.notesmakers.noteapp.data.notes.api.BaseContent
 import com.notesmakers.noteapp.data.notes.api.BaseImg
 import com.notesmakers.noteapp.data.notes.api.BaseItem
@@ -19,6 +20,7 @@ import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.data.notes.api.BasePage
 import com.notesmakers.noteapp.data.notes.api.BasePagesInfo
 import com.notesmakers.noteapp.data.notes.api.BasePath
+import com.notesmakers.noteapp.data.notes.api.BasePosition
 import com.notesmakers.noteapp.data.notes.api.BaseText
 import com.notesmakers.noteapp.data.notes.local.BitmapDrawable
 import com.notesmakers.noteapp.data.notes.local.Note
@@ -30,6 +32,7 @@ import com.notesmakers.noteapp.extension.localDateFromTimeStamp
 
 fun DomainNoteModel.toNote() = Note(
     id = id,
+    remoteId = remoteNoteId,
     name = name,
     description = description,
     createdAt = createdAt.localDateFromTimeStamp(),
@@ -50,6 +53,7 @@ fun DomainNoteModel.toNote() = Note(
     pages = pages.map { page ->
         PageOutput(
             id = page.id,
+            remoteId = page.remotePageId,
             createdAt = page.createdAt.localDateFromTimeStamp(),
             createdBy = page.createdBy,
             modifiedAt = page.modifiedAt.localDateFromTimeStamp(),
@@ -64,6 +68,7 @@ fun DomainNoteModel.toNote() = Note(
 
 fun BitmapDrawableModel.toBitmapDrawable() = BitmapDrawable(
     id = id,
+    remoteId = remoteItemId,
     width = width,
     height = height,
     scale = scale,
@@ -76,6 +81,7 @@ fun BitmapDrawableModel.toBitmapDrawable() = BitmapDrawable(
 
 fun PathDrawableModel.toPathDrawable() = PathDrawable(
     id = id,
+    remoteId = remoteItemId,
     strokeWidth = strokeWidth,
     color = color,
     alpha = alpha,
@@ -86,6 +92,7 @@ fun PathDrawableModel.toPathDrawable() = PathDrawable(
 
 fun TextDrawableModel.toTextDrawable() = TextDrawable(
     id = id,
+    remoteId = remoteItemId,
     text = text,
     color = color,
     offsetX = offsetX,
@@ -105,9 +112,22 @@ fun ApiGetNote.toBaseNote() = BaseNote(
     isPrivate = isPrivate,
     isShared = isShared,
     isDeleted = isDeleted,
-    tag = tag
-
+    tag = tag,
+    pages = pages.map { page ->
+        BasePage(
+            id = page.id,
+            isDeleted = page.isDeleted,
+            createdAt = page.createdAt,
+            createdBy = page.createdBy,
+            modifiedAt = page.modifiedAt,
+            modifiedBy = page.modifiedBy,
+            items = page.items?.mapNotNull {
+                it?.toBaseItem()
+            },
+        )
+    },
 )
+
 
 fun ApiGetNotesInfo.toBaseNotesInfo() = BaseNotesInfo(
     noteId = noteId,
@@ -150,7 +170,13 @@ fun ApiGetItem.toBaseItem() = BaseItem(
     createdBy = createdBy,
     modifiedAt = modifiedAt,
     modifiedBy = modifiedBy,
-    hash = hash
+    hash = hash,
+    position = BasePosition(
+        height = position?.height,
+        width = position?.width,
+        posX = position?.posX,
+        posY = position?.posY,
+    )
 )
 
 fun ApiGetItemsInfo.toBaseItemsInfo() = BaseItemsInfo(
@@ -164,7 +190,9 @@ fun ApiGetPage.toBasePage() = BasePage(
     createdBy = createdBy,
     modifiedAt = modifiedAt,
     modifiedBy = modifiedBy,
-    items = items
+    items = items?.mapNotNull {
+        it?.toBaseItem()
+    },
 )
 
 fun ApiGetPagesInfo.toBasePagesInfo() = BasePagesInfo(

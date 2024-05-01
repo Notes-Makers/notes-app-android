@@ -8,6 +8,7 @@ class RealmTextDrawable() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
+    var remoteItemId: String? = ""
     var text: String = ""
     var color: String = ""
     var offsetX: Float = 0f

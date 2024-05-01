@@ -12,4 +12,5 @@ data class BaseItem(
     val modifiedAt: Any?,
     val modifiedBy: String?,
     val hash: String?,
+    val position: BasePosition
 )

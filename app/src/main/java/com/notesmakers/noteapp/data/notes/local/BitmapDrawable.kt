@@ -12,4 +12,5 @@ data class BitmapDrawable(
     val bitmap: String,
     val bitmapUrl: String,
     override val createdAt: Long,
+    override val remoteId: String?,
 ) : Drawable

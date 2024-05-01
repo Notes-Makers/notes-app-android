@@ -15,6 +15,7 @@ import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.data.api.ApiImg
 import com.notesmakers.network.data.api.ApiPath
+import com.notesmakers.network.data.api.ApiPosition
 import com.notesmakers.network.data.api.ApiText
 
 fun GetItemQuery.GetItem.toApiGetItem() = ApiGetItem(
@@ -62,7 +63,55 @@ fun GetNoteQuery.GetNote.toApiGetNote() = ApiGetNote(
     isPrivate = isPrivate,
     isShared = isShared,
     isDeleted = isDeleted,
-    tag = tag
+    tag = tag,
+    pages = pages?.mapNotNull { page ->
+        ApiGetPage(
+            id = page?.id,
+            isDeleted = page?.isDeleted,
+            createdAt = page?.createdAt,
+            createdBy = page?.createdBy,
+            modifiedAt = page?.modifiedAt,
+            modifiedBy = page?.modifiedBy,
+            items = page?.items?.mapNotNull {
+                it?.toApiItem()
+            },
+        )
+    } ?: emptyList(),
+)
+
+fun GetNoteQuery.Item.toApiItem() = ApiGetItem(
+    id = id,
+    type = type,
+    isDeleted = isDeleted,
+    content = ApiContent(
+        typename = content?.__typename,
+        onTextOutputType = ApiText(
+            text = content?.onTextOutputType?.text,
+            color = content?.onTextOutputType?.color,
+        ),
+        onImgOutputType = ApiImg(
+            noteId = content?.onImgOutputType?.noteId,
+            itemId = content?.onImgOutputType?.itemId,
+        ),
+        onPathOutputType = ApiPath(
+            strokeWidth = content?.onPathOutputType?.strokeWidth,
+            color = content?.onPathOutputType?.color,
+            alpha = content?.onPathOutputType?.alpha,
+            eraseMode = content?.onPathOutputType?.eraseMode,
+            path = content?.onPathOutputType?.path,
+        )
+    ),
+    createdAt = createdAt,
+    createdBy = createdBy,
+    modifiedAt = modifiedAt,
+    modifiedBy = modifiedBy,
+    hash = hash,
+    position = ApiPosition(
+        height = position?.height,
+        width = position?.width,
+        posX = position?.posX,
+        posY = position?.posY,
+    )
 )
 
 fun GetNotesInfoQuery.GetNotesInfo.toApiGetNotesInfo() = ApiGetNotesInfo(

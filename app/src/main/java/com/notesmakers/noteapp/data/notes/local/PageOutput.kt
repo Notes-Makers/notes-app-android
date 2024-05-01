@@ -5,6 +5,7 @@ import java.util.UUID
 
 data class PageOutput(
     var id: String = UUID.randomUUID().toString(),
+    val remoteId: String?,
     var createdAt: LocalDateTime,
     var createdBy: String,
     var modifiedAt: LocalDateTime,

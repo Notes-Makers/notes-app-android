@@ -12,4 +12,5 @@ data class BaseNote(
     val isShared: Boolean?,
     val isDeleted: Boolean?,
     val tag: List<String?>?,
+    val pages: List<BasePage>,
 )
