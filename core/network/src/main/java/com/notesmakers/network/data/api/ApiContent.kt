@@ -1,6 +1,6 @@
 package com.notesmakers.network.data.api
 
-class ApiContent(
+data class ApiContent(
     val typename: String?,
     val onTextOutputType: ApiText?,
     val onImgOutputType: ApiImg?,

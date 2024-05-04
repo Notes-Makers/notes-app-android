@@ -13,10 +13,13 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
+import java.util.UUID
 
 interface NetworkClient {
 
@@ -45,18 +48,21 @@ interface NetworkClient {
         createdAt: String,
         createdBy: String,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
     ): ApolloResponse<AddPageMutation.Data>
 
     suspend fun addNote(
+        id: String = UUID.randomUUID().toString(),
         name: String,
+        type: ApiNoteType,
         description: String,
         createdBy: String,
         isShared: Boolean,
         createdAt: String,
         isPrivate: Boolean,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
+        pages: List<ApiGetPage>
     ): ApolloResponse<CreateNoteMutation.Data>
 
     suspend fun deleteItem(

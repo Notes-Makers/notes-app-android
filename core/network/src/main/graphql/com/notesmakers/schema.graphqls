@@ -268,12 +268,16 @@ input ImgInputType {
   noteId: String
 
   itemId: String
+
+  scale: Float
 }
 
 type ImgOutputType {
   noteId: String
 
   itemId: String
+
+  scale: Float
 }
 
 type ItemInfo {
@@ -356,6 +360,10 @@ type Mutation {
   deletePage(noteId: ID, pageId: ID): Boolean
 
   deleteItem(noteId: ID, pageId: ID, itemId: ID): Boolean
+
+  updateNote(body: UpdateNoteInput): Boolean
+
+  updateItem(body: UpdateItemInput): Boolean
 }
 
 type NoteInfo {
@@ -364,6 +372,8 @@ type NoteInfo {
   name: String
 
   description: String
+
+  type: NoteType
 
   createdAt: DateTime
 
@@ -391,6 +401,8 @@ input NoteInput {
 
   description: String
 
+  type: NoteType
+
   pages: [PageInput]
 
   createdAt: DateTime
@@ -415,6 +427,8 @@ type NoteOutput {
 
   description: String
 
+  type: NoteType
+
   pages: [PageOutput]
 
   createdAt: DateTime
@@ -432,6 +446,12 @@ type NoteOutput {
   isDeleted: Boolean
 
   tag: [String]
+}
+
+enum NoteType {
+  QUICK
+
+  PAPER
 }
 
 type PageInfo {
@@ -550,6 +570,30 @@ type TextOutputType {
   text: String
 
   color: String
+}
+
+input UpdateItemInput {
+  noteId: ID
+
+  pageId: ID
+
+  id: ID
+
+  textContent: TextInputType
+
+  pathContent: PathInputType
+
+  imgContent: ImgInputType
+
+  position: PositionInput
+}
+
+input UpdateNoteInput {
+  noteId: ID
+
+  title: String
+
+  description: String
 }
 
 scalar _FieldSet

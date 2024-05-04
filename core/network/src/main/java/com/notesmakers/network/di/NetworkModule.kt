@@ -19,8 +19,8 @@ class NetworkModule {
     fun provideApolloClient(authorizationInterceptor: AuthorizationInterceptor): ApolloClient {
         return ApolloClient.Builder()
             .addHttpInterceptor(authorizationInterceptor)
-            .httpEngine(DefaultHttpEngine(timeoutMillis = 1000))
-            .serverUrl("http://10.0.2.2:9090/graphql")
+            .httpEngine(DefaultHttpEngine(timeoutMillis = 4000))
+            .serverUrl("http://10.0.2.2:8080/note/graphql")
             .build()
     }
 
@@ -28,11 +28,4 @@ class NetworkModule {
     fun provideApolloAuthClient(@Named("network") apolloClient: ApolloClient): ApolloNetworkClient {
         return ApolloNetworkClient(apolloClient)
     }
-
-//    @Single
-//    fun provideNetworkDomain(
-//        networkClient: ApolloNetworkClient,
-//    ): NetworkDomain {
-//        return NetworkDomainImpl(networkClient)
-//    }
 }

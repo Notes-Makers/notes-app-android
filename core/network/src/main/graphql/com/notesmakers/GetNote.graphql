@@ -4,6 +4,7 @@ query GetNote($noteId: ID!) {
         name
         description
         createdAt
+        type
         createdBy
         modifiedAt
         modifiedBy
@@ -29,6 +30,7 @@ query GetNote($noteId: ID!) {
                     }
                     ... on ImgOutputType {
                         noteId
+                        scale
                         itemId
                     }
                     ... on PathOutputType {

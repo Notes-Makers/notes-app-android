@@ -10,6 +10,7 @@ query GetItem($noteId: ID!, $pageId: ID!, $itemId: ID!) {
             }
             ... on ImgOutputType {
                 noteId
+                scale
                 itemId
             }
             ... on PathOutputType {

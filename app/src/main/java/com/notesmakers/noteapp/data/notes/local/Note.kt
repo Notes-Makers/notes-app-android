@@ -1,6 +1,7 @@
 package com.notesmakers.noteapp.data.notes.local
 
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 
@@ -11,10 +12,10 @@ data class Note(
     val description: String,
     val noteType: String,
     val pages: List<PageOutput>,
-    val createdAt: LocalDateTime,
+    val createdAt: ZonedDateTime,
     val createdBy: String,
     val modifiedBy: String,
-    val modifiedAt: LocalDateTime,
+    val modifiedAt: ZonedDateTime,
     val isPrivate: Boolean,
     val isShared: Boolean,
     val isPinned: Boolean,

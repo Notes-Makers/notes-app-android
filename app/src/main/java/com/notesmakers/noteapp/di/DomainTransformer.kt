@@ -10,7 +10,7 @@ import com.notesmakers.network.data.api.ApiGetNote
 import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
-import com.notesmakers.network.data.toApiItem
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.noteapp.data.notes.api.BaseContent
 import com.notesmakers.noteapp.data.notes.api.BaseImg
 import com.notesmakers.noteapp.data.notes.api.BaseItem
@@ -24,19 +24,20 @@ import com.notesmakers.noteapp.data.notes.api.BasePosition
 import com.notesmakers.noteapp.data.notes.api.BaseText
 import com.notesmakers.noteapp.data.notes.local.BitmapDrawable
 import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
 import com.notesmakers.noteapp.data.notes.local.PageOutput
 import com.notesmakers.noteapp.data.notes.local.PathDrawable
 import com.notesmakers.noteapp.data.notes.local.TextDrawable
 import com.notesmakers.noteapp.data.notes.local.TextNote
-import com.notesmakers.noteapp.extension.localDateFromTimeStamp
+import com.notesmakers.noteapp.extension.zoneDateFromTimeStamp
 
 fun DomainNoteModel.toNote() = Note(
     id = id,
     remoteId = remoteNoteId,
     name = name,
     description = description,
-    createdAt = createdAt.localDateFromTimeStamp(),
-    modifiedAt = modifiedAt.localDateFromTimeStamp(),
+    createdAt = createdAt.zoneDateFromTimeStamp(),
+    modifiedAt = modifiedAt.zoneDateFromTimeStamp(),
     createdBy = createdBy,
     modifiedBy = modifiedBy,
     noteType = noteType,
@@ -54,9 +55,9 @@ fun DomainNoteModel.toNote() = Note(
         PageOutput(
             id = page.id,
             remoteId = page.remotePageId,
-            createdAt = page.createdAt.localDateFromTimeStamp(),
+            createdAt = page.createdAt.zoneDateFromTimeStamp(),
             createdBy = page.createdBy,
-            modifiedAt = page.modifiedAt.localDateFromTimeStamp(),
+            modifiedAt = page.modifiedAt.zoneDateFromTimeStamp(),
             modifiedBy = page.modifiedBy,
             bitmapDrawables = page.bitmapDrawable.map { it.toBitmapDrawable() },
             pathDrawables = page.pathDrawables.map { it.toPathDrawable() },
@@ -104,6 +105,7 @@ fun TextDrawableModel.toTextDrawable() = TextDrawable(
 fun ApiGetNote.toBaseNote() = BaseNote(
     id = id,
     name = name,
+    type = type?.toNoteDrawableType(),
     description = description,
     createdAt = createdAt,
     createdBy = createdBy,
@@ -141,8 +143,16 @@ fun ApiGetNotesInfo.toBaseNotesInfo() = BaseNotesInfo(
     isShared = isShared,
     isDeleted = isDeleted,
     pageSize = pageSize,
-    itemSize = itemSize
+    itemSize = itemSize,
+    type = type?.toNoteDrawableType() ?: NoteDrawableType.UNDEFINED
 )
+
+fun ApiNoteType.toNoteDrawableType(): NoteDrawableType =
+    when (this) {
+        ApiNoteType.QUICK -> NoteDrawableType.QUICK_NOTE
+        ApiNoteType.PAPER -> NoteDrawableType.PAINT_NOTE
+        ApiNoteType.UNKNOWN -> NoteDrawableType.UNDEFINED
+    }
 
 fun ApiGetItem.toBaseItem() = BaseItem(
     id = id,
@@ -159,6 +169,7 @@ fun ApiGetItem.toBaseItem() = BaseItem(
         ),
         onImgOutputType = BaseImg(
             itemId = content?.onImgOutputType?.itemId,
+            scale = content?.onImgOutputType?.scale,
             noteId = content?.onImgOutputType?.noteId,
         ),
         onTextOutputType = BaseText(

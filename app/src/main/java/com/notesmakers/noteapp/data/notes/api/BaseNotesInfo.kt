@@ -1,8 +1,11 @@
 package com.notesmakers.noteapp.data.notes.api
 
+import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
+
 data class BaseNotesInfo(
     val noteId: String?,
     val name: String?,
+    val type: NoteDrawableType,
     val description: String?,
     val createdAt: Any?,
     val createdBy: String?,

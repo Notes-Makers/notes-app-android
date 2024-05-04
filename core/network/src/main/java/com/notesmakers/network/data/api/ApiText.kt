@@ -1,6 +1,6 @@
 package com.notesmakers.network.data.api
 
-class ApiText(
+data class ApiText(
     val text: String?,
     val color: String?
 )

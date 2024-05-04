@@ -3,6 +3,7 @@ package com.notesmakers.network.data.api
 data class ApiGetNotesInfo(
     val noteId: String?,
     val name: String?,
+    val type: ApiNoteType?,
     val description: String?,
     val createdAt: Any?,
     val createdBy: String?,

@@ -31,6 +31,12 @@ class HomeViewModel(
         emptyList()
     )
 
+    fun addNote() {
+        viewModelScope.launch {
+            notesRepository.addNote()
+        }
+    }
+
     init {
         viewModelScope.launch {
             runCatching {

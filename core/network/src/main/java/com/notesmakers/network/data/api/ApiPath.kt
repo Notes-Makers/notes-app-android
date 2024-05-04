@@ -1,6 +1,6 @@
 package com.notesmakers.network.data.api
 
-class ApiPath(
+data class ApiPath(
     val strokeWidth: Double?,
     val color: String?,
     val alpha: Double?,

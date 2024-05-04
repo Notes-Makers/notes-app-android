@@ -14,14 +14,20 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.domain.NetworkClient
 import com.notesmakers.network.type.ImgInputType
+import com.notesmakers.network.type.ItemInput
 import com.notesmakers.network.type.ItemType
+import com.notesmakers.network.type.PageInput
 import com.notesmakers.network.type.PathInputType
+import com.notesmakers.network.type.PositionInput
 import com.notesmakers.network.type.TextInputType
+import java.util.UUID
 
 class ApolloNetworkClient(
     private val apolloClient: ApolloClient,
@@ -83,7 +89,7 @@ class ApolloNetworkClient(
         createdAt: String,
         createdBy: String,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
     ) = apolloClient.mutation(
         AddPageMutation(
             noteId = noteId,
@@ -95,30 +101,84 @@ class ApolloNetworkClient(
         )
     ).execute()
 
-
     override suspend fun addNote(
+        id: String,
         name: String,
+        type: ApiNoteType,
         description: String,
         createdBy: String,
         isShared: Boolean,
         createdAt: String,
         isPrivate: Boolean,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
+        pages: List<ApiGetPage>
     ) =
         apolloClient.mutation(
             CreateNoteMutation(
+                id = id,
                 name = name,
+                type = type.toNoteType(),
                 description = description,
                 createdBy = createdBy,
                 isShared = isShared,
                 createdAt = createdAt,
                 isPrivate = isPrivate,
                 modifiedAt = modifiedAt,
-                modifiedBy = modifiedBy
+                modifiedBy = modifiedBy,
+                pages = Optional.present(pages.map {
+                    PageInput(
+                        id = Optional.present(it.id),
+                        createdAt = Optional.present(it.createdAt),
+                        createdBy = Optional.present(it.createdBy),
+                        modifiedAt = Optional.present(it.modifiedAt),
+                        modifiedBy = Optional.present(it.modifiedBy),
+                        items = Optional.present(it.items?.map {
+                            ItemInput(
+                                id = Optional.presentIfNotNull(it?.id),
+                                type = Optional.presentIfNotNull(it?.type),
+                                imgContent = Optional.presentIfNotNull(
+                                    ImgInputType(
+                                        noteId = Optional.presentIfNotNull(
+                                            it?.content?.onImgOutputType?.noteId ?: id
+                                        ),
+                                        itemId = Optional.presentIfNotNull(it?.content?.onImgOutputType?.itemId),
+                                        scale = Optional.presentIfNotNull(it?.content?.onImgOutputType?.scale?.toDouble()),
+                                    )
+                                ),
+                                pathContent = Optional.presentIfNotNull(
+                                    PathInputType(
+                                        strokeWidth = Optional.present(it?.content?.onPathOutputType?.strokeWidth),
+                                        color = Optional.present(it?.content?.onPathOutputType?.color),
+                                        alpha = Optional.present(it?.content?.onPathOutputType?.alpha),
+                                        eraseMode = Optional.present(it?.content?.onPathOutputType?.eraseMode),
+                                        path = Optional.present(it?.content?.onPathOutputType?.path),
+                                    )
+                                ),
+                                textContent = Optional.presentIfNotNull(
+                                    TextInputType(
+                                        text = Optional.present(it?.content?.onTextOutputType?.text),
+                                        color = Optional.present(it?.content?.onTextOutputType?.color),
+                                    )
+                                ),
+                                position = Optional.presentIfNotNull(
+                                    PositionInput(
+                                        posX = Optional.presentIfNotNull(it?.position?.posX),
+                                        posY = Optional.presentIfNotNull(it?.position?.posX),
+                                        width = Optional.presentIfNotNull(it?.position?.width),
+                                        height = Optional.presentIfNotNull(it?.position?.height),
+                                    )
+                                ),
+                                createdAt = Optional.presentIfNotNull(it?.createdAt),
+                                createdBy = Optional.presentIfNotNull(it?.createdBy),
+                                modifiedAt = Optional.presentIfNotNull(it?.modifiedAt),
+                                modifiedBy = Optional.presentIfNotNull(it?.modifiedBy),
+                            )
+                        })
+                    )
+                })
             ),
         ).execute()
-
 
     override suspend fun deleteItem(noteId: String, pageId: String, itemId: String) =
         apolloClient.mutation(

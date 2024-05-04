@@ -1,8 +1,9 @@
-mutation CreateNote($name: String!, $description: String!, $createdBy: String!, $isShared: Boolean!, $createdAt: DateTime!, $isPrivate: Boolean!, $modifiedAt: DateTime!, $modifiedBy: String!) {
+mutation CreateNote($id: ID!,$name: String!,$type:NoteType!, $description: String!, $createdBy: String!, $isShared: Boolean!, $createdAt: DateTime!, $isPrivate: Boolean!, $modifiedAt: DateTime!, $modifiedBy: String!,$pages: [PageInput]) {
     addNote(
         createNoteRequest: {
-            id: null
+            id: $id
             name: $name
+            type:$type
             description: $description
             createdBy: $createdBy
             isShared: $isShared
@@ -10,6 +11,7 @@ mutation CreateNote($name: String!, $description: String!, $createdBy: String!, 
             isPrivate: $isPrivate
             modifiedAt: $modifiedAt
             modifiedBy: $modifiedBy
+            pages: $pages
         }
     ) {
         noteId

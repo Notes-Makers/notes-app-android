@@ -1,14 +1,15 @@
 package com.notesmakers.noteapp.data.notes.local
 
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 data class PageOutput(
     var id: String = UUID.randomUUID().toString(),
     val remoteId: String?,
-    var createdAt: LocalDateTime,
+    var createdAt: ZonedDateTime,
     var createdBy: String,
-    var modifiedAt: LocalDateTime,
+    var modifiedAt: ZonedDateTime,
     var modifiedBy: String,
     var bitmapDrawables: List<BitmapDrawable> = listOf(),
     var pathDrawables: List<PathDrawable> = listOf(),

@@ -8,9 +8,11 @@ import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
+import java.util.UUID
 
 interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
     val networkClient: NetworkClient
@@ -39,18 +41,21 @@ interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
         createdAt: String,
         createdBy: String,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
     ): Boolean
 
     suspend fun addNote(
+        id: String = UUID.randomUUID().toString(),
         name: String,
+        apiNoteType: ApiNoteType,
         description: String,
         createdBy: String,
         isShared: Boolean,
         createdAt: String,
         isPrivate: Boolean,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
+        pages: List<ApiGetPage>
     ): String
 
     suspend fun deleteItem(noteId: String, pageId: String, itemId: String): Boolean

@@ -7,6 +7,7 @@ import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.domain.NetworkDomain
@@ -84,24 +85,30 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
     }.getOrDefault(false)
 
     override suspend fun addNote(
+        id: String,
         name: String,
+        apiNoteType: ApiNoteType,
         description: String,
         createdBy: String,
         isShared: Boolean,
         createdAt: String,
         isPrivate: Boolean,
         modifiedAt: String,
-        modifiedBy: String
+        modifiedBy: String,
+        pages: List<ApiGetPage>
     ): String = runCatching {
         networkClient.addNote(
+            id = id,
             name = name,
+            type = apiNoteType,
             description = description,
             createdBy = createdBy,
             isShared = isShared,
             createdAt = createdAt,
             isPrivate = isPrivate,
             modifiedAt = modifiedAt,
-            modifiedBy = modifiedBy
+            modifiedBy = modifiedBy,
+            pages = pages
         ).data?.addNote?.noteId!!
     }.getOrElse { exception ->
         throw CreateNoteException(exception.message, exception)

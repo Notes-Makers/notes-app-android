@@ -2,6 +2,7 @@ query GetNotesInfo {
     getNotesInfo {
         noteId
         name
+        type
         description
         createdAt
         createdBy

@@ -14,9 +14,11 @@ import com.notesmakers.network.data.api.ApiGetNotesInfo
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiGetPagesInfo
 import com.notesmakers.network.data.api.ApiImg
+import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiPosition
 import com.notesmakers.network.data.api.ApiText
+import com.notesmakers.network.type.NoteType
 
 fun GetItemQuery.GetItem.toApiGetItem() = ApiGetItem(
     id = id,
@@ -30,6 +32,7 @@ fun GetItemQuery.GetItem.toApiGetItem() = ApiGetItem(
         ),
         onImgOutputType = ApiImg(
             noteId = content?.onImgOutputType?.noteId,
+            scale = content?.onImgOutputType?.scale?.toFloat() ?: 1f,
             itemId = content?.onImgOutputType?.itemId,
         ),
         onPathOutputType = ApiPath(
@@ -64,6 +67,7 @@ fun GetNoteQuery.GetNote.toApiGetNote() = ApiGetNote(
     isShared = isShared,
     isDeleted = isDeleted,
     tag = tag,
+    type = type?.toApiNoteType(),
     pages = pages?.mapNotNull { page ->
         ApiGetPage(
             id = page?.id,
@@ -79,6 +83,12 @@ fun GetNoteQuery.GetNote.toApiGetNote() = ApiGetNote(
     } ?: emptyList(),
 )
 
+fun ApiNoteType.toNoteType() = when (this) {
+    ApiNoteType.QUICK -> NoteType.QUICK
+    ApiNoteType.PAPER -> NoteType.PAPER
+    ApiNoteType.UNKNOWN -> NoteType.UNKNOWN__
+}
+
 fun GetNoteQuery.Item.toApiItem() = ApiGetItem(
     id = id,
     type = type,
@@ -91,6 +101,7 @@ fun GetNoteQuery.Item.toApiItem() = ApiGetItem(
         ),
         onImgOutputType = ApiImg(
             noteId = content?.onImgOutputType?.noteId,
+            scale = content?.onImgOutputType?.scale?.toFloat() ?: 1f,
             itemId = content?.onImgOutputType?.itemId,
         ),
         onPathOutputType = ApiPath(
@@ -126,8 +137,17 @@ fun GetNotesInfoQuery.GetNotesInfo.toApiGetNotesInfo() = ApiGetNotesInfo(
     isShared = isShared,
     isDeleted = isDeleted,
     pageSize = pageSize,
-    itemSize = itemSize
+    itemSize = itemSize,
+    type = type?.toApiNoteType()
 )
+
+fun NoteType.toApiNoteType() =
+    when (this) {
+        NoteType.QUICK -> ApiNoteType.QUICK
+        NoteType.PAPER -> ApiNoteType.PAPER
+        NoteType.UNKNOWN__ -> ApiNoteType.UNKNOWN
+    }
+
 
 fun GetPageQuery.GetPage.toApiGetPage() = ApiGetPage(
     id = id,
@@ -153,6 +173,7 @@ fun GetPageQuery.Item.toApiItem() = ApiGetItem(
         ),
         onImgOutputType = ApiImg(
             noteId = content?.onImgOutputType?.noteId,
+            scale = content?.onImgOutputType?.scale?.toFloat() ?: 1f,
             itemId = content?.onImgOutputType?.itemId,
         ),
         onPathOutputType = ApiPath(

@@ -1,6 +1,6 @@
 package com.notesmakers.network.data.api
 
-class ApiPosition(
+data class ApiPosition(
     val posX: Double?,
     val posY: Double?,
     val width: Double?,
