@@ -85,7 +85,6 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
     }.getOrDefault(false)
 
     override suspend fun addNote(
-        id: String,
         name: String,
         apiNoteType: ApiNoteType,
         description: String,
@@ -98,7 +97,6 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
         pages: List<ApiGetPage>
     ): String = runCatching {
         networkClient.addNote(
-            id = id,
             name = name,
             type = apiNoteType,
             description = description,

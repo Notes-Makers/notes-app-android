@@ -2,6 +2,7 @@ package com.notesmakers.noteapp.presentation.notes.paintnote
 
 import androidx.compose.ui.graphics.Path
 import androidx.lifecycle.viewModelScope
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import com.notesmakers.noteapp.extension.getSvgPath
 import com.notesmakers.noteapp.domain.notes.AddBitmapDrawableToNoteUseCase
@@ -21,6 +22,7 @@ class PaintNoteViewModel(
     private val addBitmapDrawableToNoteUseCase: AddBitmapDrawableToNoteUseCase,
     private val addPathDrawableToNoteUseCase: AddPathDrawableToNoteUseCase,
     private val updatePageNoteUseCase: UpdatePageNoteUseCase,
+    private val getOwnerUseCase: GetOwnerUseCase,
     getNoteByIdUseCase: GetNoteByIdUseCase,
 ) : BaseViewModel() {
     private val _noteState = MutableStateFlow(getNoteByIdUseCase(noteId))
@@ -88,7 +90,7 @@ class PaintNoteViewModel(
     ) = viewModelScope.launch {
         _noteState.value = updatePageNoteUseCase(
             noteId = noteId,
-            createdBy = "GUEST"
+            createdBy = getOwnerUseCase()
         )
     }
 }

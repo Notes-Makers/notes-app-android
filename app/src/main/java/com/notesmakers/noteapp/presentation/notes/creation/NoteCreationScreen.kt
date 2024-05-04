@@ -84,7 +84,6 @@ fun NoteCreationScreen(
             noteCreationViewModel.createNote(
                 name = name,
                 description = description,
-                createdBy = "GUEST",
                 noteType = noteMode.toNoteType()
             )
         },

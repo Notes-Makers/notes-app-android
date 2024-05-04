@@ -4,18 +4,15 @@ import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
 import com.notesmakers.database.data.entities.RealmPageOutput
 import com.notesmakers.database.data.entities.RealmPathDrawable
-import com.notesmakers.database.data.entities.RealmTextDrawable
 import com.notesmakers.database.data.entities.RealmQuickNote
+import com.notesmakers.database.data.entities.RealmTextDrawable
 import com.notesmakers.database.data.entities.UNDEFINED
-import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.QuickNoteModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
-import io.realm.kotlin.types.RealmList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
@@ -194,8 +191,39 @@ class NotesDao(
     suspend fun deleteNote(noteId: String) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).find()
+        val tmpListOfPage = findRealmNote.first().pages.map { it.id }
         delete(findRealmNote)
+        tmpListOfPage.forEach { id ->
+            val page = query<RealmPageOutput>("id == $0", id).find().first()
+            val tmpListOfText = page.textDrawables.map { it.id }
+            val tmpListOfBitmap = page.bitmapDrawables.map { it.id }
+            val tmpListOfPath = page.pathDrawables.map { it.id }
+            delete(page)
+            if (tmpListOfPath.isNotEmpty()) {
+                tmpListOfPath.forEach { path ->
+                    val pathDrawable =
+                        query<RealmPathDrawable>("id == $0", path).find().first()
+                    delete(pathDrawable)
+                }
+            }
+            if (tmpListOfBitmap.isNotEmpty()) {
+                tmpListOfBitmap.forEach { bitmap ->
+                    val bitmapDrawable =
+                        query<RealmBitmapDrawable>("id == $0", bitmap).find().first()
+                    delete(bitmapDrawable)
+                }
+            }
+            if (tmpListOfText.isNotEmpty()) {
+                tmpListOfText.forEach { text ->
+                    val textDrawable =
+                        query<RealmTextDrawable>("id == $0", text).find().first()
+                    delete(textDrawable)
+                }
+            }
+
+        }
     }
+
 
     suspend fun updateNote(
         noteId: String?,

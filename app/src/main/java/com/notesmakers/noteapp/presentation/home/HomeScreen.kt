@@ -99,11 +99,13 @@ fun HomeScreen(
 
     resultRecipientLogin.onNavResult { result ->
         when (result) {
-            is NavResult.Canceled -> {}
+            is NavResult.Canceled -> {
+            }
 
             is NavResult.Value -> {
                 if (result.value) {
                     viewModel.checkUserSignIn()
+                    viewModel.syncNotes()
                 }
             }
         }
@@ -116,8 +118,6 @@ fun HomeScreen(
             }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
         },
     ) { innerPadding ->
-
-
         HomeScreen(
             searchText = searchText,
             isSearching = isSearching,

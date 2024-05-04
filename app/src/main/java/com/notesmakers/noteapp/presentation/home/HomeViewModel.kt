@@ -38,6 +38,10 @@ class HomeViewModel(
     }
 
     init {
+        syncNotes()
+    }
+
+    fun syncNotes() {
         viewModelScope.launch {
             runCatching {
                 notesRepository.syncNotes()

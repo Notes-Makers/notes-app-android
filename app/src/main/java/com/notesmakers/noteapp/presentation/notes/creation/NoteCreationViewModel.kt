@@ -2,6 +2,7 @@ package com.notesmakers.noteapp.presentation.notes.creation
 
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.domain.notes.CreateNoteUseCase
 import com.notesmakers.noteapp.domain.notes.GetNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.UpdateNoteByIdUseCase
@@ -18,6 +19,7 @@ class NoteCreationViewModel(
     private val noteId: String?,
     private val createNoteUseCase: CreateNoteUseCase,
     private val updateNoteByIdUseCase: UpdateNoteByIdUseCase,
+    private val getOwnerUseCase: GetOwnerUseCase,
     getNoteByIdUseCase: GetNoteByIdUseCase,
 ) : BaseViewModel() {
     private val _noteCreationState = MutableStateFlow<NoteCreationState>(NoteCreationState.None)
@@ -36,7 +38,6 @@ class NoteCreationViewModel(
     fun createNote(
         name: String,
         description: String,
-        createdBy: String,
         noteType: String
     ) = viewModelScope.launch {
         runCatching {
@@ -44,7 +45,7 @@ class NoteCreationViewModel(
             createNoteUseCase(
                 name = name,
                 description = description,
-                createdBy = createdBy,
+                createdBy = getOwnerUseCase(),
                 noteType = noteType
             )
         }.onSuccess {

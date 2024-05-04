@@ -7,18 +7,22 @@ import com.notesmakers.auth.LogoutMutation
 import com.notesmakers.auth.RefreshTokenMutation
 import com.notesmakers.auth.RegisterUserMutation
 import com.notesmakers.auth.data.models.SessionToken
+import com.notesmakers.auth.data.models.UserDetails
 import com.notesmakers.auth.domain.AuthClient
 
 class ApolloAuthClient(
     private val apolloClient: ApolloClient,
 ) : AuthClient {
-    override suspend fun login(email: String, password: String): SessionToken? {
+    override suspend fun login(
+        email: String,
+        password: String
+    ): Pair<SessionToken?, UserDetails?> {
         val executed = apolloClient.mutation(LoginMutation(email, password))
             .execute()
         executed.errors?.takeIf { it.isNotEmpty() }?.first()?.let { error ->
             throwErrorIfExist(error)
         }
-        return executed.data?.login?.toSessionToken()
+        return Pair(executed.data?.login?.toSessionToken(), executed.data?.login?.toUserDetails())
     }
 
     override suspend fun logout(refreshToken: String) =

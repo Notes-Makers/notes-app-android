@@ -102,7 +102,6 @@ class ApolloNetworkClient(
     ).execute()
 
     override suspend fun addNote(
-        id: String,
         name: String,
         type: ApiNoteType,
         description: String,
@@ -116,7 +115,6 @@ class ApolloNetworkClient(
     ) =
         apolloClient.mutation(
             CreateNoteMutation(
-                id = id,
                 name = name,
                 type = type.toNoteType(),
                 description = description,
@@ -140,7 +138,7 @@ class ApolloNetworkClient(
                                 imgContent = Optional.presentIfNotNull(
                                     ImgInputType(
                                         noteId = Optional.presentIfNotNull(
-                                            it?.content?.onImgOutputType?.noteId ?: id
+                                            it?.content?.onImgOutputType?.noteId
                                         ),
                                         itemId = Optional.presentIfNotNull(it?.content?.onImgOutputType?.itemId),
                                         scale = Optional.presentIfNotNull(it?.content?.onImgOutputType?.scale?.toDouble()),

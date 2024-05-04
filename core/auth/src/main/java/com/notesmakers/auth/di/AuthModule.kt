@@ -8,6 +8,7 @@ import com.notesmakers.auth.data.AuthDomainImpl
 import com.notesmakers.auth.data.TokenProviderImpl
 import com.notesmakers.auth.domain.AuthDomain
 import com.notesmakers.auth.domain.TokenProvider
+import com.notesmakers.auth.domain.UserProvider
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
@@ -26,7 +27,7 @@ class AuthModule {
     }
 
     @Single
-    fun provideApolloAuthClient(@Named("Auth")apolloClient: ApolloClient): ApolloAuthClient {
+    fun provideApolloAuthClient(@Named("Auth") apolloClient: ApolloClient): ApolloAuthClient {
         return ApolloAuthClient(apolloClient)
     }
 
@@ -34,8 +35,9 @@ class AuthModule {
     fun provideAuthDomain(
         apolloAuthClient: ApolloAuthClient,
         tokenProvider: TokenProvider,
+        userProvider: UserProvider,
     ): AuthDomain {
-        return AuthDomainImpl(apolloAuthClient, tokenProvider)
+        return AuthDomainImpl(apolloAuthClient, tokenProvider, userProvider)
     }
 
     @Single

@@ -59,7 +59,8 @@ fun LoginScreen(
             when (it) {
                 is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
                 BaseViewModel.MessageEvent.Success -> {
-                    resultNavigator.navigateBack(true)
+                    resultNavigator.setResult(true)
+                    resultNavigator.navigateBack()
                     snackbarHandler.showSuccessSnackbar(message = "Witamy zalogowanego użytkownika")
                 }
             }

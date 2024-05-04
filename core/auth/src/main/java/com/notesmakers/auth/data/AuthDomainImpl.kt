@@ -3,10 +3,12 @@ package com.notesmakers.auth.data
 import com.notesmakers.auth.data.models.SessionToken
 import com.notesmakers.auth.domain.AuthDomain
 import com.notesmakers.auth.domain.TokenProvider
+import com.notesmakers.auth.domain.UserProvider
 
 class AuthDomainImpl(
     private val apolloAuthClient: ApolloAuthClient,
     private val tokenProvider: TokenProvider,
+    private val userProvider: UserProvider,
 ) : AuthDomain {
     override suspend fun login(email: String, password: String): Boolean =
         runCatching {
@@ -15,9 +17,17 @@ class AuthDomainImpl(
                 password = password
             )
         }.onSuccess {
-            tokenProvider.saveTokens(it?.token!!, it.refreshToken!!)
+            val sessionToken = it.first
+            val userDetails = it.second
+            userProvider.saveUser(
+                userName = userDetails?.userName,
+                userEmail = userDetails?.userEmail,
+                name = userDetails?.name,
+                surname = userDetails?.surname
+            )
+            tokenProvider.saveTokens(sessionToken?.token!!, sessionToken.refreshToken!!)
         }.map {
-            it != null
+            it.first != null
         }.getOrElse { exception ->
             throw LoginException(cause = exception, message = exception.message)
         }
@@ -25,6 +35,7 @@ class AuthDomainImpl(
     override suspend fun logout(refreshToken: String): Boolean =
         runCatching { apolloAuthClient.logout(refreshToken = refreshToken) }.onSuccess {
             tokenProvider.saveTokens(null, null)
+            userProvider.saveUser(null, null, null, null)
         }.getOrElse { exception ->
             throw LogoutException(cause = exception, message = exception.message)
         }

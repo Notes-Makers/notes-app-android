@@ -45,7 +45,6 @@ interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
     ): Boolean
 
     suspend fun addNote(
-        id: String = UUID.randomUUID().toString(),
         name: String,
         apiNoteType: ApiNoteType,
         description: String,

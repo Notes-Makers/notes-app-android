@@ -265,6 +265,14 @@ type LoginResponse {
   token: String
 
   refreshToken: String
+
+  userName: String
+
+  userEmail: String
+
+  name: String
+
+  surname: String
 }
 
 input LogoutRequest {
@@ -286,6 +294,12 @@ type Query {
 }
 
 input RefreshTokenRequest {
+  token: String
+
+  refreshToken: String
+}
+
+type RefreshTokenResponse {
   token: String
 
   refreshToken: String

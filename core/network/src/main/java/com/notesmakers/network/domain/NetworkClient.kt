@@ -52,7 +52,6 @@ interface NetworkClient {
     ): ApolloResponse<AddPageMutation.Data>
 
     suspend fun addNote(
-        id: String = UUID.randomUUID().toString(),
         name: String,
         type: ApiNoteType,
         description: String,

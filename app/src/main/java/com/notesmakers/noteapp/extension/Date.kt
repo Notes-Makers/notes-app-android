@@ -13,6 +13,9 @@ fun Long.zoneDateFromTimeStamp(): ZonedDateTime = ZonedDateTime.ofInstant(
     Instant.ofEpochMilli(this), TimeZone.getDefault().toZoneId()
 )
 
+fun toTimestampDataType(date: String): Long =
+    parseStringToZonedDateTime(date).toInstant().toEpochMilli()
+
 fun formatZonedDateTimeToIsoString(zonedDateTime: ZonedDateTime): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
     return zonedDateTime.format(formatter)
@@ -24,6 +27,7 @@ fun main() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
         return zonedDateTime.format(formatter)
     }
+
     fun parseStringToZonedDateTime(dateTimeString: String?): ZonedDateTime {
         return try {
             ZonedDateTime.parse(dateTimeString)
@@ -31,11 +35,13 @@ fun main() {
             System.currentTimeMillis().zoneDateFromTimeStamp()
         }
     }
-    val zonedDateTime = ZonedDateTime.parse("2021-09-30T15:30:00+01:00")
+
+    val zonedDateTime = ZonedDateTime.parse("2024-05-04T15:47:10Z")
     val isoString = formatZonedDateTimeToIsoString(zonedDateTime)
-    println(isoString)
-    val isoZString = parseStringToZonedDateTime(isoString)
-    println(isoZString)
+    val isoZString = parseStringToZonedDateTime(isoString).toInstant().toEpochMilli()
+    val timeStamp = isoZString.zoneDateFromTimeStamp()
+
+    println(timeStamp)
 }
 
 fun parseStringToZonedDateTime(dateTimeString: String?): ZonedDateTime {

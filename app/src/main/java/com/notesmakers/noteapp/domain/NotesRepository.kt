@@ -32,8 +32,9 @@ import com.notesmakers.noteapp.data.notes.local.toApiNoteType
 import com.notesmakers.noteapp.data.notes.local.toNoteDrawableType
 import com.notesmakers.noteapp.di.DatabaseDomainModule
 import com.notesmakers.noteapp.di.NotesNetworkDomainModule
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.extension.formatZonedDateTimeToIsoString
-import com.notesmakers.noteapp.extension.parseStringToZonedDateTime
+import com.notesmakers.noteapp.extension.toTimestampDataType
 import com.notesmakers.noteapp.extension.zoneDateFromTimeStamp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +43,6 @@ import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 
@@ -54,7 +54,8 @@ interface NotesRepository {
 @Factory
 class NotesRepositoryImpl(
     private val remoteDataSource: NotesRemoteDataSource,
-    private val localDataSource: LocalDataSource
+    private val localDataSource: LocalDataSource,
+    private val getOwnerUseCase: GetOwnerUseCase
 ) : NotesRepository {
     override suspend fun syncNotes() {
         localDataSource.fetchDatabaseNotes().value.apply {
@@ -69,20 +70,20 @@ class NotesRepositoryImpl(
             name = "nie dzialajaca Notatka",
             apiNoteType = ApiNoteType.PAPER,
             description = "To opis nowej notaki",
-            createdBy = "krystian.korbecki@gmail.com",
+            createdBy = "pawkrzysciak@gmail.com",
             isShared = false,
             createdAt = "2021-09-30T15:30:00+01:00",
             isPrivate = true,
             modifiedAt = "2021-09-30T15:30:00+01:00",
-            modifiedBy = "krystian.korbecki@gmail.com",
+            modifiedBy = "pawkrzysciak@gmail.com",
             pages = listOf(
                 ApiGetPage(
                     id = "idexample23",
                     isDeleted = false,
                     createdAt = "2021-09-30T15:30:00+01:00",
-                    createdBy = "krystian.korbecki@gmail.com",
+                    createdBy = "pawkrzysciak@gmail.com",
                     modifiedAt = "2021-09-30T15:30:00+01:00",
-                    modifiedBy = "krystian.korbecki@gmail.com",
+                    modifiedBy = "pawkrzysciak@gmail.com",
                     items = listOf(
                         ApiGetItem(
                             id = "firstitem",
@@ -98,9 +99,9 @@ class NotesRepositoryImpl(
                                 onPathOutputType = null,
                             ),
                             createdAt = "2021-09-30T15:30:00+01:00",
-                            createdBy = "krystian.korbecki@gmail.com",
+                            createdBy = "pawkrzysciak@gmail.com",
                             modifiedAt = "2021-09-30T15:30:00+01:00",
-                            modifiedBy = "krystian.korbecki@gmail.com",
+                            modifiedBy = "pawkrzysciak@gmail.com",
                             hash = null,
                             position = ApiPosition(
                                 posX = 10.0,
@@ -116,9 +117,9 @@ class NotesRepositoryImpl(
                     id = "idexample234",
                     isDeleted = false,
                     createdAt = "2021-09-30T15:30:00+01:00",
-                    createdBy = "krystian.korbecki@gmail.com",
+                    createdBy = "pawkrzysciak@gmail.com",
                     modifiedAt = "2021-09-30T15:30:00+01:00",
-                    modifiedBy = "krystian.korbecki@gmail.com",
+                    modifiedBy = "pawkrzysciak@gmail.com",
                     items = listOf(
                         ApiGetItem(
                             id = "firstitem222",
@@ -137,9 +138,9 @@ class NotesRepositoryImpl(
                                 ),
                             ),
                             createdAt = "2021-09-30T15:30:00+01:00",
-                            createdBy = "krystian.korbecki@gmail.com",
+                            createdBy = "pawkrzysciak@gmail.com",
                             modifiedAt = "2021-09-30T15:30:00+01:00",
-                            modifiedBy = "krystian.korbecki@gmail.com",
+                            modifiedBy = "pawkrzysciak@gmail.com",
                             hash = null,
                             position = ApiPosition(
                                 posX = 10.0,
@@ -163,26 +164,28 @@ class NotesRepositoryImpl(
         this.filter { localNote ->
             localNote.remoteId.isNullOrBlank()
         }.forEach { unsentNotes ->
-            val noteId = UUID.randomUUID().toString()
-            localDataSource.updateRemoteNoteId(noteId, remoteDataSource.addNote(
-                id = noteId,
+            localDataSource.updateRemoteNoteId(unsentNotes.id, remoteDataSource.addNote(
                 name = unsentNotes.name,
                 apiNoteType = unsentNotes.noteType.toNoteDrawableType().toApiNoteType(),
                 description = unsentNotes.description,
-                createdBy = unsentNotes.createdBy,
+                createdBy = unsentNotes.createdBy.takeIf { !isNullOrEmpty() }
+                    ?: getOwnerUseCase(),
                 isShared = unsentNotes.isShared,
                 createdAt = formatZonedDateTimeToIsoString(unsentNotes.createdAt),
                 isPrivate = unsentNotes.isPrivate,
                 modifiedAt = formatZonedDateTimeToIsoString(unsentNotes.modifiedAt),
-                modifiedBy = unsentNotes.modifiedBy,
+                modifiedBy = unsentNotes.modifiedBy.takeIf { !isNullOrEmpty() }
+                    ?: getOwnerUseCase(),
                 pages = unsentNotes.pages.map { pageOutput ->
                     ApiGetPage(
                         id = pageOutput.id,
                         isDeleted = false,
                         createdAt = formatZonedDateTimeToIsoString(pageOutput.createdAt),
-                        createdBy = pageOutput.createdBy,
+                        createdBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                            ?: getOwnerUseCase(),
                         modifiedAt = formatZonedDateTimeToIsoString(pageOutput.modifiedAt),
-                        modifiedBy = pageOutput.modifiedBy,
+                        modifiedBy = pageOutput.modifiedBy.takeIf { !isNullOrEmpty() }
+                            ?: getOwnerUseCase(),
                         items = pageOutput.bitmapDrawables.map { item ->
                             ApiGetItem(
                                 id = item.id,
@@ -192,19 +195,21 @@ class NotesRepositoryImpl(
                                     typename = "img",
                                     onTextOutputType = null,
                                     onImgOutputType = ApiImg(
-                                        noteId = noteId,
+                                        noteId = null, //TODO API
                                         scale = item.scale,
                                         itemId = item.id,
                                     ),
                                     onPathOutputType = null,
                                 ),
                                 createdAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                createdBy = pageOutput.createdBy,//TODO create Owner
+                                createdBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 modifiedAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                modifiedBy = pageOutput.createdBy,//TODO create Owner
+                                modifiedBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 position = ApiPosition(
                                     posX = item.offsetX.toDouble(),
-                                    posY = item.offsetX.toDouble(),
+                                    posY = item.offsetY.toDouble(),
                                     width = item.width.toDouble(),
                                     height = item.height.toDouble(),
                                 ), hash = null
@@ -227,15 +232,17 @@ class NotesRepositoryImpl(
                                     ),
                                 ),
                                 createdAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                createdBy = pageOutput.createdBy,//TODO create Owner
+                                createdBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 modifiedAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                modifiedBy = pageOutput.createdBy,//TODO create Owner
+                                modifiedBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 position = null, hash = null
                             )
                         } + pageOutput.textDrawables.map { item ->
                             ApiGetItem(
                                 id = item.id,
-                                type = ItemType.SVG,
+                                type = ItemType.MD,
                                 isDeleted = false,
                                 content = ApiContent(
                                     typename = "svg",
@@ -247,9 +254,11 @@ class NotesRepositoryImpl(
                                     onPathOutputType = null,
                                 ),
                                 createdAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                createdBy = pageOutput.createdBy, //TODO create Owner
+                                createdBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 modifiedAt = formatZonedDateTimeToIsoString(item.createdAt.zoneDateFromTimeStamp()),
-                                modifiedBy = pageOutput.createdBy,//TODO create Owner
+                                modifiedBy = pageOutput.createdBy.takeIf { !isNullOrEmpty() }
+                                    ?: getOwnerUseCase(),
                                 position = ApiPosition(
                                     posX = item.offsetX.toDouble(),
                                     posY = item.offsetY.toDouble(),
@@ -273,7 +282,7 @@ class NotesRepositoryImpl(
     private suspend fun List<Note>.syncUnFetchedNotes(apiNotes: List<BaseNotesInfo>) {
         apiNotes.filter { remoteNote ->
             this.find {
-                it.remoteId == remoteNote.noteId //todo do sprawdzenia chyba źle
+                it.remoteId == remoteNote.noteId
             } == null
         }.forEach { remoteUnsavedNote ->
             val noteDetails = remoteDataSource.getNote(
@@ -284,18 +293,19 @@ class NotesRepositoryImpl(
                 name = remoteUnsavedNote.name!!,
                 description = remoteUnsavedNote.description!!,
                 noteType = remoteUnsavedNote.type.type,
-                createdBy = remoteUnsavedNote.createdBy!!,
-                createdAt = parseStringToZonedDateTime(remoteUnsavedNote.createdAt as String).toEpochSecond(),
+                createdBy = remoteUnsavedNote.createdBy.takeIf { !isNullOrEmpty() }
+                    ?: getOwnerUseCase(),
+                createdAt = toTimestampDataType(remoteUnsavedNote.createdAt as String),
                 pages = noteDetails.pages.map { page ->
                     PageOutputModel(
                         id = page.id!!,
                         remotePageId = null,
-                        createdAt = parseStringToZonedDateTime(page.createdAt as String).toEpochSecond(),
+                        createdAt = toTimestampDataType(page.createdAt as String),
                         createdBy = page.createdBy!!,
-                        modifiedAt = parseStringToZonedDateTime(page.modifiedAt as String).toEpochSecond(),
+                        modifiedAt = toTimestampDataType(page.modifiedAt as String),
                         modifiedBy = page.modifiedBy!!,
                         bitmapDrawable = page.items?.filter { it?.type == ItemType.IMG }
-                            ?.mapNotNull { bitmap ->
+                            ?.map { bitmap ->
                                 BitmapDrawableModel(
                                     remoteItemId = bitmap?.content?.onImgOutputType?.noteId,
                                     width = bitmap?.position?.width?.toInt() ?: 0,
@@ -305,11 +315,11 @@ class NotesRepositoryImpl(
                                     offsetY = bitmap?.position?.posY?.toFloat() ?: 0f,
                                     bitmap = "",//TODO bitmap ważne to dodać totalnie inaczej niż teraz to działa
                                     bitmapUrl = "",//TODO bitmap
-                                    createdAt = parseStringToZonedDateTime(bitmap?.createdAt as String).toEpochSecond(),
+                                    createdAt = toTimestampDataType(bitmap?.createdAt as String),
                                 )
                             } ?: emptyList(),
                         pathDrawables = page.items?.filter { it?.type == ItemType.SVG }
-                            ?.mapNotNull { path ->
+                            ?.map { path ->
                                 PathDrawableModel(
                                     remoteItemId = path?.id,
                                     strokeWidth = path?.content?.onPathOutputType?.strokeWidth?.toFloat()
@@ -321,30 +331,30 @@ class NotesRepositoryImpl(
                                         ?: false,
                                     path = path?.content?.onPathOutputType?.path
                                         ?: "",
-                                    createdAt = parseStringToZonedDateTime(path?.createdAt as String).toEpochSecond(),
+                                    createdAt = toTimestampDataType(path?.createdAt as String),
                                 )
                             } ?: emptyList(),
                         textDrawables = page.items?.filter { it?.type == ItemType.MD }
-                            ?.mapNotNull { text ->
+                            ?.map { text ->
                                 TextDrawableModel(
                                     remoteItemId = text?.id,
                                     text = text?.content?.onTextOutputType?.text ?: "",
                                     color = text?.content?.onTextOutputType?.color ?: "",
                                     offsetX = text?.position?.posX?.toFloat() ?: 0f,
                                     offsetY = text?.position?.posY?.toFloat() ?: 0f,
-                                    createdAt = parseStringToZonedDateTime(text?.createdAt as String).toEpochSecond(),
+                                    createdAt = toTimestampDataType(text?.createdAt as String),
                                 )
 
                             } ?: emptyList(),
                     )
-                }.takeIf { isNotEmpty() } ?: listOf(
+                }.takeIf { it.isNotEmpty() } ?: listOf(
                     //Zabezpiecznie przed tym by nie było pustej listy
                     PageOutputModel(
                         remotePageId = null,
                         createdAt = System.currentTimeMillis(),
-                        createdBy = "GUEST",
+                        createdBy = getOwnerUseCase(),
                         modifiedAt = System.currentTimeMillis(),
-                        modifiedBy = "GUEST"
+                        modifiedBy = getOwnerUseCase(),
                     )
                 ),
                 quickNote = QuickNoteModel(id = "", text = "")
@@ -417,7 +427,6 @@ class NotesRemoteDataSource(
     }
 
     suspend fun addNote(
-        id: String = UUID.randomUUID().toString(),
         name: String,
         apiNoteType: ApiNoteType,
         description: String,
@@ -430,7 +439,6 @@ class NotesRemoteDataSource(
         pages: List<ApiGetPage>
     ): String = withContext(ioDispatcher) {
         networkDomain.addNote(
-            id = id,
             name = name,
             apiNoteType = apiNoteType,
             description = description,
