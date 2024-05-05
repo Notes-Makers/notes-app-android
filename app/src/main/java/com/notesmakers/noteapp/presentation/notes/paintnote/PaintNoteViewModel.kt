@@ -23,7 +23,7 @@ class PaintNoteViewModel(
     private val addPathDrawableToNoteUseCase: AddPathDrawableToNoteUseCase,
     private val updatePageNoteUseCase: UpdatePageNoteUseCase,
     private val getOwnerUseCase: GetOwnerUseCase,
-    getNoteByIdUseCase: GetNoteByIdUseCase,
+    private val getNoteByIdUseCase: GetNoteByIdUseCase,
 ) : BaseViewModel() {
     private val _noteState = MutableStateFlow(getNoteByIdUseCase(noteId))
     val noteState = _noteState.asStateFlow()
@@ -42,7 +42,9 @@ class PaintNoteViewModel(
             offsetX = offsetX,
             offsetY = offsetY,
             noteId = noteId
-        )
+        ).takeIf { it }?.let {
+            _noteState.value = getNoteByIdUseCase(noteId)
+        }
     }
 
     fun addBitmapDrawableToNote(
@@ -65,7 +67,9 @@ class PaintNoteViewModel(
             bitmap = bitmap,
             bitmapUrl = bitmapUrl,
             noteId = noteId
-        )
+        ).takeIf { it }?.let {
+            _noteState.value = getNoteByIdUseCase(noteId)
+        }
     }
 
     fun addPathDrawableToNote(
@@ -85,7 +89,9 @@ class PaintNoteViewModel(
                 eraseMode = eraseMode,
                 path = path.getSvgPath(),
                 noteId = noteId
-            )
+            ).takeIf { it }?.let {
+                _noteState.value = getNoteByIdUseCase(noteId)
+            }
         }
     }
 

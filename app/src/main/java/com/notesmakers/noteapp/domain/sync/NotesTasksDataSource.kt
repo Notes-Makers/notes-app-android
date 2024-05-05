@@ -7,7 +7,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
-private const val REFRESH_RATE_HOURS = 1L
+private const val REFRESH_RATE_MINUTES = 15L
 private const val FETCH_LATEST_NOTES_TASK = "FetchLatestNotesTask"
 private const val TAG_FETCH_LATEST_NOTES = "FetchLatestNotesTaskTag"
 
@@ -16,7 +16,7 @@ class NotesTasksDataSource(
 ) {
     fun fetchNewsPeriodically() {
         val fetchNewsRequest = PeriodicWorkRequestBuilder<RefreshLatestNotesWorker>(
-            REFRESH_RATE_HOURS, TimeUnit.HOURS
+            REFRESH_RATE_MINUTES, TimeUnit.MINUTES
         ).setConstraints(
             Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

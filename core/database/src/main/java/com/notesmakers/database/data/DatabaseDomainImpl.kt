@@ -82,7 +82,7 @@ class DatabaseDomainImpl<Note>(
             color = color,
             offsetX = offsetX,
             offsetY = offsetY,
-        ) == null
+        ) != null
     }
 
     override suspend fun addBitmapDrawableToNote(
@@ -110,7 +110,7 @@ class DatabaseDomainImpl<Note>(
             offsetY = offsetY,
             bitmap = bitmap,
             bitmapUrl = bitmapUrl,
-        ) == null
+        ) != null
     }
 
     override suspend fun addPathDrawableToNote(
@@ -134,7 +134,7 @@ class DatabaseDomainImpl<Note>(
             alpha = alpha,
             eraseMode = eraseMode,
             path = path,
-        ) == null
+        ) != null
     }
 
     override fun getNotes(): Flow<List<Note>> =

@@ -31,10 +31,6 @@ class HomeViewModel(
         emptyList()
     )
 
-    init {
-        syncNotes()
-    }
-
     fun syncNotes() {
         viewModelScope.launch {
             runCatching {

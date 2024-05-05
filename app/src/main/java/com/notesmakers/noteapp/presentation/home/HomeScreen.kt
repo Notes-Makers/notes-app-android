@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -96,6 +97,10 @@ fun HomeScreen(
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
     val notesList by viewModel.notesList.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.syncNotes()
+    }
 
     resultRecipientLogin.onNavResult { result ->
         when (result) {
