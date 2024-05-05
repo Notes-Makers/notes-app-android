@@ -2,7 +2,7 @@ package com.notesmakers.noteapp.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
-import com.notesmakers.noteapp.domain.NotesRepository
+import com.notesmakers.noteapp.domain.sync.NotesSyncRepository
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
@@ -22,7 +22,7 @@ class HomeViewModel(
     val checkUserSignInStatusUseCase: CheckUserSignInStatusUseCase,
     val deleteNoteByIdUseCase: DeleteNoteByIdUseCase,
     val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
-    val notesRepository: NotesRepository,
+    val notesSyncRepository: NotesSyncRepository,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -31,12 +31,6 @@ class HomeViewModel(
         emptyList()
     )
 
-    fun addNote() {
-        viewModelScope.launch {
-            notesRepository.addNote()
-        }
-    }
-
     init {
         syncNotes()
     }
@@ -44,7 +38,7 @@ class HomeViewModel(
     fun syncNotes() {
         viewModelScope.launch {
             runCatching {
-                notesRepository.syncNotes()
+                notesSyncRepository.syncNotes()
             }.onFailure { exception ->
                 exception.printStackTrace()
             }

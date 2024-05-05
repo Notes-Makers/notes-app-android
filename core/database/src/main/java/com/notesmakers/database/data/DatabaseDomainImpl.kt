@@ -64,6 +64,9 @@ class DatabaseDomainImpl<Note>(
     }
 
     override suspend fun addTextDrawableToNote(
+        noteId: String,
+        id: String,
+        createdAt: Long,
         pageId: String,
         text: String,
         color: String,
@@ -71,6 +74,9 @@ class DatabaseDomainImpl<Note>(
         offsetY: Float,
     ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addTextDrawableToNote(
+            noteId = noteId,
+            id = id,
+            createdAt = createdAt,
             pageId = pageId,
             text = text,
             color = color,
@@ -80,6 +86,9 @@ class DatabaseDomainImpl<Note>(
     }
 
     override suspend fun addBitmapDrawableToNote(
+        noteId: String,
+        id: String,
+        createdAt: Long,
         pageId: String,
         width: Int,
         height: Int,
@@ -90,6 +99,9 @@ class DatabaseDomainImpl<Note>(
         bitmapUrl: String,
     ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addBitmapDrawableToNote(
+            noteId = noteId,
+            id = id,
+            createdAt = createdAt,
             pageId = pageId,
             width = width,
             height = height,
@@ -102,6 +114,9 @@ class DatabaseDomainImpl<Note>(
     }
 
     override suspend fun addPathDrawableToNote(
+        noteId: String,
+        id: String,
+        createdAt: Long,
         pageId: String,
         strokeWidth: Float,
         color: String,
@@ -110,6 +125,9 @@ class DatabaseDomainImpl<Note>(
         path: String,
     ): Boolean = withContext(Dispatchers.IO) {
         notesDao.addPathDrawableToNote(
+            noteId = noteId,
+            id = id,
+            createdAt = createdAt,
             pageId = pageId,
             strokeWidth = strokeWidth,
             color = color,
@@ -177,4 +195,23 @@ class DatabaseDomainImpl<Note>(
                 isPinned = isPinned,
             )?.toNoteData()?.noteTransformer()
         }
+
+    //For Sync
+    override suspend fun updatePageNote(
+        noteId: String,
+        pageId: String,
+        createdBy: String,
+        createdAt: Long,
+        modifiedBy: String,
+        modifiedAt: Long,
+    ): Note? = withContext(Dispatchers.IO) {
+        notesDao.updatePageNote(
+            noteId = noteId,
+            pageId = pageId,
+            createdBy = createdBy,
+            modifiedBy = modifiedBy,
+            createdAt = createdAt,
+            modifiedAt = modifiedAt,
+        )?.toNoteData()?.noteTransformer()
+    }
 }

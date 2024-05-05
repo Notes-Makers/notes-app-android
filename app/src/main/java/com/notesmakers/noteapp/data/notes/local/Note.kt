@@ -1,6 +1,5 @@
 package com.notesmakers.noteapp.data.notes.local
 
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.UUID
 

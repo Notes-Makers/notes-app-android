@@ -10,5 +10,4 @@ data class PathDrawable(
     var eraseMode: Boolean,
     var path: String,
     override val createdAt: Long,
-    override val remoteId: String?,
 ) : Drawable

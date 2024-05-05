@@ -9,7 +9,6 @@ class RealmPathDrawable() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
-    var remoteItemId: String? = ""
     var strokeWidth: Float = 5f
     var color: String = ""
     var alpha: Float = 1f

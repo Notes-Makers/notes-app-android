@@ -8,7 +8,6 @@ class RealmBitmapDrawable() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
-    var remoteItemId: String? = ""
     var width: Int = 0
     var height: Int = 0
     var scale: Float = 1f

@@ -1,16 +1,5 @@
-package com.notesmakers.noteapp.domain
+package com.notesmakers.noteapp.data.sync
 
-import android.content.Context
-import androidx.startup.Initializer
-import androidx.work.Constraints
-import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkManagerInitializer
-import androidx.work.WorkerParameters
-import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.PathDrawableModel
@@ -20,139 +9,218 @@ import com.notesmakers.network.data.api.ApiContent
 import com.notesmakers.network.data.api.ApiGetItem
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiImg
-import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiPosition
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
-import com.notesmakers.noteapp.data.notes.api.BaseNote
 import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.data.notes.local.toApiNoteType
 import com.notesmakers.noteapp.data.notes.local.toNoteDrawableType
-import com.notesmakers.noteapp.di.DatabaseDomainModule
-import com.notesmakers.noteapp.di.NotesNetworkDomainModule
 import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
+import com.notesmakers.noteapp.domain.sync.NotesSyncRepository
 import com.notesmakers.noteapp.extension.formatZonedDateTimeToIsoString
+import com.notesmakers.noteapp.extension.parseStringToZonedDateTime
 import com.notesmakers.noteapp.extension.toTimestampDataType
 import com.notesmakers.noteapp.extension.zoneDateFromTimeStamp
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
+import java.util.UUID
 
-
-interface NotesRepository {
-    suspend fun syncNotes()
-    suspend fun addNote()
-}
 
 @Factory
-class NotesRepositoryImpl(
+class NotesSyncRepositoryImpl(
     private val remoteDataSource: NotesRemoteDataSource,
     private val localDataSource: LocalDataSource,
     private val getOwnerUseCase: GetOwnerUseCase
-) : NotesRepository {
+) : NotesSyncRepository {
     override suspend fun syncNotes() {
         localDataSource.fetchDatabaseNotes().value.apply {
             val apiNotes = remoteDataSource.fetchApiNotes()
             syncUnFetchedNotes(apiNotes)
             syncUnsentNotes()
+            updateNotes(apiNotes)
         }
     }
 
-    override suspend fun addNote() {
-        remoteDataSource.addNote(
-            name = "nie dzialajaca Notatka",
-            apiNoteType = ApiNoteType.PAPER,
-            description = "To opis nowej notaki",
-            createdBy = "pawkrzysciak@gmail.com",
-            isShared = false,
-            createdAt = "2021-09-30T15:30:00+01:00",
-            isPrivate = true,
-            modifiedAt = "2021-09-30T15:30:00+01:00",
-            modifiedBy = "pawkrzysciak@gmail.com",
-            pages = listOf(
-                ApiGetPage(
-                    id = "idexample23",
-                    isDeleted = false,
-                    createdAt = "2021-09-30T15:30:00+01:00",
-                    createdBy = "pawkrzysciak@gmail.com",
-                    modifiedAt = "2021-09-30T15:30:00+01:00",
-                    modifiedBy = "pawkrzysciak@gmail.com",
-                    items = listOf(
-                        ApiGetItem(
-                            id = "firstitem",
-                            type = ItemType.MD,
-                            isDeleted = false,
-                            content = ApiContent(
-                                typename = "typename",
-                                onTextOutputType = ApiText(
-                                    text = "Dziala",
-                                    color = "#ff000000"
-                                ),
-                                onImgOutputType = null,
-                                onPathOutputType = null,
-                            ),
-                            createdAt = "2021-09-30T15:30:00+01:00",
-                            createdBy = "pawkrzysciak@gmail.com",
-                            modifiedAt = "2021-09-30T15:30:00+01:00",
-                            modifiedBy = "pawkrzysciak@gmail.com",
-                            hash = null,
-                            position = ApiPosition(
-                                posX = 10.0,
-                                posY = 10.0,
-                                width = 120.0,
-                                height = 120.0
-                            )
-                        )
-                    ),
-                ),
+    /**
+     * Update All notes by timestamp
+     */
+    private suspend fun List<Note>.updateNotes(apiNotes: List<BaseNotesInfo>) {
 
-                ApiGetPage(
-                    id = "idexample234",
-                    isDeleted = false,
-                    createdAt = "2021-09-30T15:30:00+01:00",
-                    createdBy = "pawkrzysciak@gmail.com",
-                    modifiedAt = "2021-09-30T15:30:00+01:00",
-                    modifiedBy = "pawkrzysciak@gmail.com",
-                    items = listOf(
-                        ApiGetItem(
-                            id = "firstitem222",
-                            type = ItemType.SVG,
-                            isDeleted = false,
-                            content = ApiContent(
-                                typename = "typename",
-                                onTextOutputType = null,
-                                onImgOutputType = null,
-                                onPathOutputType = ApiPath(
-                                    strokeWidth = 15.0,
-                                    color = "#ff000000",
-                                    alpha = 1.0,
-                                    eraseMode = false,
-                                    path = "M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C 7 11 8 12 7 12 A 1.42 1.42 0 0 1 6 13 A 5 5 0 0 0 4 10 Q 3.5 9.9 3.5 10.5 T 2 11.8 T 1.2 11 T 2.5 9.5 T 3 9 A 5 5 90 0 0 0 7 A 1.42 1.42 0 0 1 1 6 C 1 5 2 6 3 6 C 2 7 3 7 4 8 M 10 1 L 10 3 L 12 3 L 10.2 2.8 L 10 1"
-                                ),
-                            ),
-                            createdAt = "2021-09-30T15:30:00+01:00",
-                            createdBy = "pawkrzysciak@gmail.com",
-                            modifiedAt = "2021-09-30T15:30:00+01:00",
-                            modifiedBy = "pawkrzysciak@gmail.com",
-                            hash = null,
-                            position = ApiPosition(
-                                posX = 10.0,
-                                posY = 10.0,
-                                width = 120.0,
-                                height = 120.0
-                            )
-                        )
-                    ),
+        this.forEach { noteLocal ->
+            apiNotes.find { noteLocal.remoteId == it.noteId }?.let { noteRemote ->
+                //Get Current Note
+                val remoteDetailsNote = remoteDataSource.getNote(
+                    noteRemote.noteId!!
                 )
-            )
-        )
+                if (noteLocal.modifiedAt.toLocalDateTime() > parseStringToZonedDateTime(noteRemote.modifiedAt as String).toLocalDateTime()) {
+                    //Update Remote <-
+                    //Add pages who not exist
+                    noteLocal.pages.filter { localItem ->
+                        remoteDetailsNote.pages.find {
+                            it.id == localItem.id
+                        } == null
+                    }.forEach { localPage ->
+                        remoteDataSource.addPage(
+                            noteId = remoteDetailsNote.id ?: noteRemote.noteId,
+                            pageId = localPage.id,
+                            createdAt = formatZonedDateTimeToIsoString(localPage.createdAt),
+                            createdBy = localPage.createdBy,
+                            modifiedAt = formatZonedDateTimeToIsoString(localPage.modifiedAt),
+                            modifiedBy = localPage.modifiedBy,
+                        )
+                    }
+                    //Add items to Page on Api who not exist
+                    noteLocal.pages.forEach { localPage ->
+                        remoteDetailsNote.pages.find { localPage.id == it.id }
+                            ?.let { remotePage ->
+                                localPage.bitmapDrawables.filter { localItem ->
+                                    remotePage.items?.find {
+                                        it?.id == localItem.id && it.type == ItemType.IMG
+                                    } == null
+                                }.forEach {
+                                    //  localDataSource.addBitmapItem() //TODO
+                                }
+                                localPage.textDrawables.filter { localItem ->
+                                    remotePage.items?.find {
+                                        it?.id == localItem.id && it.type == ItemType.MD
+                                    } == null
+                                }.forEach { text ->
+                                    remoteDataSource.addItem(
+                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
+                                        pageId = remotePage.id ?: localPage.id,
+                                        itemId = text.id,
+                                        itemType = ItemType.MD,
+                                        imgContent = null,
+                                        pathContent = null,
+                                        textContent = ApiText(
+                                            text = text.text,
+                                            color = text.color
+                                        ),
+                                        itemPosX = text.offsetX.toDouble(),
+                                        itemPosY = text.offsetY.toDouble(),
+                                        itemWidth = 0.0,
+                                        itemHeight = 0.0,
+                                        itemCreatedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
+                                        itemCreatedBy = getOwnerUseCase(),
+                                        itemModifiedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
+                                        itemModifiedBy = getOwnerUseCase(),
+                                        itemHash = "itemHash".hashCode().toString()
+                                    )
+                                }
+                                localPage.pathDrawables.filter { localItem ->
+                                    remotePage.items?.find {
+                                        it?.id == localItem.id && it.type == ItemType.SVG
+                                    } == null
+                                }.forEach { path ->
+                                    remoteDataSource.addItem(
+                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
+                                        pageId = remotePage.id ?: localPage.id,
+                                        itemId = path.id,
+                                        itemType = ItemType.SVG,
+                                        imgContent = null,
+                                        pathContent = ApiPath(
+                                            strokeWidth = path.strokeWidth.toDouble(),
+                                            color = path.color,
+                                            alpha = path.alpha.toDouble(),
+                                            eraseMode = path.eraseMode,
+                                            path = path.path,
+                                        ),
+                                        textContent = null,
+                                        itemPosX = 0.0,
+                                        itemPosY = 0.0,
+                                        itemWidth = 0.0,
+                                        itemHeight = 0.0,
+                                        itemCreatedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
+                                        itemCreatedBy = getOwnerUseCase(),
+                                        itemModifiedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
+                                        itemModifiedBy = getOwnerUseCase(),
+                                        itemHash = "itemHash".hashCode().toString()
+                                    )
+                                }
+                            }
+
+                    }
+                } else if (noteLocal.modifiedAt.toLocalDateTime() < parseStringToZonedDateTime(
+                        noteRemote.modifiedAt
+                    ).toLocalDateTime()
+                ) {
+                    //Update Local Database <-
+                    //Add pages who not exist
+                    remoteDetailsNote.pages.filter { remoteItem ->
+                        noteLocal.pages.find {
+                            it.id == remoteItem.id
+                        } == null
+                    }.forEach { remotePage ->
+                        localDataSource.addPage(
+                            noteId = noteLocal.id,
+                            pageId = remotePage.id!!,
+                            createdBy = remotePage.createdBy!!,
+                            createdAt = parseStringToZonedDateTime(remotePage.createdAt as String).toInstant()
+                                .toEpochMilli(),
+                            modifiedBy = remotePage.modifiedBy!!,
+                            modifiedAt = parseStringToZonedDateTime(remotePage.modifiedAt as String).toInstant()
+                                .toEpochMilli(),
+                        )
+                    }
+                    //Add items to Page who not exist
+                    remoteDetailsNote.pages.forEach { remotePage ->
+                        //find local Page to update
+                        noteLocal.pages.find { remotePage.id == it.id }?.let { localPage ->
+                            //Update items Local
+                            remotePage.items?.filter { remoteItem ->
+                                localPage.bitmapDrawables.find {
+                                    it.id == remoteItem?.id && remoteItem.type == ItemType.IMG
+                                } == null
+                            }?.forEach {
+                                //  localDataSource.addBitmapItem() //TODO
+                            }
+                            remotePage.items?.filter { remoteItem ->
+                                localPage.pathDrawables.find {
+                                    it.id == remoteItem?.id && remoteItem.type == ItemType.SVG
+                                } == null
+                            }?.forEach { path ->
+                                localDataSource.addPathItem(
+                                    id = path?.id ?: UUID.randomUUID().toString(),
+                                    createdAt = parseStringToZonedDateTime(path?.modifiedAt as String).toInstant()
+                                        .toEpochMilli(),
+                                    pageId = remotePage.id!!,
+                                    strokeWidth = path.content?.onPathOutputType?.strokeWidth?.toFloat()
+                                        ?: 0f,
+                                    color = path.content?.onPathOutputType?.color
+                                        ?: "#ff3b82f6",
+                                    alpha = path.content?.onPathOutputType?.alpha?.toFloat()
+                                        ?: 0f,
+                                    eraseMode = path.content?.onPathOutputType?.eraseMode
+                                        ?: false,
+                                    path = path.content?.onPathOutputType?.path ?: "",
+                                    noteId = noteLocal.id
+                                )
+                            }
+                            remotePage.items?.filter { remoteItem ->
+                                localPage.textDrawables.find {
+                                    it.id == remoteItem?.id && remoteItem.type == ItemType.MD
+                                } == null
+                            }?.forEach { text ->
+                                localDataSource.addTextItem(
+                                    id = text?.id ?: UUID.randomUUID().toString(),
+                                    createdAt = parseStringToZonedDateTime(text?.modifiedAt as String).toInstant()
+                                        .toEpochMilli(),
+                                    pageId = remotePage.id!!,
+                                    text = text.content?.onTextOutputType?.text ?: "",
+                                    color = text.content?.onTextOutputType?.color
+                                        ?: "#ff3b82f6",
+                                    offsetX = text.position.posX?.toFloat() ?: 0f,
+                                    offsetY = text.position.posY?.toFloat() ?: 0f,
+                                    noteId = noteLocal.id
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     /**
@@ -296,10 +364,10 @@ class NotesRepositoryImpl(
                 createdBy = remoteUnsavedNote.createdBy.takeIf { !isNullOrEmpty() }
                     ?: getOwnerUseCase(),
                 createdAt = toTimestampDataType(remoteUnsavedNote.createdAt as String),
+                modifiedAt = toTimestampDataType(remoteUnsavedNote.modifiedAt as String),
                 pages = noteDetails.pages.map { page ->
                     PageOutputModel(
                         id = page.id!!,
-                        remotePageId = null,
                         createdAt = toTimestampDataType(page.createdAt as String),
                         createdBy = page.createdBy!!,
                         modifiedAt = toTimestampDataType(page.modifiedAt as String),
@@ -307,7 +375,7 @@ class NotesRepositoryImpl(
                         bitmapDrawable = page.items?.filter { it?.type == ItemType.IMG }
                             ?.map { bitmap ->
                                 BitmapDrawableModel(
-                                    remoteItemId = bitmap?.content?.onImgOutputType?.noteId,
+                                    id = bitmap?.id ?: UUID.randomUUID().toString(),
                                     width = bitmap?.position?.width?.toInt() ?: 0,
                                     height = bitmap?.position?.height?.toInt() ?: 0,
                                     scale = bitmap?.content?.onImgOutputType?.scale ?: 1f,
@@ -321,7 +389,7 @@ class NotesRepositoryImpl(
                         pathDrawables = page.items?.filter { it?.type == ItemType.SVG }
                             ?.map { path ->
                                 PathDrawableModel(
-                                    remoteItemId = path?.id,
+                                    id = path?.id ?: UUID.randomUUID().toString(),
                                     strokeWidth = path?.content?.onPathOutputType?.strokeWidth?.toFloat()
                                         ?: 0f,
                                     color = path?.content?.onPathOutputType?.color ?: "#FFF",
@@ -337,7 +405,7 @@ class NotesRepositoryImpl(
                         textDrawables = page.items?.filter { it?.type == ItemType.MD }
                             ?.map { text ->
                                 TextDrawableModel(
-                                    remoteItemId = text?.id,
+                                    id = text?.id ?: UUID.randomUUID().toString(),
                                     text = text?.content?.onTextOutputType?.text ?: "",
                                     color = text?.content?.onTextOutputType?.color ?: "",
                                     offsetX = text?.position?.posX?.toFloat() ?: 0f,
@@ -350,7 +418,6 @@ class NotesRepositoryImpl(
                 }.takeIf { it.isNotEmpty() } ?: listOf(
                     //Zabezpiecznie przed tym by nie było pustej listy
                     PageOutputModel(
-                        remotePageId = null,
                         createdAt = System.currentTimeMillis(),
                         createdBy = getOwnerUseCase(),
                         modifiedAt = System.currentTimeMillis(),
@@ -360,205 +427,5 @@ class NotesRepositoryImpl(
                 quickNote = QuickNoteModel(id = "", text = "")
             )
         }
-    }
-}
-
-@Factory
-class LocalDataSource(
-    private val databaseDomainModule: DatabaseDomainModule,
-    private val ioDispatcher: CoroutineDispatcher
-) {
-    suspend fun fetchDatabaseNotes() =
-        databaseDomainModule.getNotes().stateIn(
-            CoroutineScope(ioDispatcher)
-        )
-
-    suspend fun updateRemoteNoteId(
-        noteId: String,
-        remoteNoteId: String
-    ): Note? = databaseDomainModule.updateRemoteNoteId(noteId, remoteNoteId)
-
-    suspend fun addNote(
-        remoteNoteId: String,
-        name: String,
-        description: String,
-        createdAt: Long,
-        createdBy: String = "",
-        pages: List<PageOutputModel>,
-        modifiedBy: String = createdBy,
-        modifiedAt: Long = System.currentTimeMillis(),
-        isPrivate: Boolean = false,
-        isShared: Boolean = false,
-        isPinned: Boolean = false,
-        tag: List<String> = listOf(),
-        quickNote: QuickNoteModel,
-        noteType: String = UNDEFINED,
-    ): Note = databaseDomainModule.createCompleteNote(
-        name = name,
-        description = description,
-        noteType = noteType,
-        createdAt = createdAt,
-        createdBy = createdBy,
-        pages = pages,
-        modifiedBy = modifiedBy,
-        modifiedAt = modifiedAt,
-        isPrivate = isPrivate,
-        isShared = isShared,
-        isPinned = isPinned,
-        tag = tag,
-        quickNote = quickNote,
-        remoteNoteId = remoteNoteId
-    )
-
-}
-
-@Factory
-class NotesRemoteDataSource(
-    private val networkDomain: NotesNetworkDomainModule,
-    private val ioDispatcher: CoroutineDispatcher
-) {
-    suspend fun fetchApiNotes(): List<BaseNotesInfo> =
-        withContext(ioDispatcher) {
-            networkDomain.getNotesInfo()
-        }
-
-    suspend fun getNote(noteId: String): BaseNote = withContext(ioDispatcher) {
-        networkDomain.getNote(noteId)
-    }
-
-    suspend fun addNote(
-        name: String,
-        apiNoteType: ApiNoteType,
-        description: String,
-        createdBy: String,
-        isShared: Boolean,
-        createdAt: String,
-        isPrivate: Boolean,
-        modifiedAt: String,
-        modifiedBy: String,
-        pages: List<ApiGetPage>
-    ): String = withContext(ioDispatcher) {
-        networkDomain.addNote(
-            name = name,
-            apiNoteType = apiNoteType,
-            description = description,
-            createdBy = createdBy,
-            isShared = isShared,
-            createdAt = createdAt,
-            isPrivate = isPrivate,
-            modifiedAt = modifiedAt,
-            modifiedBy = modifiedBy,
-            pages = pages
-        )
-    }
-
-    suspend fun addPage(
-        noteId: String,
-        pageId: String,
-        createdAt: String,
-        createdBy: String,
-        modifiedAt: String,
-        modifiedBy: String
-    ) = withContext(ioDispatcher) {
-        networkDomain.addPage(
-            noteId = noteId,
-            pageId = pageId,
-            createdAt = createdAt,
-            createdBy = createdBy,
-            modifiedAt = modifiedAt,
-            modifiedBy = modifiedBy
-        )
-    }
-
-    suspend fun addItem(
-        noteId: String,
-        pageId: String,
-        itemId: String,
-        itemType: ItemType,
-        imgContent: ApiImg?,
-        pathContent: ApiPath?,
-        textContent: ApiText?,
-        itemPosX: Double,
-        itemPosY: Double,
-        itemWidth: Double,
-        itemHeight: Double,
-        itemCreatedAt: String,
-        itemCreatedBy: String,
-        itemModifiedAt: String,
-        itemModifiedBy: String,
-        itemHash: String
-    ) = withContext(ioDispatcher) {
-        networkDomain.addItem(
-            noteId = noteId,
-            pageId = pageId,
-            itemId = itemId,
-            itemType = itemType,
-            imgContent = imgContent,
-            pathContent = pathContent,
-            textContent = textContent,
-            itemPosX = itemPosX,
-            itemPosY = itemPosY,
-            itemWidth = itemWidth,
-            itemHeight = itemHeight,
-            itemCreatedAt = itemCreatedAt,
-            itemCreatedBy = itemCreatedBy,
-            itemModifiedAt = itemModifiedAt,
-            itemModifiedBy = itemModifiedBy,
-            itemHash = itemHash
-        )
-    }
-}
-
-class RefreshLatestNotesWorker(
-    context: Context,
-    params: WorkerParameters
-) : CoroutineWorker(context, params), KoinComponent {
-
-    private val notesRepository: NotesRepository by inject()
-    override suspend fun doWork(): Result = try {
-        notesRepository.syncNotes()
-        Result.success()
-    } catch (error: Throwable) {
-        Result.failure()
-    }
-}
-
-private const val REFRESH_RATE_HOURS = 1L
-private const val FETCH_LATEST_NOTES_TASK = "FetchLatestNotesTask"
-private const val TAG_FETCH_LATEST_NOTES = "FetchLatestNotesTaskTag"
-
-class NotesTasksDataSource(
-    private val workManager: WorkManager
-) {
-    fun fetchNewsPeriodically() {
-        val fetchNewsRequest = PeriodicWorkRequestBuilder<RefreshLatestNotesWorker>(
-            REFRESH_RATE_HOURS, TimeUnit.HOURS
-        ).setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-        )
-            .addTag(TAG_FETCH_LATEST_NOTES)
-        workManager.enqueueUniquePeriodicWork(
-            FETCH_LATEST_NOTES_TASK,
-            ExistingPeriodicWorkPolicy.KEEP,
-            fetchNewsRequest.build()
-        )
-    }
-
-    fun cancelFetchingNewsPeriodically() {
-        workManager.cancelAllWorkByTag(TAG_FETCH_LATEST_NOTES)
-    }
-}
-
-class DatabaseSyncInitializer : Initializer<NotesTasksDataSource> {
-    override fun create(context: Context): NotesTasksDataSource {
-        return NotesTasksDataSource(WorkManager.getInstance(context)).apply {
-//            fetchNewsPeriodically()
-        }
-    }
-
-    override fun dependencies(): List<Class<out Initializer<*>>> {
-        return listOf(WorkManagerInitializer::class.java)
     }
 }

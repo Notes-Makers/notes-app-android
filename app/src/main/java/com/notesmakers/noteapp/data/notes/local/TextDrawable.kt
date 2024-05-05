@@ -9,5 +9,4 @@ data class TextDrawable(
     var offsetX: Float,
     var offsetY: Float,
     override val createdAt: Long,
-    override val remoteId: String?,
 ) : Drawable

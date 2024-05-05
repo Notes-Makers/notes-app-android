@@ -4,7 +4,6 @@ import java.util.UUID
 
 data class BitmapDrawableModel(
     var id: String = UUID.randomUUID().toString(),
-    var remoteItemId: String?,
     var width: Int,
     var height: Int,
     var scale: Float,

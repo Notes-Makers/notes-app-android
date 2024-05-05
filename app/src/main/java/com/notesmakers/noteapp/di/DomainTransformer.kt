@@ -54,7 +54,6 @@ fun DomainNoteModel.toNote() = Note(
     pages = pages.map { page ->
         PageOutput(
             id = page.id,
-            remoteId = page.remotePageId,
             createdAt = page.createdAt.zoneDateFromTimeStamp(),
             createdBy = page.createdBy,
             modifiedAt = page.modifiedAt.zoneDateFromTimeStamp(),
@@ -69,7 +68,6 @@ fun DomainNoteModel.toNote() = Note(
 
 fun BitmapDrawableModel.toBitmapDrawable() = BitmapDrawable(
     id = id,
-    remoteId = remoteItemId,
     width = width,
     height = height,
     scale = scale,
@@ -82,7 +80,6 @@ fun BitmapDrawableModel.toBitmapDrawable() = BitmapDrawable(
 
 fun PathDrawableModel.toPathDrawable() = PathDrawable(
     id = id,
-    remoteId = remoteItemId,
     strokeWidth = strokeWidth,
     color = color,
     alpha = alpha,
@@ -93,7 +90,6 @@ fun PathDrawableModel.toPathDrawable() = PathDrawable(
 
 fun TextDrawableModel.toTextDrawable() = TextDrawable(
     id = id,
-    remoteId = remoteItemId,
     text = text,
     color = color,
     offsetX = offsetX,

@@ -135,7 +135,6 @@ fun HomeScreen(
                 viewModel.onSelectNote(note = it)
             },
             onSearchTextChange = viewModel::onSearchTextChange,
-            addNote = viewModel::addNote
         )
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
@@ -171,7 +170,6 @@ private fun HomeScreen(
     isSearching: Boolean,
     notesList: List<Note>,
     onSearchTextChange: (text: String) -> Unit,
-    addNote: () -> Unit
 ) {
     val listState = rememberLazyStaggeredGridState()
     val showButton by remember {
@@ -191,9 +189,6 @@ private fun HomeScreen(
             onNoteSelected = onNoteSelected,
             onSearchTextChange = onSearchTextChange,
         )
-        Button(modifier = Modifier.align(Alignment.BottomCenter), onClick = { addNote() }) {
-            Text(text = "Tekst")
-        }
         ScrollToTopButton(
             modifier = Modifier.align(Alignment.BottomCenter),
             showButton = showButton,

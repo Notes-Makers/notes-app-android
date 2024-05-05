@@ -13,7 +13,6 @@ import com.notesmakers.database.data.models.TextDrawableModel
 
 fun RealmPathDrawable.toPathDrawableModel(): PathDrawableModel = PathDrawableModel(
     id = id,
-    remoteItemId = remoteItemId,
     strokeWidth = strokeWidth,
     color = color,
     alpha = alpha,
@@ -24,7 +23,6 @@ fun RealmPathDrawable.toPathDrawableModel(): PathDrawableModel = PathDrawableMod
 
 fun RealmTextDrawable.toTextDrawableModel(): TextDrawableModel = TextDrawableModel(
     id = id,
-    remoteItemId = remoteItemId,
     text = text,
     color = color,
     offsetX = offsetX,
@@ -34,7 +32,6 @@ fun RealmTextDrawable.toTextDrawableModel(): TextDrawableModel = TextDrawableMod
 
 fun RealmBitmapDrawable.toBitmapDrawableModel(): BitmapDrawableModel = BitmapDrawableModel(
     id = id,
-    remoteItemId = remoteItemId,
     width = width,
     height = height,
     scale = scale,
@@ -66,7 +63,6 @@ fun RealmNote.toNoteData() = DomainNoteModel(
     pages = pages.map { page ->
         PageOutputModel(
             id = page.id,
-            remotePageId = page.remotePageId,
             createdAt = page.createdAt,
             createdBy = page.createdBy,
             modifiedAt = page.modifiedAt,

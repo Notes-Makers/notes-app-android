@@ -16,6 +16,7 @@ import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import java.util.UUID
 
 @Factory
 class NotesDao(
@@ -29,10 +30,7 @@ class NotesDao(
     ) = realm.write {
         copyToRealm(
             RealmNote(
-                name = name,
-                description = description,
-                createdBy = createdBy,
-                noteType = noteType
+                name = name, description = description, createdBy = createdBy, noteType = noteType
             ), updatePolicy = UpdatePolicy.ALL
         )
     }
@@ -70,6 +68,7 @@ class NotesDao(
                 realmQuickNote = RealmQuickNote(text = quickNote.text),
                 pages = pages.map { page ->
                     RealmPageOutput(
+                        id = page.id,
                         createdBy = page.createdBy,
                         modifiedBy = page.modifiedBy,
                         createdAt = page.createdAt,
@@ -113,28 +112,40 @@ class NotesDao(
     }
 
     suspend fun addTextDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
         pageId: String,
         text: String,
         color: String,
         offsetX: Float,
         offsetY: Float,
+        createdAt: Long = System.currentTimeMillis(),
     ) = realm.write {
 
         val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
 
         findRealmNote?.apply {
+            modifiedAt = createdAt
             textDrawables.add(
                 RealmTextDrawable(
+                    id = id,
                     text = text,
                     color = color,
                     offsetX = offsetX,
                     offsetY = offsetY,
+                    createdAt = createdAt
                 )
             )
+        }
+        val realmNote = query<RealmNote>("id == $0", noteId).first().find()
+        realmNote?.apply {
+            modifiedAt = createdAt
         }
     }
 
     suspend fun addBitmapDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
         pageId: String,
         width: Int,
         height: Int,
@@ -143,42 +154,60 @@ class NotesDao(
         offsetY: Float,
         bitmap: String,
         bitmapUrl: String,
+        createdAt: Long = System.currentTimeMillis(),
     ) = realm.write {
         val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
         findRealmNote?.apply {
+            modifiedAt = createdAt
             bitmapDrawables.add(
                 RealmBitmapDrawable(
+                    id = id,
                     width = width,
                     height = height,
                     scale = scale,
                     offsetX = offsetX,
                     offsetY = offsetY,
                     bitmap = bitmap,
-                    bitmapUrl = bitmapUrl
+                    bitmapUrl = bitmapUrl,
+                    createdAt = createdAt
                 )
             )
+        }
+        val realmNote = query<RealmNote>("id == $0", noteId).first().find()
+        realmNote?.apply {
+            modifiedAt = createdAt
         }
     }
 
     suspend fun addPathDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
         pageId: String,
         strokeWidth: Float,
         color: String,
         alpha: Float,
         eraseMode: Boolean,
         path: String,
+        createdAt: Long = System.currentTimeMillis(),
     ) = realm.write {
         val findRealmNote = query<RealmPageOutput>("id == $0", pageId).first().find()
         findRealmNote?.apply {
+            modifiedAt = createdAt
             pathDrawables.add(
                 RealmPathDrawable(
+                    id = id,
                     strokeWidth = strokeWidth,
                     color = color,
                     alpha = alpha,
                     eraseMode = eraseMode,
                     path = path,
+                    createdAt = createdAt,
                 )
             )
+        }
+        val realmNote = query<RealmNote>("id == $0", noteId).first().find()
+        realmNote?.apply {
+            modifiedAt = createdAt
         }
     }
 
@@ -202,22 +231,31 @@ class NotesDao(
             if (tmpListOfPath.isNotEmpty()) {
                 tmpListOfPath.forEach { path ->
                     val pathDrawable =
-                        query<RealmPathDrawable>("id == $0", path).find().first()
-                    delete(pathDrawable)
+                        query<RealmPathDrawable>("id == $0", path).find().takeIf { it.isNotEmpty() }
+                            ?.first()
+                    if (pathDrawable != null) {
+                        delete(pathDrawable)
+                    }
                 }
             }
             if (tmpListOfBitmap.isNotEmpty()) {
                 tmpListOfBitmap.forEach { bitmap ->
                     val bitmapDrawable =
-                        query<RealmBitmapDrawable>("id == $0", bitmap).find().first()
-                    delete(bitmapDrawable)
+                        query<RealmBitmapDrawable>("id == $0", bitmap).find()
+                            .takeIf { it.isNotEmpty() }?.first()
+                    if (bitmapDrawable != null) {
+                        delete(bitmapDrawable)
+                    }
                 }
             }
             if (tmpListOfText.isNotEmpty()) {
                 tmpListOfText.forEach { text ->
                     val textDrawable =
-                        query<RealmTextDrawable>("id == $0", text).find().first()
-                    delete(textDrawable)
+                        query<RealmTextDrawable>("id == $0", text).find().takeIf { it.isNotEmpty() }
+                            ?.first()
+                    if (textDrawable != null) {
+                        delete(textDrawable)
+                    }
                 }
             }
 
@@ -248,8 +286,7 @@ class NotesDao(
     }
 
     suspend fun updateRemoteNoteId(
-        noteId: String,
-        remoteNoteId: String?
+        noteId: String, remoteNoteId: String?
     ) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
@@ -265,9 +302,34 @@ class NotesDao(
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
 
         findRealmNote?.apply {
+            this.modifiedAt = System.currentTimeMillis()
             this.pages.add(
                 RealmPageOutput(
                     createdBy = createdBy
+                )
+            )
+        }
+    }
+
+    suspend fun updatePageNote(
+        noteId: String,
+        pageId: String,
+        createdBy: String,
+        createdAt: Long,
+        modifiedBy: String,
+        modifiedAt: Long,
+    ) = realm.write {
+        val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
+
+        findRealmNote?.apply {
+            this.modifiedAt = modifiedAt
+            this.pages.add(
+                RealmPageOutput(
+                    id = pageId,
+                    createdBy = createdBy,
+                    modifiedBy = modifiedBy,
+                    createdAt = createdAt,
+                    modifiedAt = modifiedAt,
                 )
             )
         }

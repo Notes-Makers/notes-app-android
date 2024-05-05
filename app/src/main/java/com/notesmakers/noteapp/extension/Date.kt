@@ -21,29 +21,6 @@ fun formatZonedDateTimeToIsoString(zonedDateTime: ZonedDateTime): String {
     return zonedDateTime.format(formatter)
 }
 
-
-fun main() {
-    fun formatZonedDateTimeToIsoString(zonedDateTime: ZonedDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
-        return zonedDateTime.format(formatter)
-    }
-
-    fun parseStringToZonedDateTime(dateTimeString: String?): ZonedDateTime {
-        return try {
-            ZonedDateTime.parse(dateTimeString)
-        } catch (e: Exception) {
-            System.currentTimeMillis().zoneDateFromTimeStamp()
-        }
-    }
-
-    val zonedDateTime = ZonedDateTime.parse("2024-05-04T15:47:10Z")
-    val isoString = formatZonedDateTimeToIsoString(zonedDateTime)
-    val isoZString = parseStringToZonedDateTime(isoString).toInstant().toEpochMilli()
-    val timeStamp = isoZString.zoneDateFromTimeStamp()
-
-    println(timeStamp)
-}
-
 fun parseStringToZonedDateTime(dateTimeString: String?): ZonedDateTime {
     return try {
         ZonedDateTime.parse(dateTimeString)

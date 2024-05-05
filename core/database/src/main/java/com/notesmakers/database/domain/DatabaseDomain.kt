@@ -7,6 +7,7 @@ import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.QuickNoteModel
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 interface DatabaseDomain<Note> {
     val notesDao: NotesDao
@@ -35,6 +36,9 @@ interface DatabaseDomain<Note> {
     ): Note
 
     suspend fun addTextDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
+        createdAt: Long = System.currentTimeMillis(),
         pageId: String,
         text: String,
         color: String,
@@ -43,6 +47,9 @@ interface DatabaseDomain<Note> {
     ): Boolean
 
     suspend fun addBitmapDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
+        createdAt: Long = System.currentTimeMillis(),
         pageId: String,
         width: Int,
         height: Int,
@@ -54,6 +61,9 @@ interface DatabaseDomain<Note> {
     ): Boolean
 
     suspend fun addPathDrawableToNote(
+        noteId: String,
+        id: String = UUID.randomUUID().toString(),
+        createdAt: Long = System.currentTimeMillis(),
         pageId: String,
         strokeWidth: Float,
         color: String,
@@ -95,6 +105,15 @@ interface DatabaseDomain<Note> {
     suspend fun updatePinned(
         noteId: String,
         isPinned: Boolean,
+    ): Note?
+
+    suspend fun updatePageNote(
+        noteId: String,
+        pageId: String,
+        createdBy: String,
+        createdAt: Long,
+        modifiedBy: String,
+        modifiedAt: Long,
     ): Note?
 
     companion object {

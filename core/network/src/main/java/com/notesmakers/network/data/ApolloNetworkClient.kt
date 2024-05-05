@@ -27,7 +27,6 @@ import com.notesmakers.network.type.PageInput
 import com.notesmakers.network.type.PathInputType
 import com.notesmakers.network.type.PositionInput
 import com.notesmakers.network.type.TextInputType
-import java.util.UUID
 
 class ApolloNetworkClient(
     private val apolloClient: ApolloClient,
@@ -55,21 +54,27 @@ class ApolloNetworkClient(
             pageId = pageId,
             itemId = itemId,
             itemType = itemType,
-            imgContent = ImgInputType(
-                noteId = Optional.present(imgContent?.noteId),
-                itemId = Optional.present(imgContent?.itemId)
-            ),
-            pathContent = PathInputType(
-                strokeWidth = Optional.present(pathContent?.strokeWidth),
-                color = Optional.present(pathContent?.color),
-                alpha = Optional.present(pathContent?.alpha),
-                eraseMode = Optional.present(pathContent?.eraseMode),
-                path = Optional.present(pathContent?.path),
-            ),
-            textContent = TextInputType(
-                text = Optional.present(textContent?.text),
-                color = Optional.present(textContent?.color),
-            ),
+            imgContent = Optional.presentIfNotNull(imgContent.takeIf { it != null }?.let {
+                ImgInputType(
+                    noteId = Optional.present(imgContent?.noteId),
+                    itemId = Optional.present(imgContent?.itemId)
+                )
+            }),
+            pathContent = Optional.presentIfNotNull(pathContent.takeIf { it != null }?.let {
+                PathInputType(
+                    strokeWidth = Optional.present(pathContent?.strokeWidth),
+                    color = Optional.present(pathContent?.color),
+                    alpha = Optional.present(pathContent?.alpha),
+                    eraseMode = Optional.present(pathContent?.eraseMode),
+                    path = Optional.present(pathContent?.path),
+                )
+            }),
+            textContent = Optional.presentIfNotNull(textContent.takeIf { it != null }?.let {
+                TextInputType(
+                    text = Optional.present(textContent?.text),
+                    color = Optional.present(textContent?.color),
+                )
+            }),
             itemPosX = itemPosX,
             itemPosY = itemPosY,
             itemWidth = itemWidth,
@@ -135,38 +140,41 @@ class ApolloNetworkClient(
                             ItemInput(
                                 id = Optional.presentIfNotNull(it?.id),
                                 type = Optional.presentIfNotNull(it?.type),
-                                imgContent = Optional.presentIfNotNull(
-                                    ImgInputType(
-                                        noteId = Optional.presentIfNotNull(
-                                            it?.content?.onImgOutputType?.noteId
-                                        ),
-                                        itemId = Optional.presentIfNotNull(it?.content?.onImgOutputType?.itemId),
-                                        scale = Optional.presentIfNotNull(it?.content?.onImgOutputType?.scale?.toDouble()),
-                                    )
-                                ),
-                                pathContent = Optional.presentIfNotNull(
-                                    PathInputType(
-                                        strokeWidth = Optional.present(it?.content?.onPathOutputType?.strokeWidth),
-                                        color = Optional.present(it?.content?.onPathOutputType?.color),
-                                        alpha = Optional.present(it?.content?.onPathOutputType?.alpha),
-                                        eraseMode = Optional.present(it?.content?.onPathOutputType?.eraseMode),
-                                        path = Optional.present(it?.content?.onPathOutputType?.path),
-                                    )
-                                ),
-                                textContent = Optional.presentIfNotNull(
-                                    TextInputType(
-                                        text = Optional.present(it?.content?.onTextOutputType?.text),
-                                        color = Optional.present(it?.content?.onTextOutputType?.color),
-                                    )
-                                ),
-                                position = Optional.presentIfNotNull(
+                                imgContent = Optional.presentIfNotNull(it.takeIf { it != null }
+                                    ?.let {
+                                        ImgInputType(
+                                            noteId = Optional.presentIfNotNull(
+                                                it.content?.onImgOutputType?.noteId
+                                            ),
+                                            itemId = Optional.presentIfNotNull(it.content?.onImgOutputType?.itemId),
+                                            scale = Optional.presentIfNotNull(it.content?.onImgOutputType?.scale?.toDouble()),
+                                        )
+                                    }),
+                                pathContent = Optional.presentIfNotNull(it.takeIf { it != null }
+                                    ?.let {
+                                        PathInputType(
+                                            strokeWidth = Optional.present(it.content?.onPathOutputType?.strokeWidth),
+                                            color = Optional.present(it.content?.onPathOutputType?.color),
+                                            alpha = Optional.present(it.content?.onPathOutputType?.alpha),
+                                            eraseMode = Optional.present(it.content?.onPathOutputType?.eraseMode),
+                                            path = Optional.present(it.content?.onPathOutputType?.path),
+                                        )
+                                    }),
+                                textContent = Optional.presentIfNotNull(it.takeIf { it != null }
+                                    ?.let {
+                                        TextInputType(
+                                            text = Optional.present(it.content?.onTextOutputType?.text),
+                                            color = Optional.present(it.content?.onTextOutputType?.color),
+                                        )
+                                    }),
+                                position = Optional.presentIfNotNull(it.takeIf { it != null }?.let {
                                     PositionInput(
-                                        posX = Optional.presentIfNotNull(it?.position?.posX),
-                                        posY = Optional.presentIfNotNull(it?.position?.posX),
-                                        width = Optional.presentIfNotNull(it?.position?.width),
-                                        height = Optional.presentIfNotNull(it?.position?.height),
+                                        posX = Optional.presentIfNotNull(it.position?.posX),
+                                        posY = Optional.presentIfNotNull(it.position?.posX),
+                                        width = Optional.presentIfNotNull(it.position?.width),
+                                        height = Optional.presentIfNotNull(it.position?.height),
                                     )
-                                ),
+                                }),
                                 createdAt = Optional.presentIfNotNull(it?.createdAt),
                                 createdBy = Optional.presentIfNotNull(it?.createdBy),
                                 modifiedAt = Optional.presentIfNotNull(it?.modifiedAt),

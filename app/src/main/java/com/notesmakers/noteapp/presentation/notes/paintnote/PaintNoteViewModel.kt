@@ -40,7 +40,8 @@ class PaintNoteViewModel(
             text = text,
             color = color,
             offsetX = offsetX,
-            offsetY = offsetY
+            offsetY = offsetY,
+            noteId = noteId
         )
     }
 
@@ -62,7 +63,8 @@ class PaintNoteViewModel(
             offsetX = offsetX,
             offsetY = offsetY,
             bitmap = bitmap,
-            bitmapUrl = bitmapUrl
+            bitmapUrl = bitmapUrl,
+            noteId = noteId
         )
     }
 
@@ -82,6 +84,7 @@ class PaintNoteViewModel(
                 alpha = alpha,
                 eraseMode = eraseMode,
                 path = path.getSvgPath(),
+                noteId = noteId
             )
         }
     }
