@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":core:auth"))
     implementation(project(":core:network"))
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(project(":core:ai"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,6 +1,7 @@
 package com.notesmakers.noteapp
 
 import android.app.Application
+import com.notesmakers.ai.di.AiModule
 import com.notesmakers.database.di.DatabaseModule
 import com.notesmakers.auth.di.AuthModule
 import com.notesmakers.network.di.NetworkModule
@@ -20,6 +21,7 @@ class NoteApp : Application() {
             modules(
                 AppModule().module,
                 AuthModule().module,
+                AiModule().module,
                 DatabaseModule().module,
                 NetworkModule().module,
             )

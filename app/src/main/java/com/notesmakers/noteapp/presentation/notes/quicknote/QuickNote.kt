@@ -3,6 +3,7 @@ package com.notesmakers.noteapp.presentation.notes.quicknote
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -53,6 +61,7 @@ fun QuickNote(
     modifier: Modifier,
     text: String,
     updateTextNote: (String) -> Unit,
+    rewordTextNote: (String) -> Unit,
 ) {
     val state = rememberRichTextState()
 
@@ -164,6 +173,12 @@ fun QuickNote(
                 containerColor = Color.Transparent
             ),
         )
+        CircularTextButton(
+            modifier = Modifier
+                .align(Alignment.CenterEnd),
+            onClick = { rewordTextNote(state.toHtml()) },
+            buttonText = "Ai"
+        )
     }
 }
 
@@ -215,5 +230,25 @@ fun LinkDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CircularTextButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    buttonText: String,
+    textColor: Color = Color.Black,
+) {
+    IconButton(
+        modifier = modifier
+            .size(48.dp),
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.LightGray)
+    ) {
+        Text(
+            text = buttonText,
+            color = textColor // Kolor tekstu
+        )
     }
 }
