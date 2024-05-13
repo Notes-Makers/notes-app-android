@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(project(":core:auth"))
     implementation(project(":core:network"))
+    implementation(project(":core:file"))
     implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

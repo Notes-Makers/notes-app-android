@@ -5,6 +5,7 @@ import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.di.DatabaseDomainModule
+import com.notesmakers.noteapp.domain.notes.GetBitmapUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.stateIn
@@ -15,7 +16,7 @@ import java.util.UUID
 @Factory
 class LocalDataSource(
     private val databaseDomainModule: DatabaseDomainModule,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend fun fetchDatabaseNotes() =
         databaseDomainModule.getNotes().stateIn(
