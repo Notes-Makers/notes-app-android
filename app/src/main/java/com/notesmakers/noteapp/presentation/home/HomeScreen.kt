@@ -110,7 +110,6 @@ fun HomeScreen(
             is NavResult.Value -> {
                 if (result.value) {
                     viewModel.checkUserSignIn()
-                    viewModel.syncNotes()
                 }
             }
         }

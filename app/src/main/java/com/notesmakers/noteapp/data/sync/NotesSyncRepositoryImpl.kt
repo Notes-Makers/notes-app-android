@@ -78,8 +78,35 @@ class NotesSyncRepositoryImpl(
                                     remotePage.items?.find {
                                         it?.id == localItem.id && it.type == ItemType.IMG
                                     } == null
-                                }.forEach {
-                                    //  localDataSource.addBitmapItem() //TODO
+                                }.forEach { bitmap ->
+                                    /*
+                                    remoteDataSource.setBitmapUseCase(
+                                        noteId = noteLocal.remoteId ?: noteLocal.id,
+                                        itemId = bitmap.id,
+                                        base64String = bitmap.bitmap
+                                    )
+                                    remoteDataSource.addItem(
+                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
+                                        pageId = remotePage.id ?: localPage.id,
+                                        itemId = bitmap.id,
+                                        itemType = ItemType.IMG,
+                                        imgContent = ApiImg(
+                                            noteId = noteLocal.remoteId ?: noteLocal.id,
+                                            scale = bitmap.scale,
+                                            itemId = bitmap.id,
+                                        ),
+                                        pathContent = null,
+                                        textContent = null,
+                                        itemPosX = bitmap.offsetX.toDouble(),
+                                        itemPosY = bitmap.offsetY.toDouble(),
+                                        itemWidth = 0.0,
+                                        itemHeight = 0.0,
+                                        itemCreatedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
+                                        itemCreatedBy = getOwnerUseCase(),
+                                        itemModifiedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
+                                        itemModifiedBy = getOwnerUseCase(),
+                                        itemHash = "itemHash".hashCode().toString()
+                                    )*/
                                 }
                                 localPage.textDrawables.filter { localItem ->
                                     remotePage.items?.find {
@@ -172,8 +199,25 @@ class NotesSyncRepositoryImpl(
                                 localPage.bitmapDrawables.find {
                                     it.id == remoteItem?.id && remoteItem.type == ItemType.IMG
                                 } == null
-                            }?.forEach {
-                                //  localDataSource.addBitmapItem() //TODO
+                            }?.forEach { bitmap ->
+                                //TODO bitmap
+//                                localDataSource.addBitmapItem(
+//                                    noteId = noteLocal.id,
+//                                    id = bitmap?.id ?: UUID.randomUUID().toString(),
+//                                    createdAt = parseStringToZonedDateTime(bitmap?.modifiedAt as String).toInstant()
+//                                        .toEpochMilli(),
+//                                    pageId = remotePage.id!!,
+//                                    width = bitmap.position.width?.toInt() ?: 0,
+//                                    height = bitmap.position.height?.toInt() ?: 0,
+//                                    scale = bitmap.content?.onImgOutputType?.scale ?: 1f,
+//                                    offsetX = bitmap.position.posX?.toFloat() ?: 0.0f,
+//                                    offsetY = bitmap.position.posY?.toFloat() ?: 0.0f,
+//                                    bitmap = remoteDataSource.getBitmapUseCase(
+//                                        noteLocal.id,
+//                                        bitmap.id!!
+//                                    ),
+//                                    bitmapUrl = ""
+//                                )
                             }
                             remotePage.items?.filter { remoteItem ->
                                 localPage.pathDrawables.find {
@@ -263,7 +307,7 @@ class NotesSyncRepositoryImpl(
                                     typename = "img",
                                     onTextOutputType = null,
                                     onImgOutputType = ApiImg(
-                                        noteId = null, //TODO API
+                                        noteId = unsentNotes.id,
                                         scale = item.scale,
                                         itemId = item.id,
                                     ),
