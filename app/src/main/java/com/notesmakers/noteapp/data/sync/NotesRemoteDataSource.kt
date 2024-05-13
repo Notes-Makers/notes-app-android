@@ -9,6 +9,8 @@ import com.notesmakers.network.type.ItemType
 import com.notesmakers.noteapp.data.notes.api.BaseNote
 import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.di.NotesNetworkDomainModule
+import com.notesmakers.noteapp.domain.notes.GetBitmapUseCase
+import com.notesmakers.noteapp.domain.notes.SetBitmapUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
@@ -16,7 +18,9 @@ import org.koin.core.annotation.Factory
 @Factory
 class NotesRemoteDataSource(
     private val networkDomain: NotesNetworkDomainModule,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    val getBitmapUseCase: GetBitmapUseCase,
+    val setBitmapUseCase: SetBitmapUseCase,
 ) {
     suspend fun fetchApiNotes(): List<BaseNotesInfo> =
         withContext(ioDispatcher) {
