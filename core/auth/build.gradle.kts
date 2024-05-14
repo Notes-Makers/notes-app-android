@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.common.android.library.koin)
     id("com.apollographql.apollo3").version("3.7.3")
-//    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20" apply true
 }
 apollo {
     service("auth") {

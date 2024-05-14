@@ -29,8 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -38,11 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.extension.encodeImage
 import com.notesmakers.noteapp.extension.toHexCodeWithAlpha
 import com.notesmakers.noteapp.presentation.destinations.PaintNoteScreenDestination
-import com.notesmakers.noteapp.data.notes.Note
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.BitmapProperties
+import com.notesmakers.noteapp.presentation.notes.paintnote.models.DrawableComponent
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.PathProperties
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.TextProperties
 import com.notesmakers.noteapp.presentation.notes.paintnote.models.toDrawableComponent
@@ -77,10 +80,12 @@ fun PaintNoteScreen(
                     ) {
                         BaseIconButton(
                             onClick = { navigator.popBackStack() },
+                            tint = MaterialTheme.colorScheme.onBackground,
                             imageVector = Icons.Default.Clear
                         )
                         BaseIconButton(
                             onClick = { },
+                            tint = MaterialTheme.colorScheme.onBackground,
                             imageVector = Icons.Default.Share
                         )
                     }
@@ -144,10 +149,17 @@ private fun PaintNoteScreen(
     updatePageCount: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { note.pages.size })
+
+    val currentDrawablesComponents = remember {
+        mutableStateOf(emptyList<DrawableComponent>())
+    }
     var selectedTabIndex by remember {
         mutableIntStateOf(pagerState.currentPage)
     }
-
+    LaunchedEffect(selectedTabIndex) {
+        currentDrawablesComponents.value =
+            (note.pages[selectedTabIndex].mergedDrawables.toDrawableComponent())
+    }
     val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
@@ -190,6 +202,7 @@ private fun PaintNoteScreen(
                             }) {
                             Text(
                                 text = "Page $item",
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(4.dp),
                             )
                         }
@@ -197,6 +210,7 @@ private fun PaintNoteScreen(
                 }
                 BaseIconButton(
                     onClick = { updatePageCount() },
+                    tint = MaterialTheme.colorScheme.onBackground,
                     imageVector = Icons.Default.Add
                 )
             }
@@ -208,8 +222,7 @@ private fun PaintNoteScreen(
                 Column(Modifier.weight(1f)) {
                     PaintSpace(
                         modifier = Modifier.weight(1f),
-                        initDrawableComponents =
-                        note.pages[selectedTabIndex].mergedDrawables.toDrawableComponent(),
+                        initDrawableComponents = currentDrawablesComponents.value,
                         addPathDrawableToNote = {
                             addPathDrawableToNote(it, note.pages[selectedTabIndex].id)
                         },

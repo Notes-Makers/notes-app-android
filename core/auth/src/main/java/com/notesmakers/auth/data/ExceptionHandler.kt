@@ -17,7 +17,13 @@ class LoginException(
     message = message,
     cause = cause
 )
-
+class RefreshTokenException(
+    message: String?,
+    cause: Throwable?
+) : AuthException(
+    message = message,
+    cause = cause
+)
 class LogoutException(
     message: String?,
     cause: Throwable?

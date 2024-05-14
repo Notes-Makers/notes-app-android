@@ -1,0 +1,6 @@
+mutation SaveFile($noteId: String!, $itemId: String!, $file: Upload!) {
+    saveFile(body: { noteId: $noteId, itemId: $itemId, file: $file }) {
+        noteId
+        itemId
+    }
+}

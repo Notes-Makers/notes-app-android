@@ -13,6 +13,7 @@ class RealmNote() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
+    var remoteNoteId: String? = ""
     var name: String = ""
     var description: String = ""
     var pages: RealmList<RealmPageOutput> = realmListOf()
@@ -30,6 +31,7 @@ class RealmNote() : RealmObject {
 
     constructor(
         id: String = UUID.randomUUID().toString(),
+        remoteNoteId: String? = "",
         name: String,
         description: String,
         noteType: String,
@@ -45,6 +47,7 @@ class RealmNote() : RealmObject {
         realmQuickNote: RealmQuickNote = RealmQuickNote(),
     ) : this() {
         this.id = id
+        this.remoteNoteId = remoteNoteId
         this.name = name
         this.description = description
         this.pages = pages

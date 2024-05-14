@@ -1,10 +1,12 @@
 package com.notesmakers.noteapp.presentation.home
 
 import androidx.lifecycle.viewModelScope
-import com.notesmakers.noteapp.data.notes.Note
+import com.notesmakers.noteapp.data.notes.local.Note
+import com.notesmakers.noteapp.domain.sync.NotesSyncRepository
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
+import com.notesmakers.noteapp.domain.notes.DeleteNoteUseCase
 import com.notesmakers.noteapp.domain.notes.GetNotesUseCase
 import com.notesmakers.noteapp.domain.notes.UpdatePinnedStatusUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
@@ -20,7 +22,9 @@ import org.koin.android.annotation.KoinViewModel
 class HomeViewModel(
     val checkUserSignInStatusUseCase: CheckUserSignInStatusUseCase,
     val deleteNoteByIdUseCase: DeleteNoteByIdUseCase,
+    val deleteRemote: DeleteNoteUseCase,
     val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
+    val notesSyncRepository: NotesSyncRepository,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -28,6 +32,16 @@ class HomeViewModel(
         viewModelScope, SharingStarted.WhileSubscribed(),
         emptyList()
     )
+
+    fun syncNotes() {
+        viewModelScope.launch {
+            runCatching {
+                notesSyncRepository.syncNotes()
+            }.onFailure { exception ->
+                exception.printStackTrace()
+            }
+        }
+    }
 
     private val _userIsLoggedIn = MutableStateFlow(checkUserSignInStatusUseCase())
     val userIsLoggedIn = _userIsLoggedIn.asStateFlow()
@@ -68,6 +82,7 @@ class HomeViewModel(
     fun onDeleteNote(note: Note) {
         viewModelScope.launch {
             deleteNoteByIdUseCase(note.id)
+            note.remoteId?.let { deleteRemote(it) }
         }
         _selectedNote.value = NoteSelectedStatus.None
     }

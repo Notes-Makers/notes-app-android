@@ -3,6 +3,7 @@ package com.notesmakers.noteapp.presentation.notes.quicknote
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +59,7 @@ fun QuickNote(
     modifier: Modifier,
     text: String,
     updateTextNote: (String) -> Unit,
+    rewordTextNote: (String) -> Unit,
 ) {
     val state = rememberRichTextState()
 
@@ -101,7 +108,7 @@ fun QuickNote(
                     elevation =
                     3.dp, shape = RoundedCornerShape(10.dp)
                 )
-                .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp))
                 .border(
                     width = Dp.Hairline,
                     color = Color.LightGray,
@@ -115,6 +122,7 @@ fun QuickNote(
             BaseIconButton(
                 modifier = Modifier.size(24.dp),
                 onClick = { state.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold)) },
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 painterResource = com.notesmakers.common_ui.R.drawable.bold
             )
             BaseIconButton(
@@ -163,6 +171,12 @@ fun QuickNote(
                 unfocusedIndicatorColor = Color.Transparent,
                 containerColor = Color.Transparent
             ),
+        )
+        CircularTextButton(
+            modifier = Modifier
+                .align(Alignment.CenterEnd),
+            onClick = { rewordTextNote(state.toHtml()) },
+            buttonText = "Ai"
         )
     }
 }
@@ -215,5 +229,32 @@ fun LinkDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CircularTextButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    buttonText: String,
+    textColor: Color = Color.White,
+    backgroundColor: Color = Color(0xFFA5DD9B).copy(alpha = 0.8f),
+) {
+    IconButton(
+        modifier = modifier
+            .size(56.dp)
+            .background(
+                color = backgroundColor,
+                shape = CircleShape
+            ),
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White)
+    ) {
+        Text(
+            text = buttonText,
+            color = textColor,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+        )
     }
 }

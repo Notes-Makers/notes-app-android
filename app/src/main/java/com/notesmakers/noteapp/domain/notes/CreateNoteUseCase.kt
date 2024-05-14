@@ -1,6 +1,5 @@
 package com.notesmakers.noteapp.domain.notes
 
-import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.noteapp.di.DatabaseDomainModule
 import org.koin.core.annotation.Factory
 

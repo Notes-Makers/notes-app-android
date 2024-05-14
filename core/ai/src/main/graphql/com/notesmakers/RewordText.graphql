@@ -1,0 +1,3 @@
+mutation RewordText($text: String!) {
+    rewordText(text: $text)
+}

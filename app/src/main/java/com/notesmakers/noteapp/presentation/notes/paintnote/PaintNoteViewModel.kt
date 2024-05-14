@@ -2,6 +2,7 @@ package com.notesmakers.noteapp.presentation.notes.paintnote
 
 import androidx.compose.ui.graphics.Path
 import androidx.lifecycle.viewModelScope
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import com.notesmakers.noteapp.extension.getSvgPath
 import com.notesmakers.noteapp.domain.notes.AddBitmapDrawableToNoteUseCase
@@ -21,7 +22,8 @@ class PaintNoteViewModel(
     private val addBitmapDrawableToNoteUseCase: AddBitmapDrawableToNoteUseCase,
     private val addPathDrawableToNoteUseCase: AddPathDrawableToNoteUseCase,
     private val updatePageNoteUseCase: UpdatePageNoteUseCase,
-    getNoteByIdUseCase: GetNoteByIdUseCase,
+    private val getOwnerUseCase: GetOwnerUseCase,
+    private val getNoteByIdUseCase: GetNoteByIdUseCase,
 ) : BaseViewModel() {
     private val _noteState = MutableStateFlow(getNoteByIdUseCase(noteId))
     val noteState = _noteState.asStateFlow()
@@ -38,8 +40,11 @@ class PaintNoteViewModel(
             text = text,
             color = color,
             offsetX = offsetX,
-            offsetY = offsetY
-        )
+            offsetY = offsetY,
+            noteId = noteId
+        ).takeIf { it }?.let {
+            _noteState.value = getNoteByIdUseCase(noteId)
+        }
     }
 
     fun addBitmapDrawableToNote(
@@ -60,8 +65,11 @@ class PaintNoteViewModel(
             offsetX = offsetX,
             offsetY = offsetY,
             bitmap = bitmap,
-            bitmapUrl = bitmapUrl
-        )
+            bitmapUrl = bitmapUrl,
+            noteId = noteId
+        ).takeIf { it }?.let {
+            _noteState.value = getNoteByIdUseCase(noteId)
+        }
     }
 
     fun addPathDrawableToNote(
@@ -80,7 +88,10 @@ class PaintNoteViewModel(
                 alpha = alpha,
                 eraseMode = eraseMode,
                 path = path.getSvgPath(),
-            )
+                noteId = noteId
+            ).takeIf { it }?.let {
+                _noteState.value = getNoteByIdUseCase(noteId)
+            }
         }
     }
 
@@ -88,7 +99,7 @@ class PaintNoteViewModel(
     ) = viewModelScope.launch {
         _noteState.value = updatePageNoteUseCase(
             noteId = noteId,
-            createdBy = "GUEST"
+            createdBy = getOwnerUseCase()
         )
     }
 }

@@ -84,7 +84,6 @@ fun NoteCreationScreen(
             noteCreationViewModel.createNote(
                 name = name,
                 description = description,
-                createdBy = "GUEST",
                 noteType = noteMode.toNoteType()
             )
         },
@@ -141,8 +140,8 @@ private fun CreationPage(
 ) {
     val focusManager = LocalFocusManager.current
 
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(initTitle) }
+    var description by remember { mutableStateOf(initDesc) }
 
     Column(
         modifier = modifier

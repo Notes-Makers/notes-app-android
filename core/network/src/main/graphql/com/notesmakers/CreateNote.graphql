@@ -1,0 +1,18 @@
+mutation CreateNote($name: String!,$type:NoteType!, $description: String!, $createdBy: String!, $isShared: Boolean!, $createdAt: DateTime!, $isPrivate: Boolean!, $modifiedAt: DateTime!, $modifiedBy: String!,$pages: [PageInput]) {
+    addNote(
+        createNoteRequest: {
+            name: $name
+            type:$type
+            description: $description
+            createdBy: $createdBy
+            isShared: $isShared
+            createdAt: $createdAt
+            isPrivate: $isPrivate
+            modifiedAt: $modifiedAt
+            modifiedBy: $modifiedBy
+            pages: $pages
+        }
+    ) {
+        noteId
+    }
+}

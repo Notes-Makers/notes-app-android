@@ -47,7 +47,7 @@ import com.notesmakers.noteapp.presentation.notes.paintnote.models.handleMotionE
 @Composable
 fun PaintSpace(
     modifier: Modifier,
-    initDrawableComponents: List<DrawableComponent> = emptyList(),
+    initDrawableComponents: List<DrawableComponent>,
     addPathDrawableToNote: (PathProperties) -> Unit,
     addBitmapDrawableToNote: (BitmapProperties) -> Unit,
     addTextDrawableToNote: (TextProperties) -> Unit,
@@ -56,7 +56,7 @@ fun PaintSpace(
         modifier = modifier
             .fillMaxSize()
             .shadow(1.dp)
-            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
+            .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
 
     ) {
         var isMenuVisible by remember {
@@ -88,7 +88,13 @@ fun PaintSpace(
 
         //Path + Bitmap + Text
         val drawableComponents =
-            remember { mutableStateListOf<DrawableComponent>().apply { addAll(initDrawableComponents) } }
+            remember(initDrawableComponents) {
+                mutableStateListOf<DrawableComponent>().apply {
+                    addAll(
+                        initDrawableComponents
+                    )
+                }
+            }
 
         var previewBitmap by remember {
             mutableStateOf<BitmapProperties?>(null)

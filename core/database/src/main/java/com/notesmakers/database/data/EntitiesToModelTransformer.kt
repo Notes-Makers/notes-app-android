@@ -44,6 +44,7 @@ fun RealmBitmapDrawable.toBitmapDrawableModel(): BitmapDrawableModel = BitmapDra
 
 fun RealmNote.toNoteData() = DomainNoteModel(
     id = id,
+    remoteNoteId = remoteNoteId,
     name = name,
     description = description,
     noteType = noteType,

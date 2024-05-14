@@ -1,0 +1,17 @@
+query GetNotesInfo {
+    getNotesInfo {
+        noteId
+        name
+        type
+        description
+        createdAt
+        createdBy
+        modifiedAt
+        modifiedBy
+        isPrivate
+        isShared
+        isDeleted
+        pageSize
+        itemSize
+    }
+}

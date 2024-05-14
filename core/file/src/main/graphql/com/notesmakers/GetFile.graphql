@@ -1,0 +1,3 @@
+query GetFile($noteId: String!, $itemId: String!) {
+    getFile(body: { noteId: $noteId, itemId: $itemId })
+}

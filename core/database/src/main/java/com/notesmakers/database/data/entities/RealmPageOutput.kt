@@ -11,7 +11,6 @@ class RealmPageOutput() : RealmObject {
 
     @PrimaryKey
     var id: String = ""
-
     var createdAt: Long = 0
     var createdBy: String = ""
     var modifiedAt: Long = 0

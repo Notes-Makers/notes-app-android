@@ -35,8 +35,8 @@ fun BaseTopAppBar(
     logout: () -> Unit,
 ) {
     TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.primary,
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
     ), title = {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,

@@ -1,6 +1,6 @@
 package com.notesmakers.noteapp.presentation.notes.creation
 
-import com.notesmakers.noteapp.data.notes.NoteDrawableType
+import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
 import com.notesmakers.noteapp.presentation.notes.creation.NoteMode.PAINT_NOTE
 import com.notesmakers.noteapp.presentation.notes.creation.NoteMode.QUICK_NOTE
 
