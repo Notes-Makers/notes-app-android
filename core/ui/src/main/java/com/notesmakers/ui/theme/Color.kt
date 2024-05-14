@@ -6,6 +6,9 @@ val purple = Color(0xFF625B71)
 val gray = Color(0xFFF6F6F6)
 val lightGray = Color(0xFF727272)
 
+val successColor = Color(0xFFc8e6c9)
+val errorColor = Color(0xFFffab91)
+
 //paint Colors
 val paintColors = listOf(
     Color(0xffEF4444),

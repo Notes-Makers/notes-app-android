@@ -1,5 +1,6 @@
 package com.notesmakers.noteapp.presentation.auth.registration
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -92,16 +94,21 @@ private fun RegistrationScreen(
 
     Box {
         BaseIconButton(
-            onClick = navBack, imageVector = Icons.Default.Clear
+            onClick = navBack, imageVector = Icons.Default.Clear,
+            tint = MaterialTheme.colorScheme.onBackground,
         )
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    color = MaterialTheme.colorScheme.background
+                )
                 .padding(10.dp),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Register",
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(vertical = 8.dp),
                 fontSize = 22.sp
             )

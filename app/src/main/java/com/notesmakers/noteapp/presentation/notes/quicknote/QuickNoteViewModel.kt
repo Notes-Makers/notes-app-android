@@ -5,6 +5,7 @@ import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import com.notesmakers.noteapp.domain.notes.GetNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.RewordTextUseCase
 import com.notesmakers.noteapp.domain.notes.UpdateTextNoteUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -20,6 +21,9 @@ class QuickNoteViewModel(
     private val _noteState = MutableStateFlow(getNoteByIdUseCase(noteId))
     val noteState = _noteState.asStateFlow()
 
+    private val _aiState = MutableStateFlow<AiState>(AiState.None)
+    val aiState = _aiState.asStateFlow()
+
     fun updateTextNote(
         noteId: String,
         text: String,
@@ -31,14 +35,26 @@ class QuickNoteViewModel(
         text: String
     ) = viewModelScope.launch {
         runCatching {
+            _aiState.value = AiState.Loading
             rewordTextUseCase(text = text)
         }.onSuccess { updateText ->
             updateText?.let {
                 _noteState.value = updateTextNoteUseCase(noteId = noteId, text = it)
+                sendMessageEvent(MessageEvent.Success)
+
+            } ?: run {
+                sendMessageEvent(MessageEvent.Error("Something gone wrong"))
             }
+            delay(1000)
+            _aiState.value = AiState.None
         }.onFailure {
-            it.cause
+            _aiState.value = AiState.None
             sendMessageEvent(MessageEvent.Error("Something gone wrong"))
         }
+    }
+
+    sealed interface AiState {
+        data object None : AiState
+        data object Loading : AiState
     }
 }

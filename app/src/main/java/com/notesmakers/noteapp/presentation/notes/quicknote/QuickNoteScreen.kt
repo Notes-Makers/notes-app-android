@@ -25,11 +25,12 @@ fun QuickNoteScreen(
     quickNoteViewModel: QuickNoteViewModel = koinViewModel { parametersOf(noteId) },
 ) {
     val noteState = quickNoteViewModel.noteState.collectAsStateWithLifecycle().value
+    val aiState = quickNoteViewModel.aiState.collectAsStateWithLifecycle().value
     LaunchedEffect(Unit) {
         quickNoteViewModel.messageEvent.collect {
             when (it) {
                 is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
-                BaseViewModel.MessageEvent.Success -> Unit
+                BaseViewModel.MessageEvent.Success -> snackbarHandler.showSuccessSnackbar(message = "Twoje dane zostały poprawione")
             }
 
         }
@@ -39,6 +40,7 @@ fun QuickNoteScreen(
             navigator.popBackStack()
         },
         note = noteState,
+        aiState = aiState,
         updateTextNote = { text ->
             quickNoteViewModel.updateTextNote(noteId = noteId, text = text)
         },
@@ -55,6 +57,7 @@ fun DestinationsNavigator.navToQuickNoteScreen(noteId: String) =
 private fun QuickNoteScreen(
     onBackNav: () -> Unit,
     note: Note?,
+    aiState: QuickNoteViewModel.AiState?,
     updateTextNote: (String) -> Unit,
     rewordTextNote: (String) -> Unit,
 ) {
@@ -65,6 +68,7 @@ private fun QuickNoteScreen(
     ) { innerPadding ->
         QuickNote(
             modifier = Modifier.padding(innerPadding),
+            aiState = aiState,
             text = note?.textNote?.text ?: "",
             updateTextNote = updateTextNote,
             rewordTextNote = rewordTextNote

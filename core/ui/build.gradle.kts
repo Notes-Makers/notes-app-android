@@ -20,7 +20,8 @@ android {
 dependencies {
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation( "androidx.activity:activity-compose:1.8.2")
-
+    // Lottie
+    implementation ("com.airbnb.android:lottie-compose:6.2.0")
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

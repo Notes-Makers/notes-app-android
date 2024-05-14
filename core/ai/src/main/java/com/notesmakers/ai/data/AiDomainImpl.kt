@@ -6,5 +6,5 @@ class AiDomainImpl(
     private val apolloAiClient: ApolloAiClient,
 ) : AiDomain {
     override suspend fun rewordText(text: String): String? =
-        runCatching { apolloAiClient.rewordText(text = text) }.getOrElse { throw  Exception() }.data?.rewordText
+        runCatching { apolloAiClient.rewordText(text = text) }.getOrElse { throw Exception("Error") }.data?.rewordText
 }

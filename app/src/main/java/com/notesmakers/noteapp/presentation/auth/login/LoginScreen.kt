@@ -1,5 +1,6 @@
 package com.notesmakers.noteapp.presentation.auth.login
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -94,15 +95,23 @@ private fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     Box {
         BaseIconButton(
-            onClick = navBack, imageVector = Icons.Default.Clear
+            onClick = navBack, imageVector = Icons.Default.Clear,
+            tint = MaterialTheme.colorScheme.onBackground,
         )
         Column(
             modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(10.dp),
+
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Login", modifier = Modifier.padding(vertical = 8.dp), fontSize = 22.sp)
+            Text(
+                text = "Login",
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             BaseTextField(modifier = Modifier.padding(bottom = 8.dp),
                 onValueChange = { emailText = it },
                 labelText = "Enter email",
@@ -148,13 +157,20 @@ private fun FooterSignInScreen(onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 10.dp)
     ) {
-        Text(text = "I am new user", fontSize = 12.sp)
+        Text(
+            text = "I am new user",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = "Register",
             style = TextStyle(
                 brush = Brush.linearGradient(
-                    colors = listOf(Color.Black, Color.Black)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.onBackground,
+                        MaterialTheme.colorScheme.onBackground,
+                    )
                 )
             ),
             modifier = Modifier.clickable(onClick = onClick),

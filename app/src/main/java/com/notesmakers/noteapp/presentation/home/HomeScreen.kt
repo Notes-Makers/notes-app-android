@@ -78,6 +78,7 @@ import com.notesmakers.ui.animations.getExitScrollTransition
 import com.notesmakers.ui.composables.ChipItem
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.CustomSearchBar
+import com.notesmakers.ui.state.EmptyState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -184,22 +185,26 @@ private fun HomeScreen(
         }
     }
     Box {
-        NoteGridLayout(
-            searchText = searchText,
-            isSearching = isSearching,
-            notesList = notesList,
-            listState = listState,
-            innerPadding = innerPadding,
-            notes = notes,
-            navToNote = navToNote,
-            onNoteSelected = onNoteSelected,
-            onSearchTextChange = onSearchTextChange,
-        )
-        ScrollToTopButton(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            showButton = showButton,
-            listState = listState,
-        )
+        if (notes.isNotEmpty()) {
+            NoteGridLayout(
+                searchText = searchText,
+                isSearching = isSearching,
+                notesList = notesList,
+                listState = listState,
+                innerPadding = innerPadding,
+                notes = notes,
+                navToNote = navToNote,
+                onNoteSelected = onNoteSelected,
+                onSearchTextChange = onSearchTextChange,
+            )
+            ScrollToTopButton(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                showButton = showButton,
+                listState = listState,
+            )
+        }else{
+            EmptyState()
+        }
     }
 }
 
@@ -247,12 +252,6 @@ private fun NoteGridLayout(
                     height = 55.dp,
                     cornerShape = RoundedCornerShape(40.dp)
                 )
-                //TODO CATEGORY
-//                BaseIconButton(
-//                    onClick = { isCategoryVisible = !isCategoryVisible },
-//                    painterResource = com.notesmakers.common_ui.R.drawable.collections_bookmark,
-//                    tint = MaterialTheme.colorScheme.primary
-//                )
             }
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -413,7 +412,7 @@ fun NoteInfoDialog(
                     ) {
                         Icon(
                             painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
-                            tint =  if (note.isPinned) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = if (note.isPinned) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                         )
                     }
@@ -503,7 +502,7 @@ private fun ItemNote(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .border(Dp.Hairline, Color.Gray,RoundedCornerShape(10.dp))
+            .border(Dp.Hairline, Color.Gray, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.7f))
             .combinedClickable(

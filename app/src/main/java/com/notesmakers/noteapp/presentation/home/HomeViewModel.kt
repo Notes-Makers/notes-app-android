@@ -2,13 +2,13 @@ package com.notesmakers.noteapp.presentation.home
 
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
-import com.notesmakers.noteapp.domain.sync.NotesSyncRepository
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteUseCase
 import com.notesmakers.noteapp.domain.notes.GetNotesUseCase
 import com.notesmakers.noteapp.domain.notes.UpdatePinnedStatusUseCase
+import com.notesmakers.noteapp.domain.sync.NotesSyncRepository
 import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

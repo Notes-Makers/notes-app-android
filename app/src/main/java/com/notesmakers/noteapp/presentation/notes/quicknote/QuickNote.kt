@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -47,6 +48,7 @@ import androidx.compose.ui.window.Dialog
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
+import com.notesmakers.ui.animations.AnimatedLoadingGradient
 import com.notesmakers.ui.composables.buttons.BaseButton
 import com.notesmakers.ui.composables.buttons.BaseIconButton
 import com.notesmakers.ui.composables.inputs.BaseTextField
@@ -58,15 +60,17 @@ import com.notesmakers.ui.composables.inputs.BaseTextField
 fun QuickNote(
     modifier: Modifier,
     text: String,
+    aiState: QuickNoteViewModel.AiState?,
     updateTextNote: (String) -> Unit,
     rewordTextNote: (String) -> Unit,
 ) {
     val state = rememberRichTextState()
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
         state.setHtml(text)
     }
     LaunchedEffect(
+        text,
         state.selection,
         state.currentSpanStyle,
         state.composition,
@@ -108,7 +112,10 @@ fun QuickNote(
                     elevation =
                     3.dp, shape = RoundedCornerShape(10.dp)
                 )
-                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp))
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(10.dp)
+                )
                 .border(
                     width = Dp.Hairline,
                     color = Color.LightGray,
@@ -156,28 +163,46 @@ fun QuickNote(
                 painterResource = com.notesmakers.common_ui.R.drawable.add_link
             )
         }
-        RichTextEditor(
-            modifier = modifier
-                .padding(top = 60.dp)
-                .fillMaxSize()
-                .border(
-                    width = 1.dp,
-                    color = Color.LightGray,
-                    shape = RoundedCornerShape(5.dp)
+        if (aiState is QuickNoteViewModel.AiState.Loading) {
+            Column(
+                modifier = modifier
+                    .padding(top = 60.dp)
+                    .fillMaxSize()
+                    .border(
+                        width = 1.dp,
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(5.dp)
+                    ),
+            ) {
+                AnimatedLoadingGradient()
+            }
+        }else {
+            RichTextEditor(
+                modifier = modifier
+                    .padding(top = 60.dp)
+                    .fillMaxSize()
+                    .border(
+                        width = 1.dp,
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(5.dp)
+                    ),
+                state = state,
+                colors = RichTextEditorDefaults.richTextEditorColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    containerColor = Color.Transparent
                 ),
-            state = state,
-            colors = RichTextEditorDefaults.richTextEditorColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                containerColor = Color.Transparent
-            ),
-        )
-        CircularTextButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd),
-            onClick = { rewordTextNote(state.toHtml()) },
-            buttonText = "Ai"
-        )
+            )
+            CircularTextButton(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd),
+                onClick = {
+                    rewordTextNote(state.toHtml())
+                    keyboardController?.hide()
+                },
+                buttonText = "Ai"
+            )
+        }
     }
 }
 
@@ -237,8 +262,8 @@ fun CircularTextButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     buttonText: String,
-    textColor: Color = Color.White,
-    backgroundColor: Color = Color(0xFFA5DD9B).copy(alpha = 0.8f),
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     IconButton(
         modifier = modifier
@@ -248,7 +273,7 @@ fun CircularTextButton(
                 shape = CircleShape
             ),
         onClick = onClick,
-        colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White)
+        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
     ) {
         Text(
             text = buttonText,
