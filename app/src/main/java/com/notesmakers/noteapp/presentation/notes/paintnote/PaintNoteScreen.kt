@@ -83,11 +83,11 @@ fun PaintNoteScreen(
                             tint = MaterialTheme.colorScheme.onBackground,
                             imageVector = Icons.Default.Clear
                         )
-                        BaseIconButton(
-                            onClick = { },
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            imageVector = Icons.Default.Share
-                        )
+//                        BaseIconButton(
+//                            onClick = { },
+//                            tint = MaterialTheme.colorScheme.onBackground,
+//                            imageVector = Icons.Default.Share
+//                        )
                     }
                 }
             )

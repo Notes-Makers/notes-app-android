@@ -69,6 +69,11 @@ fun QuickNote(
     LaunchedEffect(Unit) {
         state.setHtml(text)
     }
+    LaunchedEffect(aiState) {
+        (aiState as? QuickNoteViewModel.AiState.Success)?.let {
+            state.setHtml(aiState.text)
+        }
+    }
     LaunchedEffect(
         text,
         state.selection,
@@ -176,7 +181,7 @@ fun QuickNote(
             ) {
                 AnimatedLoadingGradient()
             }
-        }else {
+        } else {
             RichTextEditor(
                 modifier = modifier
                     .padding(top = 60.dp)

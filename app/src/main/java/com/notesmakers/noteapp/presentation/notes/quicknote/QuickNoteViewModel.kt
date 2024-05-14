@@ -39,9 +39,8 @@ class QuickNoteViewModel(
             rewordTextUseCase(text = text)
         }.onSuccess { updateText ->
             updateText?.let {
-                _noteState.value = updateTextNoteUseCase(noteId = noteId, text = it)
                 sendMessageEvent(MessageEvent.Success)
-
+                _aiState.value = (AiState.Success(it))
             } ?: run {
                 sendMessageEvent(MessageEvent.Error("Something gone wrong"))
             }
@@ -56,5 +55,7 @@ class QuickNoteViewModel(
     sealed interface AiState {
         data object None : AiState
         data object Loading : AiState
+        data class Success(val text: String) : AiState
     }
+
 }
