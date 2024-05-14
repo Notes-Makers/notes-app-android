@@ -56,7 +56,7 @@ fun PaintSpace(
         modifier = modifier
             .fillMaxSize()
             .shadow(1.dp)
-            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f))
+            .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f))
 
     ) {
         var isMenuVisible by remember {

@@ -5,6 +5,7 @@ package com.notesmakers.noteapp.presentation.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -274,7 +276,7 @@ private fun NoteGridLayout(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(30.dp)
                     )
                     Text(text = "Result for $searchText", fontSize = 20.sp)
@@ -319,7 +321,7 @@ private fun NoteGridLayout(
                     Icon(
                         painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(30.dp)
                     )
                     Text(text = "Pinned", fontSize = 20.sp)
@@ -346,7 +348,7 @@ private fun NoteGridLayout(
                 Icon(
                     painter = painterResource(com.notesmakers.common_ui.R.drawable.note_stack),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(30.dp)
                 )
                 Text(text = "My notes", fontSize = 20.sp)
@@ -404,13 +406,14 @@ fun NoteInfoDialog(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     IconButton(
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = if (note.isPinned) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.tertiaryContainer),
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = if (note.isPinned) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primaryContainer),
                         onClick = {
                             onPinned()
                         },
                     ) {
                         Icon(
                             painter = painterResource(com.notesmakers.common_ui.R.drawable.keep),
+                            tint =  if (note.isPinned) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                         )
                     }
@@ -500,8 +503,9 @@ private fun ItemNote(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(20.dp))
-            .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.8f))
+            .border(Dp.Hairline, Color.Gray,RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(color = (MaterialTheme.colorScheme.tertiaryContainer).copy(alpha = 0.7f))
             .combinedClickable(
                 onClick = { onClick() },
                 onLongClick = { onLongClick() },
@@ -513,7 +517,7 @@ private fun ItemNote(
                 text = title,
                 fontSize = 18.sp,
                 maxLines = 1,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.W500,
                 modifier = Modifier.weight(1f)
             )
         }

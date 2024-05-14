@@ -17,11 +17,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -110,7 +108,7 @@ fun QuickNote(
                     elevation =
                     3.dp, shape = RoundedCornerShape(10.dp)
                 )
-                .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp))
                 .border(
                     width = Dp.Hairline,
                     color = Color.LightGray,
@@ -124,6 +122,7 @@ fun QuickNote(
             BaseIconButton(
                 modifier = Modifier.size(24.dp),
                 onClick = { state.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold)) },
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 painterResource = com.notesmakers.common_ui.R.drawable.bold
             )
             BaseIconButton(
@@ -238,17 +237,24 @@ fun CircularTextButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     buttonText: String,
-    textColor: Color = Color.Black,
+    textColor: Color = Color.White,
+    backgroundColor: Color = Color(0xFFA5DD9B).copy(alpha = 0.8f),
 ) {
     IconButton(
         modifier = modifier
-            .size(48.dp),
+            .size(56.dp)
+            .background(
+                color = backgroundColor,
+                shape = CircleShape
+            ),
         onClick = onClick,
-        colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.LightGray)
+        colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White)
     ) {
         Text(
             text = buttonText,
-            color = textColor // Kolor tekstu
+            color = textColor,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
         )
     }
 }

@@ -80,10 +80,12 @@ fun PaintNoteScreen(
                     ) {
                         BaseIconButton(
                             onClick = { navigator.popBackStack() },
+                            tint = MaterialTheme.colorScheme.onBackground,
                             imageVector = Icons.Default.Clear
                         )
                         BaseIconButton(
                             onClick = { },
+                            tint = MaterialTheme.colorScheme.onBackground,
                             imageVector = Icons.Default.Share
                         )
                     }
@@ -200,6 +202,7 @@ private fun PaintNoteScreen(
                             }) {
                             Text(
                                 text = "Page $item",
+                                color = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.padding(4.dp),
                             )
                         }
@@ -207,6 +210,7 @@ private fun PaintNoteScreen(
                 }
                 BaseIconButton(
                     onClick = { updatePageCount() },
+                    tint = MaterialTheme.colorScheme.onBackground,
                     imageVector = Icons.Default.Add
                 )
             }
