@@ -14,6 +14,7 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.UpdateNoteMutation
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiImg
 import com.notesmakers.network.data.api.ApiNoteType
@@ -57,7 +58,8 @@ class ApolloNetworkClient(
             imgContent = Optional.presentIfNotNull(imgContent.takeIf { it != null }?.let {
                 ImgInputType(
                     noteId = Optional.present(imgContent?.noteId),
-                    itemId = Optional.present(imgContent?.itemId)
+                    itemId = Optional.present(imgContent?.itemId),
+                    scale = Optional.present(imgContent?.scale?.toDouble()),
                 )
             }),
             pathContent = Optional.presentIfNotNull(pathContent.takeIf { it != null }?.let {
@@ -170,7 +172,7 @@ class ApolloNetworkClient(
                                 position = Optional.presentIfNotNull(it.takeIf { it != null }?.let {
                                     PositionInput(
                                         posX = Optional.presentIfNotNull(it.position?.posX),
-                                        posY = Optional.presentIfNotNull(it.position?.posX),
+                                        posY = Optional.presentIfNotNull(it.position?.posY),
                                         width = Optional.presentIfNotNull(it.position?.width),
                                         height = Optional.presentIfNotNull(it.position?.height),
                                     )
@@ -261,4 +263,16 @@ class ApolloNetworkClient(
                 noteId = noteId,
             )
         ).execute()
+
+    suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+    ) = apolloClient.mutation(
+        UpdateNoteMutation(
+            noteId = noteId,
+            description = description,
+            title = name,
+        )
+    ).execute()
 }

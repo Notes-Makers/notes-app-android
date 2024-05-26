@@ -28,6 +28,18 @@ class LocalDataSource(
         remoteNoteId: String
     ): Note? = databaseDomainModule.updateRemoteNoteId(noteId, remoteNoteId)
 
+    suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+        modifiedAt: Long,
+    ): Note? = databaseDomainModule.updateNote(
+        noteId,
+        name = name,
+        description = description,
+        modifiedAt = modifiedAt,
+    )
+
     suspend fun addBitmapItem(
         noteId: String,
         id: String = UUID.randomUUID().toString(),

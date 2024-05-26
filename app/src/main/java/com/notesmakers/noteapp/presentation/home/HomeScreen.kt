@@ -66,6 +66,8 @@ import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
 import com.notesmakers.noteapp.data.notes.local.toNoteDrawableType
 import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
+import com.notesmakers.noteapp.presentation.base.BaseViewModel
+import com.notesmakers.noteapp.presentation.base.SnackbarHandler
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
@@ -91,6 +93,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator,
+    snackbarHandler: SnackbarHandler,
     resultRecipientLogin: ResultRecipient<LoginScreenDestination, Boolean>,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -102,9 +105,19 @@ fun HomeScreen(
     val notesList by viewModel.notesList.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.syncNotes()
+//        viewModel.syncNotes()
     }
+    LaunchedEffect(Unit) {
+        viewModel.messageEvent.collect {
+            when (it) {
+                is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
+                BaseViewModel.MessageEvent.Success -> {
+                    snackbarHandler.showSuccessSnackbar(message = "Your notes are latest")
+                }
+            }
 
+        }
+    }
     resultRecipientLogin.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {
@@ -125,24 +138,30 @@ fun HomeScreen(
             }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
         },
     ) { innerPadding ->
-        HomeScreen(
-            searchText = searchText,
-            isSearching = isSearching,
-            notesList = notesList,
-            innerPadding = innerPadding,
-            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value.reversed(),
-            navToNote = { noteID, noteType ->
-                when (noteType.toNoteDrawableType()) {
-                    NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
-                    NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
-                    NoteDrawableType.UNDEFINED -> Unit
-                }
-            },
-            onNoteSelected = {
-                viewModel.onSelectNote(note = it)
-            },
-            onSearchTextChange = viewModel::onSearchTextChange,
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            HomeScreen(
+                searchText = searchText,
+                isSearching = isSearching,
+                notesList = notesList,
+                innerPadding = innerPadding,
+                notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value.reversed(),
+                navToNote = { noteID, noteType ->
+                    when (noteType.toNoteDrawableType()) {
+                        NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
+                        NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
+                        NoteDrawableType.UNDEFINED -> Unit
+                    }
+                },
+                onNoteSelected = {
+                    viewModel.onSelectNote(note = it)
+                },
+                onSearchTextChange = viewModel::onSearchTextChange,
+            )
+            Button(modifier = Modifier.align(Alignment.BottomCenter), onClick = { viewModel.syncNotes() }) {
+                Text(text = "SYNC DATABASE")
+            }
+
+        }
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
             is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
@@ -202,7 +221,7 @@ private fun HomeScreen(
                 showButton = showButton,
                 listState = listState,
             )
-        }else{
+        } else {
             EmptyState()
         }
     }

@@ -1,5 +1,5 @@
-mutation SaveFile($noteId: String!, $itemId: String!, $file: Upload!) {
-    saveFile(body: { noteId: $noteId, itemId: $itemId, file: $file }) {
+mutation SaveFileBase64($noteId: String!, $itemId: String!, $file: String!) {
+    saveFileBase64(body: { noteId: $noteId, itemId: $itemId, file: $file }) {
         noteId
         itemId
     }

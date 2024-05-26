@@ -84,7 +84,7 @@ interface DatabaseDomain<Note> {
         noteId: String?,
         name: String?,
         description: String?,
-        modifiedBy: String?,
+        modifiedAt: Long?,
     ): Note?
 
     suspend fun updateRemoteNoteId(

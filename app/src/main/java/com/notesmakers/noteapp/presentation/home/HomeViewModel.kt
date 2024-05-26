@@ -37,7 +37,10 @@ class HomeViewModel(
         viewModelScope.launch {
             runCatching {
                 notesSyncRepository.syncNotes()
+            }.onSuccess {
+                sendMessageEvent(MessageEvent.Success)
             }.onFailure { exception ->
+                sendMessageEvent(MessageEvent.Error("Something wrong with sync"))
                 exception.printStackTrace()
             }
         }

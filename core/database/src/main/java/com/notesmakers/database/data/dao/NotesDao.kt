@@ -75,7 +75,7 @@ class NotesDao(
                         modifiedAt = page.modifiedAt,
                         bitmapDrawable = page.bitmapDrawable.map { bitmap ->
                             RealmBitmapDrawable(
-                                //TODO
+                                id = bitmap.id,
                                 width = bitmap.width,
                                 height = bitmap.height,
                                 scale = bitmap.scale,
@@ -88,6 +88,7 @@ class NotesDao(
                         }.toRealmList(),
                         pathDrawables = page.pathDrawables.map { path ->
                             RealmPathDrawable(
+                                id = path.id,
                                 strokeWidth = path.strokeWidth,
                                 color = path.color,
                                 alpha = path.alpha,
@@ -97,6 +98,7 @@ class NotesDao(
                         }.toRealmList(),
                         textDrawables = page.textDrawables.map { text ->
                             RealmTextDrawable(
+                                id = text.id,
                                 text = text.text,
                                 color = text.color,
                                 offsetX = text.offsetX,
@@ -267,7 +269,7 @@ class NotesDao(
         noteId: String?,
         name: String?,
         description: String?,
-        modifiedBy: String?,
+        modifiedAt: Long?,
     ) = realm.write {
 
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
@@ -279,9 +281,7 @@ class NotesDao(
             if (description != null) {
                 this.description = description
             }
-            if (modifiedBy != null) {
-                this.modifiedBy = modifiedBy
-            }
+            this.modifiedAt = modifiedAt ?: System.currentTimeMillis()
         }
     }
 

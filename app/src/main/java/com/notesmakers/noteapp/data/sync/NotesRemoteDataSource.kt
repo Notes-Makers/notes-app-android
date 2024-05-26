@@ -8,6 +8,7 @@ import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
 import com.notesmakers.noteapp.data.notes.api.BaseNote
 import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
+import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.di.NotesNetworkDomainModule
 import com.notesmakers.noteapp.domain.notes.GetBitmapUseCase
 import com.notesmakers.noteapp.domain.notes.SetBitmapUseCase
@@ -110,6 +111,18 @@ class NotesRemoteDataSource(
             itemModifiedAt = itemModifiedAt,
             itemModifiedBy = itemModifiedBy,
             itemHash = itemHash
+        )
+    }
+
+    suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+    ) = withContext(ioDispatcher) {
+        networkDomain.updateNote(
+            noteId,
+            name = name,
+            description = description,
         )
     }
 }

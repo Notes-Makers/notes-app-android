@@ -12,6 +12,7 @@ import com.notesmakers.network.data.api.ApiNoteType
 import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
@@ -75,6 +76,11 @@ interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
     suspend fun getItemsInfo(noteId: String, pageId: String): List<ItemsInfo>
     suspend fun getPage(noteId: String, pageId: String): Page
     suspend fun getPagesInfo(noteId: String): List<PagesInfo>
+    suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+    )
 
     companion object {
         fun <Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> createNetworkDomain(

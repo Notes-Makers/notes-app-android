@@ -152,13 +152,13 @@ class DatabaseDomainImpl<Note>(
         noteId: String?,
         name: String?,
         description: String?,
-        modifiedBy: String?,
+        modifiedAt: Long?,
     ): Note? = withContext(Dispatchers.IO) {
         notesDao.updateNote(
             noteId = noteId,
             name = name,
             description = description,
-            modifiedBy = modifiedBy,
+            modifiedAt = modifiedAt,
         )?.toNoteData()?.noteTransformer()
     }
 

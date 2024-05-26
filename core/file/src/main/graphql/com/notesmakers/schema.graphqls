@@ -273,6 +273,8 @@ type GetFileOutput {
 
 type Mutation {
   saveFile(body: SaveFileInput): FileSavedOutput
+
+  saveFileBase64(body: SaveFileInputBase64): FileSavedOutput
 }
 
 type Query {
@@ -287,6 +289,14 @@ input SaveFileInput {
   itemId: String
 
   file: Upload
+}
+
+input SaveFileInputBase64 {
+  noteId: String
+
+  itemId: String
+
+  file: String
 }
 
 """
