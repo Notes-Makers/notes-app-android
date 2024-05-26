@@ -8,7 +8,7 @@ import androidx.work.WorkManagerInitializer
 class DatabaseSyncInitializer : Initializer<NotesTasksDataSource> {
     override fun create(context: Context): NotesTasksDataSource {
         return NotesTasksDataSource(WorkManager.getInstance(context)).apply {
-            fetchNewsPeriodically()
+            fetchNotesPeriodically()
         }
     }
 

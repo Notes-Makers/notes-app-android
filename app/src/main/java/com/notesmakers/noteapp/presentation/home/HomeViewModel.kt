@@ -96,14 +96,14 @@ class HomeViewModel(
     }
 
     val notesList = searchText
-        .combine(notesEventFlow) { text, notes ->//combine searchText with _contriesList
-            if (text.isBlank()) { //return the entery list of notes if not is typed
-                notes
+        .combine(notesEventFlow) { text, notes ->
+            if (text.isBlank()) {
+                return@combine notes
             }
-            notes.filter { note ->// filter and return a list of notes based on the text the user typed
+            notes.filter { note ->
                 note.name.uppercase().contains(text.trim().uppercase())
             }
-        }.stateIn(//basically convert the Flow returned from combine operator to StateFlow
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
             initialValue = notesEventFlow.value

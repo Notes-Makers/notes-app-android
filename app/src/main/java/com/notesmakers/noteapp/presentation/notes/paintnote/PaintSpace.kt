@@ -236,7 +236,7 @@ fun PaperLayout(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .dragMotionEvent(
                 paintMode = paintMode,
                 onDragStart = {
