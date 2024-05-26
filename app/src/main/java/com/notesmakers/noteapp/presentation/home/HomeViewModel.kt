@@ -3,6 +3,7 @@ package com.notesmakers.noteapp.presentation.home
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteUseCase
@@ -25,6 +26,7 @@ class HomeViewModel(
     val deleteRemote: DeleteNoteUseCase,
     val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
     val notesSyncRepository: NotesSyncRepository,
+    private val getOwnerUseCase: GetOwnerUseCase,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -118,6 +120,16 @@ class HomeViewModel(
             _isSearching.value = true
         } else {
             _isSearching.value = false
+        }
+    }
+
+    fun checkIsUserNoteOrGuest(noteID: String, action: () -> Unit) {
+        notesEventFlow.value.find { it.id == noteID }?.let {
+            if (it.createdBy == getOwnerUseCase()) {
+                action()
+            } else {
+                sendMessageEvent(MessageEvent.Error("It is not your note"))
+            }
         }
     }
 
