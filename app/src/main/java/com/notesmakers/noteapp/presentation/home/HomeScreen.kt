@@ -2,6 +2,7 @@
 
 package com.notesmakers.noteapp.presentation.home
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -70,6 +71,7 @@ import com.notesmakers.noteapp.presentation.base.BaseViewModel
 import com.notesmakers.noteapp.presentation.base.SnackbarHandler
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
+import com.notesmakers.noteapp.presentation.notes.creation.icon
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
 import com.notesmakers.noteapp.presentation.notes.creation.title
 import com.notesmakers.noteapp.presentation.notes.creation.toNoteType
@@ -105,9 +107,6 @@ fun HomeScreen(
     val notesList by viewModel.notesList.collectAsState()
 
     LaunchedEffect(Unit) {
-//        viewModel.syncNotes()
-    }
-    LaunchedEffect(Unit) {
         viewModel.messageEvent.collect {
             when (it) {
                 is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
@@ -126,6 +125,7 @@ fun HomeScreen(
             is NavResult.Value -> {
                 if (result.value) {
                     viewModel.checkUserSignIn()
+                    viewModel.syncNotes()
                 }
             }
         }
@@ -133,9 +133,14 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            BaseTopAppBar(userIsLoggedIn = userIsLoggedIn, accountIconAction = {
-                navigator.goToLoginScreenDestination()
-            }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
+            BaseTopAppBar(
+                userIsLoggedIn = userIsLoggedIn,
+                accountIconAction = {
+                    navigator.goToLoginScreenDestination()
+                },
+                navToNote = { navigator.navToNoteCreation(it) },
+                logout = { viewModel.logout() },
+                syncNoteManually = { viewModel.syncNotes() })
         },
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
@@ -159,10 +164,6 @@ fun HomeScreen(
                 },
                 onSearchTextChange = viewModel::onSearchTextChange,
             )
-            Button(modifier = Modifier.align(Alignment.BottomCenter), onClick = { viewModel.syncNotes() }) {
-                Text(text = "SYNC DATABASE")
-            }
-
         }
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
@@ -318,6 +319,7 @@ private fun NoteGridLayout(
                             PATTERN
                         )
                     ),
+                    icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
                     onClick = {
                         navToNote(notesList[index].id, notesList[index].noteType)
                     },
@@ -350,7 +352,8 @@ private fun NoteGridLayout(
             }
         }
         items(pinnedItems.size) { index ->
-            ItemNote(title = pinnedItems[index].name,
+            ItemNote(
+                title = pinnedItems[index].name,
                 textContent = pinnedItems[index].description,
                 dateTime = pinnedItems[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
@@ -358,7 +361,9 @@ private fun NoteGridLayout(
                 },
                 onLongClick = {
                     onNoteSelected(pinnedItems[index])
-                })
+                },
+                icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
+            )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
             Row(
@@ -382,6 +387,7 @@ private fun NoteGridLayout(
                         PATTERN
                     )
                 ),
+                icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
                 onClick = {
                     navToNote(notPinnedItems[index].id, notPinnedItems[index].noteType)
                 },
@@ -519,6 +525,7 @@ private fun ItemNote(
     dateTime: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    @DrawableRes icon: Int? = null
 ) {
     Column(
         modifier = modifier
@@ -550,9 +557,19 @@ private fun ItemNote(
             overflow = TextOverflow.Ellipsis
         )
         Row(
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = dateTime, fontSize = 12.sp)
+            icon?.let {
+                Icon(
+                    painter = painterResource(id = it),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(20.dp)
+                )
+            }
         }
     }
 }

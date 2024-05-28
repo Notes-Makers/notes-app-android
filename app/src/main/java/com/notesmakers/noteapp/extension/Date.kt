@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 
 
-const val PATTERN = "dd MMMM yyyy "
+const val PATTERN = "dd MMMM yyyy"
 
 
 fun Long.zoneDateFromTimeStamp(): ZonedDateTime = ZonedDateTime.ofInstant(

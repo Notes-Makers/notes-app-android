@@ -62,7 +62,7 @@ class NotesSyncRepositoryImpl(
 
     }
 
-    private suspend fun NotesSyncRepositoryImpl.updateSingleNote(
+    suspend fun updateSingleNote(
         noteRemote: BaseNotesInfo,
         noteLocal: Note,
         noteId: String,
