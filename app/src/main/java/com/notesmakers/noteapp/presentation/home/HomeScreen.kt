@@ -2,6 +2,7 @@
 
 package com.notesmakers.noteapp.presentation.home
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -66,8 +67,11 @@ import com.notesmakers.noteapp.data.notes.local.NoteDrawableType
 import com.notesmakers.noteapp.data.notes.local.toNoteDrawableType
 import com.notesmakers.noteapp.extension.PATTERN
 import com.notesmakers.noteapp.presentation.auth.login.goToLoginScreenDestination
+import com.notesmakers.noteapp.presentation.base.BaseViewModel
+import com.notesmakers.noteapp.presentation.base.SnackbarHandler
 import com.notesmakers.noteapp.presentation.destinations.LoginScreenDestination
 import com.notesmakers.noteapp.presentation.home.components.BaseTopAppBar
+import com.notesmakers.noteapp.presentation.notes.creation.icon
 import com.notesmakers.noteapp.presentation.notes.creation.navToNoteCreation
 import com.notesmakers.noteapp.presentation.notes.creation.title
 import com.notesmakers.noteapp.presentation.notes.creation.toNoteType
@@ -91,6 +95,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator,
+    snackbarHandler: SnackbarHandler,
     resultRecipientLogin: ResultRecipient<LoginScreenDestination, Boolean>,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -102,9 +107,16 @@ fun HomeScreen(
     val notesList by viewModel.notesList.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.syncNotes()
-    }
+        viewModel.messageEvent.collect {
+            when (it) {
+                is BaseViewModel.MessageEvent.Error -> snackbarHandler.showErrorSnackbar(message = it.error)
+                BaseViewModel.MessageEvent.Success -> {
+                    snackbarHandler.showSuccessSnackbar(message = "Your notes are latest")
+                }
+            }
 
+        }
+    }
     resultRecipientLogin.onNavResult { result ->
         when (result) {
             is NavResult.Canceled -> {
@@ -113,6 +125,7 @@ fun HomeScreen(
             is NavResult.Value -> {
                 if (result.value) {
                     viewModel.checkUserSignIn()
+                    viewModel.syncNotes()
                 }
             }
         }
@@ -120,29 +133,38 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            BaseTopAppBar(userIsLoggedIn = userIsLoggedIn, accountIconAction = {
-                navigator.goToLoginScreenDestination()
-            }, navToNote = { navigator.navToNoteCreation(it) }, logout = { viewModel.logout() })
+            BaseTopAppBar(
+                userIsLoggedIn = userIsLoggedIn,
+                accountIconAction = {
+                    navigator.goToLoginScreenDestination()
+                },
+                navToNote = { navigator.navToNoteCreation(it) },
+                logout = { viewModel.logout() },
+                syncNoteManually = { viewModel.syncNotes() })
         },
     ) { innerPadding ->
-        HomeScreen(
-            searchText = searchText,
-            isSearching = isSearching,
-            notesList = notesList,
-            innerPadding = innerPadding,
-            notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value.reversed(),
-            navToNote = { noteID, noteType ->
-                when (noteType.toNoteDrawableType()) {
-                    NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
-                    NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
-                    NoteDrawableType.UNDEFINED -> Unit
-                }
-            },
-            onNoteSelected = {
-                viewModel.onSelectNote(note = it)
-            },
-            onSearchTextChange = viewModel::onSearchTextChange,
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            HomeScreen(
+                searchText = searchText,
+                isSearching = isSearching,
+                notesList = notesList,
+                innerPadding = innerPadding,
+                notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value.reversed(),
+                navToNote = { noteID, noteType ->
+                    viewModel.checkIsUserNoteOrGuest(noteID) {
+                        when (noteType.toNoteDrawableType()) {
+                            NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
+                            NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
+                            NoteDrawableType.UNDEFINED -> Unit
+                        }
+                    }
+                },
+                onNoteSelected = {
+                    viewModel.onSelectNote(note = it)
+                },
+                onSearchTextChange = viewModel::onSearchTextChange,
+            )
+        }
         when (selectedNote) {
             HomeViewModel.NoteSelectedStatus.None -> Unit
             is HomeViewModel.NoteSelectedStatus.Selected -> NoteInfoDialog(
@@ -202,7 +224,7 @@ private fun HomeScreen(
                 showButton = showButton,
                 listState = listState,
             )
-        }else{
+        } else {
             EmptyState()
         }
     }
@@ -297,6 +319,7 @@ private fun NoteGridLayout(
                             PATTERN
                         )
                     ),
+                    icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
                     onClick = {
                         navToNote(notesList[index].id, notesList[index].noteType)
                     },
@@ -329,7 +352,8 @@ private fun NoteGridLayout(
             }
         }
         items(pinnedItems.size) { index ->
-            ItemNote(title = pinnedItems[index].name,
+            ItemNote(
+                title = pinnedItems[index].name,
                 textContent = pinnedItems[index].description,
                 dateTime = pinnedItems[index].createdAt.format(DateTimeFormatter.ofPattern(PATTERN)),
                 onClick = {
@@ -337,7 +361,9 @@ private fun NoteGridLayout(
                 },
                 onLongClick = {
                     onNoteSelected(pinnedItems[index])
-                })
+                },
+                icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
+            )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
             Row(
@@ -361,6 +387,7 @@ private fun NoteGridLayout(
                         PATTERN
                     )
                 ),
+                icon = notesList[index].noteType.toNoteDrawableType().toNoteType().icon,
                 onClick = {
                     navToNote(notPinnedItems[index].id, notPinnedItems[index].noteType)
                 },
@@ -498,6 +525,7 @@ private fun ItemNote(
     dateTime: String,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    @DrawableRes icon: Int? = null
 ) {
     Column(
         modifier = modifier
@@ -529,9 +557,19 @@ private fun ItemNote(
             overflow = TextOverflow.Ellipsis
         )
         Row(
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = dateTime, fontSize = 12.sp)
+            icon?.let {
+                Icon(
+                    painter = painterResource(id = it),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(20.dp)
+                )
+            }
         }
     }
 }

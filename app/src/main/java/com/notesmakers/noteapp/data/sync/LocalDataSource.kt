@@ -2,10 +2,8 @@ package com.notesmakers.noteapp.data.sync
 
 import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.database.data.models.PageOutputModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.di.DatabaseDomainModule
-import com.notesmakers.noteapp.domain.notes.GetBitmapUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.stateIn
@@ -27,6 +25,18 @@ class LocalDataSource(
         noteId: String,
         remoteNoteId: String
     ): Note? = databaseDomainModule.updateRemoteNoteId(noteId, remoteNoteId)
+
+    suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+        modifiedAt: Long,
+    ): Note? = databaseDomainModule.updateNote(
+        noteId,
+        name = name,
+        description = description,
+        modifiedAt = modifiedAt,
+    )
 
     suspend fun addBitmapItem(
         noteId: String,
@@ -126,7 +136,6 @@ class LocalDataSource(
         isShared: Boolean = false,
         isPinned: Boolean = false,
         tag: List<String> = listOf(),
-        quickNote: QuickNoteModel,
         noteType: String = UNDEFINED,
     ): Note = databaseDomainModule.createCompleteNote(
         name = name,
@@ -141,8 +150,12 @@ class LocalDataSource(
         isShared = isShared,
         isPinned = isPinned,
         tag = tag,
-        quickNote = quickNote,
         remoteNoteId = remoteNoteId
     )
 
+    suspend fun updateItem(
+        noteId: String,
+        modifiedAt: Long,
+        text: String,
+    ) = databaseDomainModule.updateTextNote(noteId = noteId, text = text, modifiedAt = modifiedAt)
 }

@@ -3,6 +3,7 @@ package com.notesmakers.noteapp.presentation.home
 import androidx.lifecycle.viewModelScope
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.domain.auth.CheckUserSignInStatusUseCase
+import com.notesmakers.noteapp.domain.auth.GetOwnerUseCase
 import com.notesmakers.noteapp.domain.auth.LogoutUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteByIdUseCase
 import com.notesmakers.noteapp.domain.notes.DeleteNoteUseCase
@@ -25,6 +26,7 @@ class HomeViewModel(
     val deleteRemote: DeleteNoteUseCase,
     val updatePinnedStatusUseCase: UpdatePinnedStatusUseCase,
     val notesSyncRepository: NotesSyncRepository,
+    private val getOwnerUseCase: GetOwnerUseCase,
     val logoutUseCase: LogoutUseCase,
     getNotesUseCase: GetNotesUseCase,
 ) : BaseViewModel() {
@@ -37,7 +39,10 @@ class HomeViewModel(
         viewModelScope.launch {
             runCatching {
                 notesSyncRepository.syncNotes()
+            }.onSuccess {
+                sendMessageEvent(MessageEvent.Success)
             }.onFailure { exception ->
+                sendMessageEvent(MessageEvent.Error("Something wrong with sync"))
                 exception.printStackTrace()
             }
         }
@@ -96,14 +101,14 @@ class HomeViewModel(
     }
 
     val notesList = searchText
-        .combine(notesEventFlow) { text, notes ->//combine searchText with _contriesList
-            if (text.isBlank()) { //return the entery list of notes if not is typed
-                notes
+        .combine(notesEventFlow) { text, notes ->
+            if (text.isBlank()) {
+                return@combine notes
             }
-            notes.filter { note ->// filter and return a list of notes based on the text the user typed
+            notes.filter { note ->
                 note.name.uppercase().contains(text.trim().uppercase())
             }
-        }.stateIn(//basically convert the Flow returned from combine operator to StateFlow
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
             initialValue = notesEventFlow.value
@@ -115,6 +120,16 @@ class HomeViewModel(
             _isSearching.value = true
         } else {
             _isSearching.value = false
+        }
+    }
+
+    fun checkIsUserNoteOrGuest(noteID: String, action: () -> Unit) {
+        notesEventFlow.value.find { it.id == noteID }?.let {
+            if (it.createdBy == getOwnerUseCase()) {
+                action()
+            } else {
+                sendMessageEvent(MessageEvent.Error("It is not your note"))
+            }
         }
     }
 

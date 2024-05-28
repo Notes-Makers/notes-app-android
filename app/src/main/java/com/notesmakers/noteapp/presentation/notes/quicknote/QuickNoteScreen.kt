@@ -56,7 +56,7 @@ fun DestinationsNavigator.navToQuickNoteScreen(noteId: String) =
 @Composable
 private fun QuickNoteScreen(
     onBackNav: () -> Unit,
-    note: Note?,
+    note: String,
     aiState: QuickNoteViewModel.AiState?,
     updateTextNote: (String) -> Unit,
     rewordTextNote: (String) -> Unit,
@@ -69,7 +69,7 @@ private fun QuickNoteScreen(
         QuickNote(
             modifier = Modifier.padding(innerPadding),
             aiState = aiState,
-            text = note?.textNote?.text ?: "",
+            text = note,
             updateTextNote = updateTextNote,
             rewordTextNote = rewordTextNote
         )

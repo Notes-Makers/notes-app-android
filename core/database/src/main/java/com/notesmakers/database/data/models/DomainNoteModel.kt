@@ -17,6 +17,5 @@ data class DomainNoteModel(
     val isShared: Boolean,
     val isPinned: Boolean,
     val tag: List<String> = listOf(),
-    val quickNoteModel: QuickNoteModel?,
 )
 

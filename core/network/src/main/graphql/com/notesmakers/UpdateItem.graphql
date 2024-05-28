@@ -1,0 +1,15 @@
+mutation UpdateItem(
+    $text: String!,
+    $id: ID!,
+    $noteId: ID!,
+    $pageId: ID!
+) {
+    updateItem(
+        body: {
+            textContent: { text: $text }
+            id: $id
+            noteId: $noteId
+            pageId: $pageId
+        }
+    )
+}

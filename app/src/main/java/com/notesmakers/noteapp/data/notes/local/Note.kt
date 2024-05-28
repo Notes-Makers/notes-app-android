@@ -19,5 +19,4 @@ data class Note(
     val isShared: Boolean,
     val isPinned: Boolean,
     val tag: List<String> = listOf(),
-    val textNote: TextNote?,
 )

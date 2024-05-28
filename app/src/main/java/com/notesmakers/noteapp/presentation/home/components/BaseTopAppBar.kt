@@ -33,6 +33,7 @@ fun BaseTopAppBar(
     navToNote: (noteMode: NoteMode) -> Unit,
     userIsLoggedIn: Boolean,
     logout: () -> Unit,
+    syncNoteManually: () -> Unit,
 ) {
     TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
         containerColor = MaterialTheme.colorScheme.background,
@@ -57,7 +58,8 @@ fun BaseTopAppBar(
                     userIsLoggedIn = userIsLoggedIn,
                     painterResource = R.drawable.more_vert,
                     navToNote = { navToNote(it) },
-                    logout = logout
+                    logout = logout,
+                    syncNoteManually = syncNoteManually
                 )
             }
         }
@@ -69,6 +71,7 @@ fun BaseDropdownMenu(
     userIsLoggedIn: Boolean,
     navToNote: (noteMode: NoteMode) -> Unit,
     logout: () -> Unit,
+    syncNoteManually: () -> Unit,
     @DrawableRes painterResource: Int,
 ) {
     var isExpanded by remember {
@@ -97,6 +100,13 @@ fun BaseDropdownMenu(
                 text = { Text("Create Paint Note") },
                 onClick = {
                     navToNote(NoteMode.PAINT_NOTE)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Sync Manually") },
+                onClick = {
+                    closeMenu()
+                    syncNoteManually()
                 }
             )
             HorizontalDivider(

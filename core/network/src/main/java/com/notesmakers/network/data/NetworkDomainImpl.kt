@@ -182,4 +182,26 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
         }.getOrElse { throw GetNoteException(it.message, it) }
             .mapNotNull { it?.toApiGetPagesInfo() }.map(pagesInfoTransformer)
 
+    override suspend fun updateNote(
+        noteId: String,
+        name: String,
+        description: String,
+    ) {
+        runCatching {
+            networkClient.updateNote(
+                noteId = noteId,
+                name = name,
+                description = description,
+            )
+        }
+    }
+
+    override suspend fun updateItem(noteId: String, pageId: String, itemId: String, text: String) {
+        runCatching {
+            networkClient.updateItem(
+                noteId = noteId, pageId = pageId, itemId = itemId, text = text
+            )
+        }
+    }
+
 }

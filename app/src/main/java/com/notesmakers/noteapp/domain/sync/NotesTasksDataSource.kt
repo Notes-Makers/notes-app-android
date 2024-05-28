@@ -14,7 +14,7 @@ private const val TAG_FETCH_LATEST_NOTES = "FetchLatestNotesTaskTag"
 class NotesTasksDataSource(
     private val workManager: WorkManager
 ) {
-    fun fetchNewsPeriodically() {
+    fun fetchNotesPeriodically() {
         val fetchNewsRequest = PeriodicWorkRequestBuilder<RefreshLatestNotesWorker>(
             REFRESH_RATE_MINUTES, TimeUnit.MINUTES
         ).setConstraints(
