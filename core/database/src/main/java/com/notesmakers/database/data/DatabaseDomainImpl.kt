@@ -3,7 +3,6 @@ package com.notesmakers.database.data
 import com.notesmakers.database.data.dao.NotesDao
 import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.database.data.models.PageOutputModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.database.domain.DatabaseDomain
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +42,6 @@ class DatabaseDomainImpl<Note>(
         isShared: Boolean,
         isPinned: Boolean,
         tag: List<String>,
-        quickNote: QuickNoteModel,
     ): Note = withContext(Dispatchers.IO) {
         notesDao.createCompleteNote(
             remoteNoteId = remoteNoteId,
@@ -59,7 +57,6 @@ class DatabaseDomainImpl<Note>(
             isShared = isShared,
             isPinned = isPinned,
             tag = tag,
-            quickNote = quickNote,
         ).toNoteData().noteTransformer()
     }
 
@@ -180,12 +177,13 @@ class DatabaseDomainImpl<Note>(
             )?.toNoteData()?.noteTransformer()
         }
 
-    override suspend fun updateTextNote(noteId: String, text: String): Note? =
+    override suspend fun updateTextNote(noteId: String, text: String, modifiedAt: Long?): String? =
         withContext(Dispatchers.IO) {
             notesDao.updateTextNote(
                 noteId = noteId,
                 text = text,
-            )?.toNoteData()?.noteTransformer()
+                modifiedAt = modifiedAt,
+            )
         }
 
     override suspend fun updatePinned(noteId: String, isPinned: Boolean): Note? =

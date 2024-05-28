@@ -196,4 +196,12 @@ class NetworkDomainImpl<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo>(
         }
     }
 
+    override suspend fun updateItem(noteId: String, pageId: String, itemId: String, text: String) {
+        runCatching {
+            networkClient.updateItem(
+                noteId = noteId, pageId = pageId, itemId = itemId, text = text
+            )
+        }
+    }
+
 }

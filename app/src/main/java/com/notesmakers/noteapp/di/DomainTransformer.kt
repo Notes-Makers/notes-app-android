@@ -45,12 +45,6 @@ fun DomainNoteModel.toNote() = Note(
     isShared = isShared,
     isPinned = isPinned,
     tag = tag,
-    textNote = quickNoteModel?.let { note ->
-        TextNote(
-            id = note.id,
-            text = note.text
-        )
-    },
     pages = pages.map { page ->
         PageOutput(
             id = page.id,

@@ -8,7 +8,6 @@ import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.PathDrawableModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.database.data.models.TextDrawableModel
 
 fun RealmPathDrawable.toPathDrawableModel(): PathDrawableModel = PathDrawableModel(
@@ -54,12 +53,6 @@ fun RealmNote.toNoteData() = DomainNoteModel(
     isShared = isShared,
     isPinned = isPinned,
     tag = tag,
-    quickNoteModel = realmQuickNote?.let {
-        QuickNoteModel(
-            id = it.id,
-            text = it.text
-        )
-    },
     pages = pages.map { page ->
         PageOutputModel(
             id = page.id,

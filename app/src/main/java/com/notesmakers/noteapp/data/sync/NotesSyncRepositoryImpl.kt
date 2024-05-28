@@ -3,7 +3,6 @@ package com.notesmakers.noteapp.data.sync
 import com.notesmakers.database.data.models.BitmapDrawableModel
 import com.notesmakers.database.data.models.PageOutputModel
 import com.notesmakers.database.data.models.PathDrawableModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import com.notesmakers.database.data.models.TextDrawableModel
 import com.notesmakers.network.data.api.ApiContent
 import com.notesmakers.network.data.api.ApiGetItem
@@ -13,6 +12,7 @@ import com.notesmakers.network.data.api.ApiPath
 import com.notesmakers.network.data.api.ApiPosition
 import com.notesmakers.network.data.api.ApiText
 import com.notesmakers.network.type.ItemType
+import com.notesmakers.noteapp.data.notes.api.BaseNote
 import com.notesmakers.noteapp.data.notes.api.BaseNotesInfo
 import com.notesmakers.noteapp.data.notes.local.Note
 import com.notesmakers.noteapp.data.notes.local.toApiNoteType
@@ -23,6 +23,7 @@ import com.notesmakers.noteapp.extension.formatZonedDateTimeToIsoString
 import com.notesmakers.noteapp.extension.parseStringToZonedDateTime
 import com.notesmakers.noteapp.extension.toTimestampDataType
 import com.notesmakers.noteapp.extension.zoneDateFromTimeStamp
+import com.notesmakers.noteapp.presentation.notes.creation.NoteMode
 import org.koin.core.annotation.Factory
 import java.util.UUID
 
@@ -51,236 +52,318 @@ class NotesSyncRepositoryImpl(
             //Match local and remote note
             apiNotes.find { noteLocal.remoteId == it.noteId }?.let { noteRemote ->
                 //Get Current Note form APi
-                val remoteDetailsNote = remoteDataSource.getNote(
-                    noteRemote.noteId!!
+                updateSingleNote(
+                    noteRemote = noteRemote,
+                    noteLocal = noteLocal,
+                    noteId = noteRemote.noteId!!,
                 )
-                if (noteLocal.modifiedAt.toLocalDateTime() > parseStringToZonedDateTime(noteRemote.modifiedAt as String).toLocalDateTime()) {
-                    //Update Remote <-
-                    remoteDataSource.updateNote(
-                        noteId = noteRemote.noteId,
-                        name = noteLocal.name,
-                        description = noteLocal.description,
-                    )
-                    //Add pages who not exist
-                    noteLocal.pages.filter { localItem ->
-                        remoteDetailsNote.pages.find {
-                            it.id == localItem.id
-                        } == null
-                    }.forEach { localPage ->
-                        remoteDataSource.addPage(
-                            noteId = remoteDetailsNote.id ?: noteRemote.noteId,
-                            pageId = localPage.id,
-                            createdAt = formatZonedDateTimeToIsoString(localPage.createdAt),
-                            createdBy = localPage.createdBy,
-                            modifiedAt = formatZonedDateTimeToIsoString(localPage.modifiedAt),
-                            modifiedBy = localPage.modifiedBy,
-                        )
-                    }
-                    //Add items to Page on Api who not exist
-                    noteLocal.pages.forEach { localPage ->
-                        remoteDetailsNote.pages.find { localPage.id == it.id }
-                            ?.let { remotePage ->
-                                localPage.bitmapDrawables.filter { localItem ->
-                                    remotePage.items?.find {
-                                        it?.id == localItem.id && it.type == ItemType.IMG
-                                    } == null
-                                }.forEach { bitmap ->
-                                    remoteDataSource.setBitmapUseCase(
-                                        noteId = noteLocal.remoteId ?: noteLocal.id,
-                                        itemId = bitmap.id,
-                                        base64String = bitmap.bitmap
-                                    )
-                                    remoteDataSource.addItem(
-                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
-                                        pageId = remotePage.id ?: localPage.id,
-                                        itemId = bitmap.id,
-                                        itemType = ItemType.IMG,
-                                        imgContent = ApiImg(
-                                            noteId = noteLocal.remoteId ?: noteLocal.id,
-                                            scale = bitmap.scale,
-                                            itemId = bitmap.id,
-                                        ),
-                                        pathContent = null,
-                                        textContent = null,
-                                        itemPosX = bitmap.offsetX.toDouble(),
-                                        itemPosY = bitmap.offsetY.toDouble(),
-                                        itemWidth = 0.0,
-                                        itemHeight = 0.0,
-                                        itemCreatedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
-                                        itemCreatedBy = getOwnerUseCase(),
-                                        itemModifiedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
-                                        itemModifiedBy = getOwnerUseCase(),
-                                        itemHash = "itemHash".hashCode().toString()
-                                    )
-                                }
-                                localPage.textDrawables.filter { localItem ->
-                                    remotePage.items?.find {
-                                        it?.id == localItem.id && it.type == ItemType.MD
-                                    } == null
-                                }.forEach { text ->
-                                    remoteDataSource.addItem(
-                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
-                                        pageId = remotePage.id ?: localPage.id,
-                                        itemId = text.id,
-                                        itemType = ItemType.MD,
-                                        imgContent = null,
-                                        pathContent = null,
-                                        textContent = ApiText(
-                                            text = text.text,
-                                            color = text.color
-                                        ),
-                                        itemPosX = text.offsetX.toDouble(),
-                                        itemPosY = text.offsetY.toDouble(),
-                                        itemWidth = 0.0,
-                                        itemHeight = 0.0,
-                                        itemCreatedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
-                                        itemCreatedBy = getOwnerUseCase(),
-                                        itemModifiedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
-                                        itemModifiedBy = getOwnerUseCase(),
-                                        itemHash = "itemHash".hashCode().toString()
-                                    )
-                                }
-                                localPage.pathDrawables.filter { localItem ->
-                                    remotePage.items?.find {
-                                        it?.id == localItem.id && it.type == ItemType.SVG
-                                    } == null
-                                }.forEach { path ->
-                                    remoteDataSource.addItem(
-                                        noteId = noteLocal.remoteId ?: noteRemote.noteId,
-                                        pageId = remotePage.id ?: localPage.id,
-                                        itemId = path.id,
-                                        itemType = ItemType.SVG,
-                                        imgContent = null,
-                                        pathContent = ApiPath(
-                                            strokeWidth = path.strokeWidth.toDouble(),
-                                            color = path.color,
-                                            alpha = path.alpha.toDouble(),
-                                            eraseMode = path.eraseMode,
-                                            path = path.path,
-                                        ),
-                                        textContent = null,
-                                        itemPosX = 0.0,
-                                        itemPosY = 0.0,
-                                        itemWidth = 0.0,
-                                        itemHeight = 0.0,
-                                        itemCreatedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
-                                        itemCreatedBy = getOwnerUseCase(),
-                                        itemModifiedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
-                                        itemModifiedBy = getOwnerUseCase(),
-                                        itemHash = "itemHash".hashCode().toString()
-                                    )
-                                }
+            }
+        }
+
+    }
+
+    private suspend fun NotesSyncRepositoryImpl.updateSingleNote(
+        noteRemote: BaseNotesInfo,
+        noteLocal: Note,
+        noteId: String,
+    ) {
+        val remoteDetailsNote = remoteDataSource.getNote(
+            noteRemote.noteId!!
+        )
+        updateQuickNote(
+            noteLocal = noteLocal,
+            remoteDetailsNote = remoteDetailsNote,
+            noteId = noteRemote.noteId
+        )
+
+        if (noteLocal.modifiedAt.toLocalDateTime() > parseStringToZonedDateTime(noteRemote.modifiedAt as String).toLocalDateTime()) {
+            updateRemoteNote(
+                noteLocal = noteLocal,
+                remoteDetailsNote = remoteDetailsNote,
+                noteId = noteId,
+                noteRemote = noteRemote.noteId
+            )
+        } else if (noteLocal.modifiedAt.toLocalDateTime() < parseStringToZonedDateTime(
+                noteRemote.modifiedAt
+            ).toLocalDateTime()
+        ) {
+            updateLocalNote(
+                noteLocal = noteLocal,
+                noteRemote = noteRemote,
+                remoteDetailsNote = remoteDetailsNote
+            )
+        }
+    }
+
+    private suspend fun updateLocalNote(
+        noteLocal: Note,
+        noteRemote: BaseNotesInfo,
+        remoteDetailsNote: BaseNote,
+    ) {
+        localDataSource.updateNote(
+            noteId = noteLocal.id,
+            name = noteRemote.name ?: noteLocal.name,
+            description = noteRemote.description ?: noteLocal.description,
+            modifiedAt = parseStringToZonedDateTime(noteRemote.modifiedAt as String).toInstant()
+                .toEpochMilli(),
+        )
+        //Update Local Database <-
+        //Add pages who not exist
+        remoteDetailsNote.pages.forEach { remotePage ->
+            noteLocal.pages.any {
+                it.id == remotePage.id
+            }.takeIf { it.not() }?.let {
+                localDataSource.addPage(
+                    noteId = noteLocal.id,
+                    pageId = remotePage.id!!,
+                    createdBy = remotePage.createdBy!!,
+                    createdAt = parseStringToZonedDateTime(remotePage.createdAt as String).toInstant()
+                        .toEpochMilli(),
+                    modifiedBy = remotePage.modifiedBy!!,
+                    modifiedAt = parseStringToZonedDateTime(remotePage.modifiedAt as String).toInstant()
+                        .toEpochMilli(),
+                )
+            }
+        }
+        //Add items to Page who not exist
+        remoteDetailsNote.pages.forEach { remotePage ->
+            //find local Page to update
+            noteLocal.pages.find { remotePage.id == it.id }?.let { localPage ->
+                //Update items Local
+                remotePage.items?.forEach { baseItem ->
+                    when (baseItem?.type) {
+                        ItemType.MD -> localPage.textDrawables.any { it.id == baseItem.id }
+                            .takeIf { it.not() }?.let {
+                                localDataSource.addTextItem(
+                                    id = baseItem.id ?: UUID.randomUUID().toString(),
+                                    createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
+                                        .toEpochMilli(),
+                                    pageId = remotePage.id!!,
+                                    text = baseItem.content?.onTextOutputType?.text
+                                        ?: "",
+                                    color = baseItem.content?.onTextOutputType?.color
+                                        ?: "#ff3b82f6",
+                                    offsetX = baseItem.position.posX?.toFloat() ?: 0f,
+                                    offsetY = baseItem.position.posY?.toFloat() ?: 0f,
+                                    noteId = noteLocal.id
+                                )
                             }
 
-                    }
-                } else if (noteLocal.modifiedAt.toLocalDateTime() < parseStringToZonedDateTime(
-                        noteRemote.modifiedAt
-                    ).toLocalDateTime()
-                ) {
-                    localDataSource.updateNote(
-                        noteId = noteLocal.id,
-                        name = noteRemote.name ?: noteLocal.name,
-                        description = noteRemote.description ?: noteLocal.description,
-                        modifiedAt = parseStringToZonedDateTime(noteRemote.modifiedAt).toInstant()
-                            .toEpochMilli(),
-                    )
-                    //Update Local Database <-
-                    //Add pages who not exist
-                    remoteDetailsNote.pages.forEach { remotePage ->
-                        noteLocal.pages.any {
-                            it.id == remotePage.id
-                        }.takeIf { it.not() }?.let {
-                            localDataSource.addPage(
-                                noteId = noteLocal.id,
-                                pageId = remotePage.id!!,
-                                createdBy = remotePage.createdBy!!,
-                                createdAt = parseStringToZonedDateTime(remotePage.createdAt as String).toInstant()
-                                    .toEpochMilli(),
-                                modifiedBy = remotePage.modifiedBy!!,
-                                modifiedAt = parseStringToZonedDateTime(remotePage.modifiedAt as String).toInstant()
-                                    .toEpochMilli(),
-                            )
-                        }
-                    }
-                    //Add items to Page who not exist
-                    remoteDetailsNote.pages.forEach { remotePage ->
-                        //find local Page to update
-                        noteLocal.pages.find { remotePage.id == it.id }?.let { localPage ->
-                            //Update items Local
-                            remotePage.items?.forEach { baseItem ->
-                                when (baseItem?.type) {
-                                    ItemType.MD -> localPage.textDrawables.any { it.id == baseItem.id }
-                                        .takeIf { it.not() }?.let {
-                                            localDataSource.addTextItem(
-                                                id = baseItem.id ?: UUID.randomUUID().toString(),
-                                                createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
-                                                    .toEpochMilli(),
-                                                pageId = remotePage.id!!,
-                                                text = baseItem.content?.onTextOutputType?.text
-                                                    ?: "",
-                                                color = baseItem.content?.onTextOutputType?.color
-                                                    ?: "#ff3b82f6",
-                                                offsetX = baseItem.position.posX?.toFloat() ?: 0f,
-                                                offsetY = baseItem.position.posY?.toFloat() ?: 0f,
-                                                noteId = noteLocal.id
-                                            )
-                                        }
-
-                                    ItemType.SVG -> localPage.pathDrawables.any { it.id == baseItem.id }
-                                        .takeIf { it.not() }?.let {
-                                            localDataSource.addPathItem(
-                                                id = baseItem.id ?: UUID.randomUUID().toString(),
-                                                createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
-                                                    .toEpochMilli(),
-                                                pageId = remotePage.id!!,
-                                                strokeWidth = baseItem.content?.onPathOutputType?.strokeWidth?.toFloat()
-                                                    ?: 0f,
-                                                color = baseItem.content?.onPathOutputType?.color
-                                                    ?: "#ff3b82f6",
-                                                alpha = baseItem.content?.onPathOutputType?.alpha?.toFloat()
-                                                    ?: 0f,
-                                                eraseMode = baseItem.content?.onPathOutputType?.eraseMode
-                                                    ?: false,
-                                                path = baseItem.content?.onPathOutputType?.path
-                                                    ?: "",
-                                                noteId = noteLocal.id
-                                            )
-                                        }
-
-                                    ItemType.IMG -> localPage.bitmapDrawables.any { it.id == baseItem.id }
-                                        .takeIf { it.not() }?.let {
-                                            localDataSource.addBitmapItem(
-                                                noteId = noteLocal.id,
-                                                id = baseItem.content?.onImgOutputType?.itemId
-                                                    ?: UUID.randomUUID().toString(),
-                                                createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
-                                                    .toEpochMilli(),
-                                                pageId = remotePage.id!!,
-                                                width = baseItem.position.width?.toInt() ?: 0,
-                                                height = baseItem.position.height?.toInt() ?: 0,
-                                                scale = baseItem.content?.onImgOutputType?.scale
-                                                    ?: 1f,
-                                                offsetX = baseItem.position.posX?.toFloat() ?: 0.0f,
-                                                offsetY = baseItem.position.posY?.toFloat() ?: 0.0f,
-                                                bitmap = remoteDataSource.getBitmapUseCase(
-                                                    baseItem.content?.onImgOutputType?.noteId
-                                                        ?: noteLocal.id,
-                                                    baseItem.content?.onImgOutputType?.itemId
-                                                        ?: baseItem.id!!,
-                                                ),
-                                                bitmapUrl = ""
-                                            )
-                                        }
-
-                                    else -> Unit
-                                }
+                        ItemType.SVG -> localPage.pathDrawables.any { it.id == baseItem.id }
+                            .takeIf { it.not() }?.let {
+                                localDataSource.addPathItem(
+                                    id = baseItem.id ?: UUID.randomUUID().toString(),
+                                    createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
+                                        .toEpochMilli(),
+                                    pageId = remotePage.id!!,
+                                    strokeWidth = baseItem.content?.onPathOutputType?.strokeWidth?.toFloat()
+                                        ?: 0f,
+                                    color = baseItem.content?.onPathOutputType?.color
+                                        ?: "#ff3b82f6",
+                                    alpha = baseItem.content?.onPathOutputType?.alpha?.toFloat()
+                                        ?: 0f,
+                                    eraseMode = baseItem.content?.onPathOutputType?.eraseMode
+                                        ?: false,
+                                    path = baseItem.content?.onPathOutputType?.path
+                                        ?: "",
+                                    noteId = noteLocal.id
+                                )
                             }
-                        }
+
+                        ItemType.IMG -> localPage.bitmapDrawables.any { it.id == baseItem.id }
+                            .takeIf { it.not() }?.let {
+                                localDataSource.addBitmapItem(
+                                    noteId = noteLocal.id,
+                                    id = baseItem.content?.onImgOutputType?.itemId
+                                        ?: UUID.randomUUID().toString(),
+                                    createdAt = parseStringToZonedDateTime(baseItem.modifiedAt as String).toInstant()
+                                        .toEpochMilli(),
+                                    pageId = remotePage.id!!,
+                                    width = baseItem.position.width?.toInt() ?: 0,
+                                    height = baseItem.position.height?.toInt() ?: 0,
+                                    scale = baseItem.content?.onImgOutputType?.scale
+                                        ?: 1f,
+                                    offsetX = baseItem.position.posX?.toFloat() ?: 0.0f,
+                                    offsetY = baseItem.position.posY?.toFloat() ?: 0.0f,
+                                    bitmap = remoteDataSource.getBitmapUseCase(
+                                        baseItem.content?.onImgOutputType?.noteId
+                                            ?: noteLocal.id,
+                                        baseItem.content?.onImgOutputType?.itemId
+                                            ?: baseItem.id!!,
+                                    ),
+                                    bitmapUrl = ""
+                                )
+                            }
+
+                        else -> Unit
                     }
                 }
             }
         }
+    }
 
+    private suspend fun updateRemoteNote(
+        noteLocal: Note,
+        remoteDetailsNote: BaseNote,
+        noteId: String,
+        noteRemote: String,
+    ) {
+        //Update Remote <-
+        remoteDataSource.updateNote(
+            noteId = noteRemote,
+            name = noteLocal.name,
+            description = noteLocal.description,
+        )
+
+        //Add pages who not exist
+        noteLocal.pages.filter { localItem ->
+            remoteDetailsNote.pages.find {
+                it.id == localItem.id
+            } == null
+        }.forEach { localPage ->
+            remoteDataSource.addPage(
+                noteId = remoteDetailsNote.id ?: noteId,
+                pageId = localPage.id,
+                createdAt = formatZonedDateTimeToIsoString(localPage.createdAt),
+                createdBy = localPage.createdBy,
+                modifiedAt = formatZonedDateTimeToIsoString(localPage.modifiedAt),
+                modifiedBy = localPage.modifiedBy,
+            )
+        }
+        //Add items to Page on Api who not exist
+        noteLocal.pages.forEach { localPage ->
+            remoteDetailsNote.pages.find { localPage.id == it.id }
+                ?.let { remotePage ->
+                    localPage.bitmapDrawables.filter { localItem ->
+                        remotePage.items?.find {
+                            it?.id == localItem.id && it.type == ItemType.IMG
+                        } == null
+                    }.forEach { bitmap ->
+                        remoteDataSource.setBitmapUseCase(
+                            noteId = noteLocal.remoteId ?: noteLocal.id,
+                            itemId = bitmap.id,
+                            base64String = bitmap.bitmap
+                        )
+                        remoteDataSource.addItem(
+                            noteId = noteLocal.remoteId ?: noteId,
+                            pageId = remotePage.id ?: localPage.id,
+                            itemId = bitmap.id,
+                            itemType = ItemType.IMG,
+                            imgContent = ApiImg(
+                                noteId = noteLocal.remoteId ?: noteLocal.id,
+                                scale = bitmap.scale,
+                                itemId = bitmap.id,
+                            ),
+                            pathContent = null,
+                            textContent = null,
+                            itemPosX = bitmap.offsetX.toDouble(),
+                            itemPosY = bitmap.offsetY.toDouble(),
+                            itemWidth = 0.0,
+                            itemHeight = 0.0,
+                            itemCreatedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
+                            itemCreatedBy = getOwnerUseCase(),
+                            itemModifiedAt = formatZonedDateTimeToIsoString(bitmap.createdAt.zoneDateFromTimeStamp()),
+                            itemModifiedBy = getOwnerUseCase(),
+                            itemHash = "itemHash".hashCode().toString()
+                        )
+                    }
+                    localPage.textDrawables.filter { localItem ->
+                        remotePage.items?.find {
+                            it?.id == localItem.id && it.type == ItemType.MD
+                        } == null
+                    }.forEach { text ->
+                        remoteDataSource.addItem(
+                            noteId = noteLocal.remoteId ?: noteId,
+                            pageId = remotePage.id ?: localPage.id,
+                            itemId = text.id,
+                            itemType = ItemType.MD,
+                            imgContent = null,
+                            pathContent = null,
+                            textContent = ApiText(
+                                text = text.text,
+                                color = text.color
+                            ),
+                            itemPosX = text.offsetX.toDouble(),
+                            itemPosY = text.offsetY.toDouble(),
+                            itemWidth = 0.0,
+                            itemHeight = 0.0,
+                            itemCreatedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
+                            itemCreatedBy = getOwnerUseCase(),
+                            itemModifiedAt = formatZonedDateTimeToIsoString(text.createdAt.zoneDateFromTimeStamp()),
+                            itemModifiedBy = getOwnerUseCase(),
+                            itemHash = "itemHash".hashCode().toString()
+                        )
+                    }
+                    localPage.pathDrawables.filter { localItem ->
+                        remotePage.items?.find {
+                            it?.id == localItem.id && it.type == ItemType.SVG
+                        } == null
+                    }.forEach { path ->
+                        remoteDataSource.addItem(
+                            noteId = noteLocal.remoteId ?: noteId,
+                            pageId = remotePage.id ?: localPage.id,
+                            itemId = path.id,
+                            itemType = ItemType.SVG,
+                            imgContent = null,
+                            pathContent = ApiPath(
+                                strokeWidth = path.strokeWidth.toDouble(),
+                                color = path.color,
+                                alpha = path.alpha.toDouble(),
+                                eraseMode = path.eraseMode,
+                                path = path.path,
+                            ),
+                            textContent = null,
+                            itemPosX = 0.0,
+                            itemPosY = 0.0,
+                            itemWidth = 0.0,
+                            itemHeight = 0.0,
+                            itemCreatedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
+                            itemCreatedBy = getOwnerUseCase(),
+                            itemModifiedAt = formatZonedDateTimeToIsoString(path.createdAt.zoneDateFromTimeStamp()),
+                            itemModifiedBy = getOwnerUseCase(),
+                            itemHash = "itemHash".hashCode().toString()
+                        )
+                    }
+                }
+
+        }
+    }
+
+    private suspend fun updateQuickNote(
+        noteLocal: Note,
+        remoteDetailsNote: BaseNote,
+        noteId: String
+    ) {
+        if (noteLocal.noteType == NoteMode.QUICK_NOTE.name) {
+            val remoteItem = remoteDetailsNote.pages.firstOrNull()?.items?.firstOrNull()
+                .takeIf { it?.type == ItemType.MD }
+            val localItem = noteLocal.pages.firstOrNull()?.textDrawables?.firstOrNull()
+
+            if (localItem?.text != remoteItem?.content?.onTextOutputType?.text) {
+                if (localItem?.createdAt?.zoneDateFromTimeStamp()
+                        ?.toLocalDateTime()!! > parseStringToZonedDateTime(
+                        remoteItem?.modifiedAt as String
+                    ).toLocalDateTime()
+                ) {
+                    remoteDataSource.updateItem(
+                        noteId = remoteDetailsNote.id ?: noteId,
+                        pageId = noteLocal.pages.first().id,
+                        itemId = localItem.id,
+                        text = localItem.text
+                    )
+                } else if (localItem.createdAt.zoneDateFromTimeStamp()
+                        .toLocalDateTime()!! < parseStringToZonedDateTime(
+                        remoteItem.modifiedAt
+                    ).toLocalDateTime()
+                ) {
+                    localDataSource.updateItem(
+                        noteId = noteLocal.id,
+                        modifiedAt = toTimestampDataType(remoteItem.modifiedAt),
+                        text = remoteItem.content?.onTextOutputType?.text ?: localItem.text,
+                    )
+                }
+            }
+        }
     }
 
     /**
@@ -492,7 +575,6 @@ class NotesSyncRepositoryImpl(
                         modifiedBy = getOwnerUseCase(),
                     )
                 ),
-                quickNote = QuickNoteModel(id = "", text = "")
             )
         }
     }

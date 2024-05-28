@@ -125,4 +125,15 @@ class NotesRemoteDataSource(
             description = description,
         )
     }
+
+    suspend fun updateItem(
+        noteId: String,
+        pageId: String,
+        itemId: String,
+        text: String,
+    ) = withContext(ioDispatcher) {
+        networkDomain.updateItem(
+            noteId = noteId, pageId = pageId, itemId = itemId, text = text
+        )
+    }
 }

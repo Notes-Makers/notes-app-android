@@ -14,6 +14,7 @@ import com.notesmakers.network.GetNoteQuery
 import com.notesmakers.network.GetNotesInfoQuery
 import com.notesmakers.network.GetPageQuery
 import com.notesmakers.network.GetPagesInfoQuery
+import com.notesmakers.network.UpdateItemMutation
 import com.notesmakers.network.UpdateNoteMutation
 import com.notesmakers.network.data.api.ApiGetPage
 import com.notesmakers.network.data.api.ApiImg
@@ -275,4 +276,11 @@ class ApolloNetworkClient(
             title = name,
         )
     ).execute()
+
+    suspend fun updateItem(noteId: String, pageId: String, itemId: String, text: String) =
+        apolloClient.mutation(
+            UpdateItemMutation(
+                noteId = noteId, pageId = pageId, id = itemId, text = text
+            )
+        ).execute()
 }

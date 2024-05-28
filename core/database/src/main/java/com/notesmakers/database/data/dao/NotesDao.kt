@@ -4,11 +4,9 @@ import com.notesmakers.database.data.entities.RealmBitmapDrawable
 import com.notesmakers.database.data.entities.RealmNote
 import com.notesmakers.database.data.entities.RealmPageOutput
 import com.notesmakers.database.data.entities.RealmPathDrawable
-import com.notesmakers.database.data.entities.RealmQuickNote
 import com.notesmakers.database.data.entities.RealmTextDrawable
 import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.database.data.models.PageOutputModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
@@ -49,7 +47,6 @@ class NotesDao(
         isShared: Boolean = false,
         isPinned: Boolean = false,
         tag: List<String> = listOf(),
-        quickNote: QuickNoteModel,
     ) = realm.write {
         copyToRealm(
             RealmNote(
@@ -65,7 +62,6 @@ class NotesDao(
                 isShared = isShared,
                 isPinned = isPinned,
                 tag = tag.toRealmList(),
-                realmQuickNote = RealmQuickNote(text = quickNote.text),
                 pages = pages.map { page ->
                     RealmPageOutput(
                         id = page.id,
@@ -335,11 +331,34 @@ class NotesDao(
         }
     }
 
-    suspend fun updateTextNote(noteId: String, text: String) = realm.write {
+    suspend fun updateTextNote(noteId: String, text: String, modifiedAt: Long?) = realm.write {
         val findRealmNote = query<RealmNote>("id == $0", noteId).first().find()
         findRealmNote?.apply {
-            this.realmQuickNote = RealmQuickNote(text = text)
+            this.pages.firstOrNull()?.let { page ->
+                if (page.textDrawables.isNotEmpty()) {
+                    val findedText =
+                        query<RealmTextDrawable>("id == $0", page.textDrawables.first().id).first()
+                            .find()
+                    findedText?.apply {
+                        this.text = text
+                        this.createdAt = modifiedAt ?: System.currentTimeMillis()
+                    }
+                } else {
+                    page.textDrawables.add(
+                        RealmTextDrawable(
+                            id = UUID.randomUUID().toString(),
+                            text = text,
+                            color = "#3DDC84",
+                            offsetX = 0f,
+                            offsetY = 0f,
+                            createdAt = modifiedAt ?: System.currentTimeMillis()
+                        )
+                    )
+                }
+
+            }
         }
+        findRealmNote?.pages?.firstOrNull()?.textDrawables?.firstOrNull()?.text
     }
 
     suspend fun updatePinned(noteId: String, isPinned: Boolean) = realm.write {

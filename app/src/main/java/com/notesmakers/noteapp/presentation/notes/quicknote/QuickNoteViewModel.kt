@@ -18,7 +18,9 @@ class QuickNoteViewModel(
     private val rewordTextUseCase: RewordTextUseCase,
     getNoteByIdUseCase: GetNoteByIdUseCase,
 ) : BaseViewModel() {
-    private val _noteState = MutableStateFlow(getNoteByIdUseCase(noteId))
+    private val _noteState = MutableStateFlow(
+        getNoteByIdUseCase(noteId)?.pages?.firstOrNull()?.textDrawables?.firstOrNull()?.text ?: ""
+    )
     val noteState = _noteState.asStateFlow()
 
     private val _aiState = MutableStateFlow<AiState>(AiState.None)
@@ -28,7 +30,7 @@ class QuickNoteViewModel(
         noteId: String,
         text: String,
     ) = viewModelScope.launch {
-        _noteState.value = updateTextNoteUseCase(noteId = noteId, text = text)
+        _noteState.value = updateTextNoteUseCase(noteId = noteId, text = text) ?: ""
     }
 
     fun rewordText(

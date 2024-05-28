@@ -82,6 +82,13 @@ interface NetworkDomain<Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> {
         description: String,
     )
 
+    suspend fun updateItem(
+        noteId: String,
+        pageId: String,
+        itemId: String,
+        text: String,
+    )
+
     companion object {
         fun <Note, NotesInfo, Item, ItemsInfo, Page, PagesInfo> createNetworkDomain(
             noteTransformer: (ApiGetNote) -> Note,

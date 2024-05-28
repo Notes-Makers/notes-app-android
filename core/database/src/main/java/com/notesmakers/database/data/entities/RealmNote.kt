@@ -27,7 +27,6 @@ class RealmNote() : RealmObject {
 
     var noteType: String = UNDEFINED
     var isPinned: Boolean = false
-    var realmQuickNote: RealmQuickNote? = RealmQuickNote()
 
     constructor(
         id: String = UUID.randomUUID().toString(),
@@ -44,8 +43,7 @@ class RealmNote() : RealmObject {
         isShared: Boolean = false,
         isPinned: Boolean = false,
         tag: RealmList<String> = realmListOf(),
-        realmQuickNote: RealmQuickNote = RealmQuickNote(),
-    ) : this() {
+     ) : this() {
         this.id = id
         this.remoteNoteId = remoteNoteId
         this.name = name
@@ -60,6 +58,5 @@ class RealmNote() : RealmObject {
         this.isShared = isShared
         this.isPinned = isPinned
         this.tag = tag
-        this.realmQuickNote = realmQuickNote
     }
 }

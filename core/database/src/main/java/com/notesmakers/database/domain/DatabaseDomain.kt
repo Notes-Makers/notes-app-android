@@ -5,7 +5,6 @@ import com.notesmakers.database.data.dao.NotesDao
 import com.notesmakers.database.data.entities.UNDEFINED
 import com.notesmakers.database.data.models.DomainNoteModel
 import com.notesmakers.database.data.models.PageOutputModel
-import com.notesmakers.database.data.models.QuickNoteModel
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -32,7 +31,6 @@ interface DatabaseDomain<Note> {
         isShared: Boolean = false,
         isPinned: Boolean = false,
         tag: List<String> = listOf(),
-        quickNote: QuickNoteModel,
     ): Note
 
     suspend fun addTextDrawableToNote(
@@ -100,7 +98,8 @@ interface DatabaseDomain<Note> {
     suspend fun updateTextNote(
         noteId: String,
         text: String,
-    ): Note?
+        modifiedAt: Long? = System.currentTimeMillis(),
+    ): String?
 
     suspend fun updatePinned(
         noteId: String,

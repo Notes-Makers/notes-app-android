@@ -146,10 +146,12 @@ fun HomeScreen(
                 innerPadding = innerPadding,
                 notes = viewModel.notesEventFlow.collectAsStateWithLifecycle().value.reversed(),
                 navToNote = { noteID, noteType ->
-                    when (noteType.toNoteDrawableType()) {
-                        NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
-                        NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
-                        NoteDrawableType.UNDEFINED -> Unit
+                    viewModel.checkIsUserNoteOrGuest(noteID) {
+                        when (noteType.toNoteDrawableType()) {
+                            NoteDrawableType.QUICK_NOTE -> navigator.navToQuickNoteScreen(noteID)
+                            NoteDrawableType.PAINT_NOTE -> navigator.navToPaintNote(noteID)
+                            NoteDrawableType.UNDEFINED -> Unit
+                        }
                     }
                 },
                 onNoteSelected = {
