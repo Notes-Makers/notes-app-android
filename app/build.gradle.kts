@@ -53,10 +53,19 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(project(":core:ai"))
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.raamcosta.destinations.animations)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("io.insert-koin:koin-androidx-compose:3.4.1")
-    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc04")
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.richeditor.compose)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+
+    testImplementation(libs.mockk)
+    androidTestImplementation (libs.mockk.android)
+    testImplementation (libs.mockk.agent)
+    testImplementation (libs.kotlinx.coroutines.test)
 }
